@@ -14,7 +14,15 @@ I am planning on using that example to have a testing environment from which I c
 
 Once that works, I will create a second mode for the robot, for when the code runs live on the actual robot instead of a Webots simulation.
 
-## Running the Testing simulation
+## NEXTUP:
+- Modify current workflow for Webots, including everything needed to run the code on simulation mode
+- Add a second, testing, mode, where only code is tested.
+- Add a third, live, mode, where the code is run at the physical robot
+
+## Actual docs
+The following comes from the original Repo (see above) until I get to adapt it.
+
+### Simulation Mode
 
 1. Download and install [Webots](https://cyberbotics.com) for your operating system
 1. Install [Rust](https://www.rust-lang.org/learn/get-started) if you haven't already
@@ -27,7 +35,7 @@ You should see "The Rust controller has started" in the Webots console.
 
 To make changes to the controller, you can edit `src/main.rs` and then run `make` again. You might need to reset the simulation (File > Reset Simulation) or restart Webots to use the updated code.
 
-## How this works
+### How this works
 
 At compile time, we use [bindgen](https://github.com/rust-lang/rust-bindgen) to convert a list of Webots C header files (see `wrapper.h`) into Rust structures and types. Those types form a bridge between the Rust-based controller code and the Webots C library that does the hard work of interacting with the simulation engine. See `build.rs` for more details.
 
