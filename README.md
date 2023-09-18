@@ -15,9 +15,13 @@ I am planning on using that example to have a testing environment from which I c
 Once that works, I will create a second mode for the robot, for when the code runs live on the actual robot instead of a Webots simulation.
 
 ## NEXTUP:
-- Modify current workflow for Webots, including everything needed to run the code on simulation mode
-- Add a second, testing, mode, where only code is tested.
-- Add a third, live, mode, where the code is run at the physical robot
+- Mirror the simulate code to make it run on a physical robot.
+- Generate tests for everything (except maybe the simulation part).
+
+## DONE :
+- Modified current workflow for Webots, including everything needed to run the code on simulation mode under make simulate
+- Added test mode, where only code is tested.
+- Added run mode, where the code is run at the physical robot.
 
 ## Actual docs
 The following comes from the original Repo (see above) until I get to adapt it.

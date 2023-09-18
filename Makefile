@@ -1,16 +1,30 @@
-all: build
+all: simulate
 
-.PHONY: build
-build:
-	cargo build
-	mkdir -p sample_project/controllers/rust_controller/
-	cp target/debug/webots-rs sample_project/controllers/rust_controller/rust_controller
-
+.PHONY:run 
+run:
+	cargo build --features run
 	@echo
-	@echo Done. Now you can run the simulation in Webots.
+	@echo Build for Robot Done.
+	target/debug/homebot
+
+.PHONY:test
+test:
+	cargo build --features test
+	@echo
+	@echo Build for Robot Done.
+
+.PHONY: simulate
+simulate: 
+	cargo build --features simulate
+	@echo
+	@echo Build for Simulation Done.
+	mkdir -p simulation/controllers/rust_controller/
+	cp target/debug/homebot simulation/controllers/rust_controller/rust_controller
+	webots simulation/worlds/homebot_simulation_world.wbt
+
 
 .PHONY: clean
 clean:
 	cargo clean
 	rm -f src/bindings.rs
-	rm -rf sample_project/controllers/rust_controller/
+	rm -rf simulation/controllers/rust_controller/

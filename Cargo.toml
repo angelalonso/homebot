@@ -4,4 +4,11 @@ version = "0.0.1"
 edition = "2018"
 
 [build-dependencies]
-bindgen = "0.59"
+bindgen = { version = "0.59", optional = true }
+
+
+[features]
+
+simulate = ["dep:bindgen"]
+run = []
+test = []

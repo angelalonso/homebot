@@ -148,6 +148,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "homebot"
+version = "0.0.1"
+dependencies = [
+ "bindgen",
+]
+
+[[package]]
 name = "humantime"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -320,13 +327,6 @@ name = "version_check"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5fecdca9a5291cc2b8dcf7dc02453fee791a280f3743cb0905f8822ae463b3fe"
-
-[[package]]
-name = "webots-rs"
-version = "0.1.0"
-dependencies = [
- "bindgen",
-]
 
 [[package]]
 name = "which"
