@@ -4,19 +4,19 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/factory/containers/protos/WoodenBox.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/gctronic/e-puck/protos/E-puck.proto"
 
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.5815306848992189 0.57703964937335 0.5734520952718951 2.108653537662431
-  position 0.13715841637250828 0.09886616269012785 1.2338366189560475
+  orientation 0.4236183463073715 -0.2250168030329799 -0.877447967132311 4.736150836869191
+  position -0.060625011005813356 -1.0291933359913663 0.6646009514987928
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
 RectangleArena {
+  floorSize 2 2
   floorTileSize 0.25 0.25
   wallHeight 0.05
 }
@@ -34,6 +34,130 @@ WoodenBox {
   name "wooden box(1)"
   size 0.1 0.1 0.1
 }
-E-puck {
+Robot {
+  children [
+    Solid {
+      translation 0 -0.155 0.15
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.9 0.6 0.5
+            roughness 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.21 0.05 0.05
+          }
+        }
+      ]
+      name "solid(2)"
+    }
+    BallJoint {
+      jointParameters BallJointParameters {
+        anchor 0 0.14 0.016
+      }
+      jointParameters2 JointParameters {
+      }
+      jointParameters3 JointParameters {
+        axis 0 1 0
+      }
+      endPoint Solid {
+        translation 0 0.14 0.016
+        children [
+          DEF caster Shape {
+            appearance PBRAppearance {
+              roughness 1
+              metalness 0
+            }
+            geometry Sphere {
+              radius 0.015
+            }
+          }
+        ]
+        name "solid(1)"
+        boundingObject USE caster
+        physics Physics {
+        }
+      }
+    }
+    DEF left_hinge HingeJoint {
+      jointParameters HingeJointParameters {
+        anchor -0.119 -0.145 0.0325
+      }
+      device [
+        DEF left_wheel_motor RotationalMotor {
+          name "left_wheel_motor"
+        }
+      ]
+      endPoint Solid {
+        translation -0.119 -0.145 0.0325
+        rotation 0 1 0 1.57
+        children [
+          DEF left_wheel Shape {
+            appearance PBRAppearance {
+              baseColor 0 0 0
+              roughness 1
+              metalness 0
+            }
+            geometry Cylinder {
+              height 0.025
+              radius 0.0325
+            }
+          }
+        ]
+        boundingObject USE left_wheel
+        physics DEF left_wheel_physics Physics {
+        }
+      }
+    }
+    DEF robot_main Pose {
+      translation 0 0 0.08
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 1 0.7 0.6
+            roughness 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.21 0.32 0.09
+          }
+        }
+      ]
+    }
+    DEF right_hinge HingeJoint {
+      jointParameters HingeJointParameters {
+        anchor 0.119 -0.145 0.0325
+      }
+      device [
+        DEF right_wheel_motor RotationalMotor {
+          name "right_wheel_motor"
+        }
+      ]
+      endPoint Solid {
+        translation 0.1195 -0.145 0.0325
+        rotation 0 1 0 1.57
+        children [
+          DEF right_wheel Shape {
+            appearance PBRAppearance {
+              baseColor 0 0 0
+              roughness 1
+              metalness 0
+            }
+            geometry Cylinder {
+              height 0.025
+              radius 0.0325
+            }
+          }
+        ]
+        boundingObject USE right_wheel
+        physics DEF right_wheel_physics Physics {
+        }
+      }
+    }
+  ]
+  boundingObject USE robot_main
+  physics Physics {
+  }
   controller "rust_controller"
 }

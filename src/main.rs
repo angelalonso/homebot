@@ -20,8 +20,8 @@ fn main() {
         })
         .collect();
 
-    let left_motor = homebot::wb_robot_get_device("left wheel motor");
-    let right_motor = homebot::wb_robot_get_device("right wheel motor");
+    let left_motor = homebot::wb_robot_get_device("left_wheel_motor");
+    let right_motor = homebot::wb_robot_get_device("right_wheel_motor");
     homebot::wb_motor_set_position(left_motor, INFINITY);
     homebot::wb_motor_set_position(right_motor, INFINITY);
 
@@ -29,6 +29,7 @@ fn main() {
     homebot::wb_motor_set_velocity(right_motor, 0.1 * MAX_SPEED);
 
     loop {
+        println!("---------------------------------");
         if homebot::wb_robot_step(TIME_STEP) == -1 {
             break;
         }
