@@ -11,4 +11,3 @@ bindgen = { version = "0.59", optional = true }
 
 simulate = ["dep:bindgen"]
 run = []
-test = []

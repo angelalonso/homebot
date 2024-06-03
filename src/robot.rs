@@ -1,3 +1,3 @@
 pub fn robot_init() {
-    println!("INIT");
+    println!("ROBOT INIT");
 }

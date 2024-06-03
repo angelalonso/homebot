@@ -8,8 +8,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 WorldInfo {
 }
 Viewpoint {
-  orientation 0.4236183463073715 -0.2250168030329799 -0.877447967132311 4.736150836869191
-  position -0.060625011005813356 -1.0291933359913663 0.6646009514987928
+  orientation -0.113501879023769 -0.27672938203167746 0.9542212388007508 4.422592376966061
+  position 0.1646736947505142 0.7540516214123314 0.6680206602035884
 }
 TexturedBackground {
 }
@@ -25,9 +25,9 @@ WoodenBox {
   size 0.1 0.1 0.1
 }
 WoodenBox {
-  translation -0.365046 -0.358871 0.05
+  translation -0.365046 -0.9 0.05
   name "wooden box(2)"
-  size 0.1 0.1 0.1
+  size 1.1 0.01 0.3
 }
 WoodenBox {
   translation 0.394954 0.381129 0.05
@@ -36,6 +36,25 @@ WoodenBox {
 }
 Robot {
   children [
+    DistanceSensor {
+      translation 0 -0.18 0.17
+      rotation 0 0 1 -1.57
+      children [
+        DEF sensor_eyes Shape {
+          appearance PBRAppearance {
+            baseColor 0 0 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.02 0.05 0.02
+          }
+        }
+      ]
+      name "distance_sensor_eyes"
+      boundingObject USE sensor_eyes
+      physics Physics {
+      }
+    }
     Solid {
       translation 0 -0.155 0.15
       children [
@@ -105,6 +124,7 @@ Robot {
             }
           }
         ]
+        name "left_hinge_solid"
         boundingObject USE left_wheel
         physics DEF left_wheel_physics Physics {
         }
@@ -150,6 +170,7 @@ Robot {
             }
           }
         ]
+        name "right_hinge_solid"
         boundingObject USE right_wheel
         physics DEF right_wheel_physics Physics {
         }

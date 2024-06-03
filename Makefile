@@ -1,10 +1,13 @@
 all: simulate
 
-.PHONY:run 
+.PHONY:build 
 run:
 	cargo build --features run
 	@echo
 	@echo Build for Robot Done.
+
+.PHONY:run 
+run:
 	target/debug/homebot
 
 .PHONY:test
@@ -13,7 +16,7 @@ test:
 	@echo
 	@echo Build for Robot Done.
 
-.PHONY: simulate
+.PHONY:simulate
 simulate: 
 	cargo build --features simulate
 	@echo
@@ -23,7 +26,7 @@ simulate:
 	webots simulation/worlds/homebot_simulation_world.wbt
 
 
-.PHONY: clean
+.PHONY:clean
 clean:
 	cargo clean
 	rm -f src/bindings.rs
