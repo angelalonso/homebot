@@ -1,11 +1,17 @@
 #[cfg(feature = "simulate")]
 use homebot::bindings::WbDeviceTag;
 
+use std::time::SystemTime;
+
+use homebot::movement;
+
 #[cfg(feature = "simulate")]
 fn main() {
     const INFINITY: f64 = 1.0 / 0.0;
     const MAX_SPEED: f64 = 6.28;
     const TIME_STEP: i32 = 64;
+
+    let start_timestamp: SystemTime = SystemTime::now();
 
     println!("Rust controller has started - SIMULATION");
     homebot::wb_robot_init();
@@ -29,7 +35,11 @@ fn main() {
     homebot::wb_motor_set_velocity(right_motor, 0.1 * MAX_SPEED);
 
     loop {
-        println!("---------------------------------");
+        let timestamp = start_timestamp
+            .elapsed()
+            .expect("Error retrieving time since start");
+        println!("{:#?}", timestamp);
+
         if homebot::wb_robot_step(TIME_STEP) == -1 {
             break;
         }
@@ -39,20 +49,9 @@ fn main() {
             .map(|sensor| homebot::wb_distance_sensor_get_value(*sensor))
             .collect();
 
-        println!("----- {}", distance_values[0]);
-        // detect obsctacles
-        let front_obstacle = distance_values[0] < 1000.0;
-
-        // initialize motor speeds at 50% of MAX_SPEED.
-        let mut left_speed = 0.5 * MAX_SPEED;
-        let mut right_speed = 0.5 * MAX_SPEED;
-
-        // modify speeds according to obstacles
-        if front_obstacle {
-            // turn left
-            left_speed = 0.0 * MAX_SPEED;
-            right_speed = -0.1 * MAX_SPEED;
-        }
+        let (left_speed, right_speed) = movement::get_speed(distance_values.clone());
+        let m = movement::get(distance_values.clone(), timestamp);
+        println!("{:#?}", m);
 
         // write actuators inputs
         homebot::wb_motor_set_velocity(left_motor, left_speed);

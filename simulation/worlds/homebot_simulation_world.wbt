@@ -8,8 +8,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.113501879023769 -0.27672938203167746 0.9542212388007508 4.422592376966061
-  position 0.1646736947505142 0.7540516214123314 0.6680206602035884
+  orientation -0.2832895402960473 -0.40763245969353423 0.8680914779924138 4.312357858868245
+  position 0.18177832033129782 0.3258029132101843 1.2450976526197735
 }
 TexturedBackground {
 }
@@ -54,6 +54,10 @@ Robot {
       boundingObject USE sensor_eyes
       physics Physics {
       }
+      lookupTable [
+        0 0 0
+        0.2 2000 0
+      ]
     }
     Solid {
       translation 0 -0.155 0.15

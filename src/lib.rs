@@ -1,3 +1,5 @@
+pub mod movement;
+
 #[cfg(feature = "simulate")]
 pub mod bindings {
     #![allow(non_upper_case_globals)]
