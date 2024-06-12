@@ -1,4 +1,5 @@
 pub mod movement;
+pub mod queue;
 
 #[cfg(feature = "simulate")]
 pub mod bindings {

@@ -1,11 +1,11 @@
 use std::time::Duration;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Move {
-    left_speed: f64,
-    right_speed: f64,
-    millis: i64,
-    started_at: Duration,
+    pub left_speed: f64,
+    pub right_speed: f64,
+    pub millis: u128,
+    pub started_at: u128,
 }
 
 pub fn get_speed(distance_sensors: Vec<f64>) -> (f64, f64) {
@@ -25,7 +25,7 @@ pub fn get(distance_sensors: Vec<f64>, ts: Duration) -> Option<Move> {
             left_speed: 0.0,
             right_speed: -0.1,
             millis: 1000,
-            started_at: ts,
+            started_at: ts.as_millis(),
         };
         return Some(m);
     } else {

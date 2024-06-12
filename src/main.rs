@@ -4,6 +4,7 @@ use homebot::bindings::WbDeviceTag;
 use std::time::SystemTime;
 
 use homebot::movement;
+use homebot::queue;
 
 #[cfg(feature = "simulate")]
 fn main() {
@@ -11,11 +12,14 @@ fn main() {
     const MAX_SPEED: f64 = 6.28;
     const TIME_STEP: i32 = 64;
 
+    // Time and Action controller
     let start_timestamp: SystemTime = SystemTime::now();
+    let mut act_q = queue::Queue { actions: vec![] };
+    act_q.load_test();
 
+    // Robot and sensor initialize
     println!("Rust controller has started - SIMULATION");
     homebot::wb_robot_init();
-
     let distance_sensor_names = vec!["distance_sensor_eyes"];
     let distance_sensors: Vec<WbDeviceTag> = distance_sensor_names
         .iter()
@@ -25,33 +29,37 @@ fn main() {
             sensor
         })
         .collect();
-
     let left_motor = homebot::wb_robot_get_device("left_wheel_motor");
     let right_motor = homebot::wb_robot_get_device("right_wheel_motor");
     homebot::wb_motor_set_position(left_motor, INFINITY);
     homebot::wb_motor_set_position(right_motor, INFINITY);
-
     homebot::wb_motor_set_velocity(left_motor, 0.1 * MAX_SPEED);
     homebot::wb_motor_set_velocity(right_motor, 0.1 * MAX_SPEED);
 
     loop {
+        // Each iteration is marked by a timestamp
         let timestamp = start_timestamp
             .elapsed()
             .expect("Error retrieving time since start");
-        println!("{:#?}", timestamp);
-
         if homebot::wb_robot_step(TIME_STEP) == -1 {
             break;
         }
 
+        // Get values from sensors
         let distance_values: Vec<f64> = distance_sensors
             .iter()
             .map(|sensor| homebot::wb_distance_sensor_get_value(*sensor))
             .collect();
 
+        // Defince actions from sensor values
         let (left_speed, right_speed) = movement::get_speed(distance_values.clone());
-        let m = movement::get(distance_values.clone(), timestamp);
-        println!("{:#?}", m);
+        match movement::get(distance_values.clone(), timestamp) {
+            //Some(mv) => act_q.add(mv),
+            Some(mv) => (),
+            None => (),
+        };
+        // TODO: make sure actions remain until they reach their end
+        let current_actions = act_q.get_current(timestamp);
 
         // write actuators inputs
         homebot::wb_motor_set_velocity(left_motor, left_speed);
@@ -61,6 +69,7 @@ fn main() {
     homebot::wb_robot_cleanup();
 }
 
+// TO BE DONE
 #[cfg(not(feature = "simulate"))]
 use homebot::robot;
 
