@@ -14,9 +14,8 @@ fn main() {
 
     // Time and Action controller
     let start_timestamp: SystemTime = SystemTime::now();
-    let mut act_future = queue::Queue { actions: vec![] };
-    let mut act_current = vec![];
-    act_future.load_test();
+    let mut actions_queue = queue::Queue::new();
+    actions_queue.load_test();
 
     // Robot and sensor initialize
     println!("Rust controller has started - SIMULATION");
@@ -55,14 +54,14 @@ fn main() {
         // Defince actions from sensor values
         let (left_speed, right_speed) = movement::get_speed(distance_values.clone());
         match movement::get(distance_values.clone(), timestamp) {
-            //Some(mv) => act_future.add(mv),
+            //Some(mv) => actions_queue.add(mv),
             Some(_mv) => (),
             None => (),
         };
-        act_current = act_future.get_current(timestamp, act_current.clone());
+        actions_queue.get_current(timestamp);
         println!("----------------- {:#?} ", timestamp);
-        println!(" future {:#?} ", act_future.actions.len());
-        println!(" current {:#?} ", act_current.len());
+        println!(" future {:#?} ", actions_queue.next_actions.len());
+        println!(" current {:#?} ", actions_queue.now_actions.len());
 
         // write actuators inputs
         homebot::wb_motor_set_velocity(left_motor, left_speed);

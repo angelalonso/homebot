@@ -4,49 +4,52 @@ use std::time::Duration;
 
 #[derive(Debug)]
 pub struct Queue {
-    pub actions: Vec<Move>, // TODO: this should be all sorts of actions
+    pub now_actions: Vec<Move>,  // TODO: this should be all sorts of actions
+    pub next_actions: Vec<Move>, // TODO: this should be all sorts of actions
 }
 
 impl Queue {
     pub fn new() -> Queue {
-        Queue { actions: vec![] }
+        Queue {
+            now_actions: vec![],
+            next_actions: vec![],
+        }
     }
 
     pub fn add(&mut self, m: Move) {
-        self.actions.push(m);
+        self.next_actions.push(m);
     }
 
-    pub fn get_current(&mut self, ts: Duration, curr: Vec<Move>) -> Vec<Move> {
-        let mut result: Vec<Move> = vec![];
+    pub fn get_current(&mut self, ts: Duration) {
         match &self
-            .actions
+            .next_actions
             .iter()
             .position(|x| ts.as_millis() > x.started_at)
         {
             Some(ix) => {
-                result.push(self.actions[*ix]);
-                let _ = &self.actions.remove(*ix);
+                self.now_actions.push(self.next_actions[*ix]);
+                let _ = &self.next_actions.remove(*ix);
             }
             None => (),
         };
-        match &curr
+        match &self
+            .now_actions
             .iter()
-            .position(|x| ts.as_millis() < x.started_at + x.millis)
+            .position(|x| ts.as_millis() > x.started_at + x.millis)
         {
             Some(ix) => {
-                result.push(curr[*ix]);
+                self.now_actions.remove(*ix);
             }
             None => (),
         };
-        result
     }
 
     pub fn list(&self) {
-        println!("{:#?}", self.actions)
+        println!("{:#?}", self.next_actions)
     }
 
     pub fn get_all(&self) -> Vec<Move> {
-        self.actions.clone()
+        self.next_actions.clone()
     }
 
     pub fn load_test(&mut self) {
@@ -56,27 +59,27 @@ impl Queue {
             millis: 2000,
             started_at: 1000,
         };
-        //let m2 = Move {
-        //    left_speed: 0.0,
-        //    right_speed: -0.1,
-        //    millis: 2000,
-        //    started_at: 3000,
-        //};
-        //let m3 = Move {
-        //    left_speed: 0.0,
-        //    right_speed: -0.1,
-        //    millis: 2000,
-        //    started_at: 4000,
-        //};
-        //let m4 = Move {
-        //    left_speed: 0.0,
-        //    right_speed: -0.1,
-        //    millis: 3000,
-        //    started_at: 7000,
-        //};
-        self.actions.push(m1);
-        //self.actions.push(m2);
-        //self.actions.push(m3);
-        //self.actions.push(m4);
+        let m2 = Move {
+            left_speed: 0.0,
+            right_speed: -0.1,
+            millis: 2000,
+            started_at: 3000,
+        };
+        let m3 = Move {
+            left_speed: 0.0,
+            right_speed: -0.1,
+            millis: 2000,
+            started_at: 4000,
+        };
+        let m4 = Move {
+            left_speed: 0.0,
+            right_speed: -0.1,
+            millis: 3000,
+            started_at: 7000,
+        };
+        self.next_actions.push(m1);
+        self.next_actions.push(m2);
+        self.next_actions.push(m3);
+        self.next_actions.push(m4);
     }
 }
