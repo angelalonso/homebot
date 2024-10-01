@@ -1,0 +1,5 @@
+---
+LOGLEVEL: "debug" # "debug" "info" "warn" "error"
+INFINITY: "inf"
+TIME_STEP: "64"
+MAX_SPEED: "6.28"

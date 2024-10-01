@@ -1,0 +1,4 @@
+- Speed goes from -1 to 1, config says multiplier factor.
+- Append actions from sensors
+- Move device functions to clibot
+
