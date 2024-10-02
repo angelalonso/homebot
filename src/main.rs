@@ -41,7 +41,7 @@ fn main() {
         Ok(cfg) => {
             let log = loggin::Log::init(cfg["LOGLEVEL"].clone());
             log.info(&format!("- Mode: CLI Simulation"));
-            match clisimulate::run(log, cfg) {
+            match clisimulate::run(log.clone(), cfg) {
                 Ok(()) => (),
                 Err(ec) => {
                     log.err(&format!("ERROR running CLI simulation: {:#?}", ec));

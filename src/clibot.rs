@@ -1,3 +1,5 @@
+use crate::loggin::Log;
+
 #[derive(Clone)]
 pub struct DeviceTag {
     pub name: String,
@@ -75,7 +77,7 @@ impl Clibot {
         return 0;
     }
 
-    pub fn cleanup(&self) {
+    pub fn cleanup(&self, log: Log) {
         log.info("Clean up Bot");
     }
 
@@ -122,6 +124,6 @@ impl Clibot {
     }
 }
 
-pub fn distance_sensor_enable(sensor: DeviceTag, _timestep: i32) {
-    log.info(format!("Sensor {} enabled", sensor.name));
+pub fn distance_sensor_enable(log: Log, sensor: DeviceTag, _timestep: i32) {
+    log.info(&format!("Sensor {} enabled", sensor.name));
 }

@@ -22,7 +22,7 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
         .iter()
         .map(|name| {
             let sensor: DeviceTag = bot.get_device(name.to_string());
-            distance_sensor_enable(sensor.clone(), time_step);
+            distance_sensor_enable(log.clone(), sensor.clone(), time_step);
             sensor
         })
         .collect();
@@ -61,6 +61,6 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
         right_motor.set_velocity(right_speed);
     }
 
-    bot.cleanup();
+    bot.cleanup(log);
     Ok(())
 }
