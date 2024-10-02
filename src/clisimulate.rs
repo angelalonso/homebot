@@ -1,6 +1,7 @@
 use crate::clibot::{distance_sensor_enable, Clibot, DeviceTag};
 use std::collections::BTreeMap;
 use std::time::SystemTime;
+use std::{thread, time};
 
 use crate::brain::Brain;
 use crate::loggin::Log;
@@ -44,6 +45,8 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
             .expect("Error retrieving time since start");
         if bot.step(time_step) == -1 {
             break;
+        } else {
+            thread::sleep(time::Duration::from_secs(1));
         }
 
         // Get values from sensors
