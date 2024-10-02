@@ -49,19 +49,26 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
             thread::sleep(time::Duration::from_secs(1));
         }
 
-        // Get values from sensors
-        let distance_values: Vec<f64> = distance_sensors
-            .iter()
-            .map(|sensor| sensor.get_sensor_value())
-            .collect();
+        // TODO:
+        // Create queues for Input and Output, 
+        //   read them on refresh
+        //   then read the sensors if needed,
+        //   and actuate on the motors if needed.
 
-        // Define actions from sensor values
-        let (left_speed, right_speed) =
-            brain.refresh(log.clone(), timestamp, distance_values.clone());
+        // OLD METHOD
+        //// Get values from sensors
+        //let distance_values: Vec<f64> = distance_sensors
+        //    .iter()
+        //    .map(|sensor| sensor.get_sensor_value())
+        //    .collect();
 
-        // write actuators inputs
-        left_motor.set_velocity(left_speed);
-        right_motor.set_velocity(right_speed);
+        //// Define actions from sensor values
+        //let (left_speed, right_speed) =
+        //    brain.refresh(log.clone(), timestamp, distance_values.clone());
+
+        //// write actuators inputs
+        //left_motor.set_velocity(left_speed);
+        //right_motor.set_velocity(right_speed);
     }
 
     bot.cleanup(log);
