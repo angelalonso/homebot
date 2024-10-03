@@ -4,8 +4,8 @@ pub mod queue;
 
 #[cfg(not(feature = "simulate"))]
 pub mod clibot;
-#[cfg(not(feature = "simulate"))]
-pub mod clisimulate;
+// //#[cfg(not(feature = "simulate"))]
+// //pub mod clisimulate;
 #[cfg(feature = "simulate")]
 pub mod simulate;
 
@@ -23,7 +23,7 @@ use bindings::WbDeviceTag;
 #[cfg(feature = "simulate")]
 use std::ffi::CString;
 
-// the clisimulate alternatives are on clibot.rs
+// ////the clisimulate alternatives are on clibot.rs
 
 #[cfg(feature = "simulate")]
 pub fn wb_distance_sensor_enable(tag: WbDeviceTag, sampling_period: i32) {
@@ -68,4 +68,15 @@ pub fn wb_robot_init() {
 #[cfg(feature = "simulate")]
 pub fn wb_robot_step(step: i32) -> i32 {
     unsafe { crate::bindings::wb_robot_step(step) }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::queue::add;
+
+    #[test]
+    fn it_works() {
+        let result = add(2, 2);
+        assert_eq!(result, 4);
+    }
 }

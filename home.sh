@@ -24,7 +24,7 @@ check_mode() {
   fi
   
   # If we have access to Internet, it will rebuild in any case, if not, it will take the latest build
-  test_online
+  #test_online
 }
 
 
@@ -40,8 +40,8 @@ elif [[ ${MODE} == "simulate" ]]; then
 	cp target/debug/homebot simulation/controllers/rust_controller/rust_controller
 	cp cfg.yaml simulation/controllers/rust_controller/
 	webots simulation/worlds/homebot_simulation_world.wbt
-elif [[ ${MODE} == "clisimulate" ]]; then
-  cargo run --features $MODE
+elif [[ ${MODE} == "test" ]]; then
+  cargo test
 else
   echo ${MODE} NOT RECOGNIZED
 fi

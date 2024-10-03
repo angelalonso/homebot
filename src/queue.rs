@@ -1,6 +1,16 @@
 use std::time::Duration;
 
 #[derive(Debug, Clone, Copy)]
+pub struct Action {
+    pub finished: bool,
+}
+
+#[derive(Debug, Clone)]
+pub struct CompositeAction {
+    pub actions: Vec<Action>,
+}
+
+#[derive(Debug, Clone, Copy)]
 pub struct Move {
     pub left_speed: f64,
     pub right_speed: f64,
@@ -125,4 +135,8 @@ impl Queue {
         //self.incoming.push(m3);
         //self.incoming.push(m4);
     }
+}
+
+pub fn add(left: usize, right: usize) -> usize {
+    left + right
 }
