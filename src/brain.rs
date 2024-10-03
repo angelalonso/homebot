@@ -4,51 +4,62 @@ use crate::queue::{Move, Queue};
 use std::time::Duration;
 
 pub struct Brain {
-    actions: Queue,
+    actions_queue: Queue,
 }
 
 impl Brain {
     pub fn init() -> Self {
-        let mut actions = Queue::new();
-        actions.load_test();
-        Self { actions }
+        let mut actions_queue = Queue::new();
+        actions_queue.load_test();
+        Self { actions_queue }
     }
+    // TODO: Action Composites:
+    // Run once
+    // Run continuously for X secs
+    // Run X times
+    // Repeat indefenitely
+    // Run several actions in parallel
+    // Run several actions in a sequence
 
-    pub fn refresh(&mut self, log: Log, now: Duration, distances: Vec<f64>) -> (f64, f64) {
-        for d in distances.iter() {
-            if *d < 1000. {
-                let m1 = Move {
-                    left_speed: -1.,
-                    right_speed: 0.,
-                    millis: 1000,
-                    starts_at: 0,
-                    prio: true,
-                };
-                self.actions.current = Some(m1);
-            }
-        }
-        let (left_speed, right_speed) = self.actions.update(now);
-        self.status_current_moves(log.clone(), now);
-        // TODO: choose what to do with several Moves, change this:
-        //let mut l_s = 2.0;
-        //let mut r_s = 2.0;
+    // TODO: create a new one with reading inputs as an action
+    //pub fn refresh(&mut self, log: Log, now: Duration, distances: Vec<f64>) -> (f64, f64) {
+    //    for d in distances.iter() {
+    //        if *d < 1000. {
+    //            let m1 = Move {
+    //                left_speed: -1.,
+    //                right_speed: 0.,
+    //                millis: 1000,
+    //                starts_at: 0,
+    //                prio: true,
+    //            };
+    //            self.actions_queue.current = Some(m1);
+    //        }
+    //    }
+    //    let (left_speed, right_speed) = self.actions_queue.update(now);
+    //    self.status_current_moves(log.clone(), now);
+    //    // TODO: choose what to do with several Moves, change this:
+    //    //let mut l_s = 2.0;
+    //    //let mut r_s = 2.0;
 
-        //if distances[0] < 1500.0 {
-        //    l_s = 0.0;
-        //    r_s = -0.5;
-        //};
-        return (left_speed, right_speed);
-    }
+    //    //if distances[0] < 1500.0 {
+    //    //    l_s = 0.0;
+    //    //    r_s = -0.5;
+    //    //};
+    //    return (left_speed, right_speed);
+    //}
 
     pub fn status_queues(&self, log: Log, tstamp: Duration) {
         log.debug(&format!(
             "{:#?} Incoming:{}",
             tstamp,
-            self.actions.incoming.len()
+            self.actions_queue.incoming.len()
         ));
     }
 
     pub fn status_current_moves(&self, log: Log, tstamp: Duration) {
-        log.debug(&format!("{:#?} Moves: {:#?}", tstamp, self.actions.current));
+        log.debug(&format!(
+            "{:#?} Moves: {:#?}",
+            tstamp, self.actions_queue.current
+        ));
     }
 }
