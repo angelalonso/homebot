@@ -136,7 +136,3 @@ impl Queue {
         //self.incoming.push(m4);
     }
 }
-
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}

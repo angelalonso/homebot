@@ -1,6 +1,7 @@
 pub mod brain;
 pub mod loggin;
 pub mod queue;
+pub mod actionqueue;
 
 #[cfg(not(feature = "simulate"))]
 pub mod clibot;

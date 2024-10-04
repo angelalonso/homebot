@@ -1,25 +1,20 @@
 use crate::loggin::Log;
-use crate::queue::{Move, Queue};
+//use crate::queue::{Move, Queue};
+use crate::actionqueue::Queue;
+use crate::actionqueue::CompositeAction;
 
 use std::time::Duration;
 
 pub struct Brain {
-    actions_queue: Queue,
+    pub actions_queue: Queue,
 }
 
 impl Brain {
     pub fn init() -> Self {
         let mut actions_queue = Queue::new();
-        actions_queue.load_test();
+        //actions_queue.load_test();
         Self { actions_queue }
     }
-    // TODO: Action Composites:
-    // Run once
-    // Run continuously for X secs
-    // Run X times
-    // Repeat indefenitely
-    // Run several actions in parallel
-    // Run several actions in a sequence
 
     // TODO: create a new one with reading inputs as an action
     //pub fn refresh(&mut self, log: Log, now: Duration, distances: Vec<f64>) -> (f64, f64) {
@@ -54,6 +49,14 @@ impl Brain {
             tstamp,
             self.actions_queue.incoming.len()
         ));
+    }
+
+    pub fn get_current(&self) -> Vec<CompositeAction> {
+        return self.actions_queue.current.clone()
+    }
+
+    pub fn get_incoming(&self) -> Vec<CompositeAction> {
+        return self.actions_queue.incoming.clone()
     }
 
     pub fn status_current_moves(&self, log: Log, tstamp: Duration) {
