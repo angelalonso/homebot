@@ -11,7 +11,7 @@ pub struct Brain {
 
 impl Brain {
     pub fn init() -> Self {
-        let mut actions_queue = Queue::new();
+        let actions_queue = Queue::new();
         //actions_queue.load_test();
         Self { actions_queue }
     }

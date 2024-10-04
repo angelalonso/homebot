@@ -36,9 +36,9 @@ impl Queue {
         }
     }
 
-    pub fn add_incoming(&mut self, act: Action) {
+    pub fn add_incoming(&mut self, acts: &mut Vec<Action>) {
         let mut comp_action = CompositeAction::new();
-        comp_action.actions.push(act);
+        comp_action.actions.append(acts);
         self.incoming.push(comp_action);
     }
 
@@ -70,7 +70,13 @@ impl Queue {
                 // If NOT prio:
                 // - If current empty, make it current
                 // - If current full, change it to start after current
-                if self.incoming[*ix].actions[0].prio == 0 {
+                if self.current.len() == 0 {
+                    self.current = vec![self.incoming[*ix].clone()];
+                    let _ = self.incoming.remove(*ix);
+                } else if self.current[0].actions.len() == 0 {
+                    self.current = vec![self.incoming[*ix].clone()];
+                    let _ = self.incoming.remove(*ix);
+                } else if self.incoming[*ix].actions[0].prio < self.current[0].actions[0].prio {
                     self.current = vec![self.incoming[*ix].clone()];
                     let _ = self.incoming.remove(*ix);
                 } else {
