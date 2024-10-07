@@ -1,7 +1,7 @@
 use crate::loggin::Log;
 //use crate::queue::{Move, Queue};
-use crate::actionqueue::Queue;
 use crate::actionqueue::CompositeAction;
+use crate::actionqueue::Queue;
 
 use std::time::Duration;
 
@@ -51,12 +51,13 @@ impl Brain {
         ));
     }
 
-    pub fn get_current(&self) -> Vec<CompositeAction> {
-        return self.actions_queue.current.clone()
+    // TODO: add current, append current, and a timestamp for when it was added
+    pub fn get_current(&self) -> Option<CompositeAction> {
+        return self.actions_queue.current.clone();
     }
 
     pub fn get_incoming(&self) -> Vec<CompositeAction> {
-        return self.actions_queue.incoming.clone()
+        return self.actions_queue.incoming.clone();
     }
 
     pub fn status_current_moves(&self, log: Log, tstamp: Duration) {
