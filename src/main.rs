@@ -3,11 +3,8 @@ use homebot::loggin;
 use serde_yaml;
 use std::collections::BTreeMap;
 
-#[cfg(feature = "simulate")]
-use homebot::simulate;
-
-// //#[cfg(feature = "clisimulate")]
-// //use homebot::clisimulate;
+#[cfg(feature = "sim")]
+use homebot::sim;
 
 pub fn load(filename: &str) -> Result<BTreeMap<String, String>, Box<dyn std::error::Error>> {
     let f = std::fs::File::open(filename)?;
@@ -15,13 +12,13 @@ pub fn load(filename: &str) -> Result<BTreeMap<String, String>, Box<dyn std::err
     Ok(dm)
 }
 
-#[cfg(feature = "simulate")]
+#[cfg(feature = "sim")]
 fn main() {
     match load("cfg.yaml") {
         Ok(cfg) => {
             let log = loggin::Log::init(cfg["LOGLEVEL"].clone());
             log.info(&format!("- Mode: Webots Simulation"));
-            match simulate::run(log.clone(), cfg) {
+            match sim::run(log.clone(), cfg) {
                 Ok(()) => (),
                 Err(es) => {
                     log.err(&format!("ERROR running simulation: {:#?}", es));
@@ -34,56 +31,7 @@ fn main() {
         }
     };
 }
-
-// //#[cfg(feature = "clisimulate")]
-// //fn main() {
-// //    match load("cfg.yaml") {
-// //        Ok(cfg) => {
-// //            let log = loggin::Log::init(cfg["LOGLEVEL"].clone());
-// //            log.info(&format!("- Mode: CLI Simulation"));
-// //            match clisimulate::run(log.clone(), cfg) {
-// //                Ok(()) => (),
-// //                Err(ec) => {
-// //                    log.err(&format!("ERROR running CLI simulation: {:#?}", ec));
-// //                }
-// //            };
-// //        }
-// //        Err(e) => {
-// //            let log = loggin::Log::init("DEBUG".to_string());
-// //            log.err(&format!("ERROR Reading YAML: {:#?}", e));
-// //        }
-// //    };
-// //}
-
-// TODO: fill this up
-#[cfg(feature = "live")]
-fn main() {
-    match load("cfg.yaml") {
-        Ok(cfg) => {
-            let log = loggin::Log::init(cfg["LOGLEVEL"].clone());
-            log.info(&format!("- Mode: Live Run"));
-        }
-        Err(e) => {
-            let log = loggin::Log::init("DEBUG".to_string());
-            log.err(&format!("ERROR Reading YAML: {:#?}", e));
-        }
-    };
-}
-
-#[cfg(not(feature = "simulate"))]
-// //#[cfg(not(feature = "clisimulate"))]
-#[cfg(not(feature = "live"))]
-fn main() {
-    match load("cfg.yaml") {
-        Ok(cfg) => {
-            let log = loggin::Log::init(cfg["LOGLEVEL"].clone());
-            log.err(&format!(
-                "- Mode Unknown, please choose simulate, clisimulate or live"
-            ));
-        }
-        Err(e) => {
-            let log = loggin::Log::init("debug".to_string());
-            log.err(&format!("ERROR Reading YAML: {:#?}", e));
-        }
-    };
-}
+// TODO:
+// #[cfg(feature = "live")]
+// fn main() {
+// ...

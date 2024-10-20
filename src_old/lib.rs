@@ -1,68 +1,72 @@
+pub mod brain;
 pub mod loggin;
-pub mod sim_action;
-pub mod sim_brain;
-pub mod sim_queue;
+pub mod queue;
+pub mod actionqueue;
 
-#[cfg(feature = "sim")]
-pub mod sim;
+#[cfg(not(feature = "simulate"))]
+pub mod clibot;
+// //#[cfg(not(feature = "simulate"))]
+// //pub mod clisimulate;
+#[cfg(feature = "simulate")]
+pub mod simulate;
 
-#[cfg(feature = "sim")]
+#[cfg(feature = "simulate")]
 pub mod bindings {
     #![allow(non_upper_case_globals)]
     #![allow(non_camel_case_types)]
     #![allow(non_snake_case)]
     #![allow(improper_ctypes)]
-    include!("sim_bindings.rs");
+    include!("bindings.rs");
 }
 
-#[cfg(feature = "sim")]
+#[cfg(feature = "simulate")]
 use bindings::WbDeviceTag;
-#[cfg(feature = "sim")]
+#[cfg(feature = "simulate")]
 use std::ffi::CString;
 
-// ////the clisim alternatives are on clibot.rs
+// ////the clisimulate alternatives are on clibot.rs
 
-#[cfg(feature = "sim")]
+#[cfg(feature = "simulate")]
 pub fn wb_distance_sensor_enable(tag: WbDeviceTag, sampling_period: i32) {
     unsafe {
         crate::bindings::wb_distance_sensor_enable(tag, sampling_period);
     }
 }
 
-#[cfg(feature = "sim")]
+#[cfg(feature = "simulate")]
 pub fn wb_distance_sensor_get_value(tag: WbDeviceTag) -> f64 {
     unsafe { crate::bindings::wb_distance_sensor_get_value(tag) }
 }
 
-#[cfg(feature = "sim")]
+#[cfg(feature = "simulate")]
 pub fn wb_motor_set_position(device: WbDeviceTag, position: f64) {
     unsafe { crate::bindings::wb_motor_set_position(device, position) }
 }
 
-#[cfg(feature = "sim")]
+#[cfg(feature = "simulate")]
 pub fn wb_motor_set_velocity(device: WbDeviceTag, velocity: f64) {
     unsafe { crate::bindings::wb_motor_set_velocity(device, velocity) }
 }
 
-#[cfg(feature = "sim")]
+#[cfg(feature = "simulate")]
 pub fn wb_robot_get_device(id: &str) -> WbDeviceTag {
     let name = CString::new(id).expect("CString::new failed");
     unsafe { crate::bindings::wb_robot_get_device(name.as_ptr()) }
 }
 
-#[cfg(feature = "sim")]
+#[cfg(feature = "simulate")]
 pub fn wb_robot_cleanup() {
     unsafe { crate::bindings::wb_robot_cleanup() }
 }
 
-#[cfg(feature = "sim")]
+#[cfg(feature = "simulate")]
 pub fn wb_robot_init() {
     unsafe {
         crate::bindings::wb_robot_init();
     }
 }
 
-#[cfg(feature = "sim")]
+#[cfg(feature = "simulate")]
 pub fn wb_robot_step(step: i32) -> i32 {
     unsafe { crate::bindings::wb_robot_step(step) }
 }

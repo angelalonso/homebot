@@ -13,6 +13,5 @@ serde = "*"
 
 [features]
 
-simulate = ["dep:bindgen"]
-#clisimulate = []
+sim = ["dep:bindgen"]
 live = []
