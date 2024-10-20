@@ -12,6 +12,9 @@
   - Brain - This "analyzes" the Input (Time also being one) schedules actions to be taken
 
 
+# NEXT:
+- I just changed from queue to vec<CAction> --> Adapt
+- Brain update
 
 
 - Speed goes from -1 to 1, config says multiplier factor.

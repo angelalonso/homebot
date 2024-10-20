@@ -6,6 +6,21 @@ pub struct Action {
     pub element: String,
 }
 
+impl Action {
+    pub fn new(id: String, starts_at: u128, millis: u128, element: String) -> Action {
+        Action {
+            id,
+            starts_at,
+            millis,
+            element,
+        }
+    }
+
+    pub fn get_id(&self) -> String {
+        return self.id.clone();
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct CompositeAction {
     pub actions: Vec<Action>,

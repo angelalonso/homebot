@@ -2,7 +2,7 @@ use crate::sim_action::CompositeAction as CAction;
 
 #[derive(Debug, Clone)]
 pub struct Queue {
-    actions: Vec<CAction>,
+    c_actions: Vec<CAction>,
     delay_ms: u128,
     prio: u16,
 }
@@ -10,13 +10,21 @@ pub struct Queue {
 impl Queue {
     pub fn new() -> Queue {
         Queue {
-            actions: vec![],
+            c_actions: vec![],
             delay_ms: 0,
             prio: 0,
         }
     }
 
     pub fn actions_len(&self) -> usize {
-        self.actions.len()
+        self.c_actions.len()
+    }
+
+    pub fn get_c_actions(&self) -> Vec<CAction> {
+        self.c_actions.clone()
+    }
+
+    pub fn add_c_action(&mut self, c_action: CAction) {
+        self.c_actions.push(c_action)
     }
 }
