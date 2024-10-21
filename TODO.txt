@@ -13,7 +13,6 @@
 
 
 # NEXT:
-- I just changed from queue to vec<CAction> --> Adapt
 - Brain update
 
 

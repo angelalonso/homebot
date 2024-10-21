@@ -1,17 +1,17 @@
 #[derive(Debug, Clone)]
 pub struct Action {
     pub id: String,
-    pub starts_at: u128,
-    pub millis: u128,
+    pub delay_ms: u128,
+    pub duration_ms: u128,
     pub element: String,
 }
 
 impl Action {
-    pub fn new(id: String, starts_at: u128, millis: u128, element: String) -> Action {
+    pub fn new(id: String, delay_ms: u128, duration_ms: u128, element: String) -> Action {
         Action {
             id,
-            starts_at,
-            millis,
+            delay_ms,
+            duration_ms,
             element,
         }
     }
@@ -23,17 +23,19 @@ impl Action {
 
 #[derive(Debug, Clone)]
 pub struct CompositeAction {
+    pub id: String,
     pub actions: Vec<Action>,
-    pub delay_ms: u128,
+    pub starts_at: u128,
     pub prio: u16,
 }
 
 impl CompositeAction {
-    pub fn new() -> CompositeAction {
+    pub fn new(id: String, actions: Vec<Action>, starts_at: u128, prio: u16) -> CompositeAction {
         CompositeAction {
-            actions: vec![],
-            delay_ms: 0,
-            prio: 0,
+            id,
+            actions,
+            starts_at,
+            prio,
         }
     }
 }

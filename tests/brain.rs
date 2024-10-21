@@ -2,6 +2,11 @@ use homebot::sim_action::Action;
 use homebot::sim_action::CompositeAction as CAction;
 use homebot::sim_brain::Brain;
 
+use core::cmp::Ordering;
+use std::collections::HashMap;
+use std::time::SystemTime;
+use std::{thread, time};
+
 #[test]
 fn add_incoming() {
     // Create the brain
@@ -13,15 +18,16 @@ fn add_incoming() {
     // Append the action to a CAction
     let a1 = Action {
         id: "test_a".to_string(),
-        starts_at: 1000,
-        millis: 1500,
+        delay_ms: 1000,
+        duration_ms: 1500,
         element: "".to_string(),
     };
     let mut action_vector = vec![];
     action_vector.push(a1);
     let mut c_action = CAction {
+        id: "test_ca".to_string(),
         actions: action_vector,
-        delay_ms: 0,
+        starts_at: 0,
         prio: 0,
     };
 
@@ -42,22 +48,23 @@ fn incoming_to_current() {
     let timelimit = 4.0;
     let mut expected = HashMap::new();
     expected.insert("0".to_string(), [""]);
-    expected.insert("1".to_string(), ["test_a"]);
-    expected.insert("2".to_string(), ["test_a"]);
+    expected.insert("1".to_string(), ["test_ca"]);
+    expected.insert("2".to_string(), [""]);
     expected.insert("3".to_string(), [""]);
 
     // Append the action to a CAction
     let a1 = Action {
         id: "test_a".to_string(),
-        starts_at: 1000,
-        millis: 1500,
+        delay_ms: 1000,
+        duration_ms: 1500,
         element: "".to_string(),
     };
     let mut action_vector = vec![];
     action_vector.push(a1);
     let mut c_action = CAction {
+        id: "test_ca".to_string(),
         actions: action_vector,
-        delay_ms: 0,
+        starts_at: 0,
         prio: 0,
     };
 
@@ -72,19 +79,17 @@ fn incoming_to_current() {
         if timestamp.as_secs_f32() >= timelimit {
             break;
         }
-        brain.actions_queue.update(timestamp);
+        brain.update(timestamp);
         let ix = timestamp.as_secs_f32().floor() as i32;
-        let curr = &brain.get_current();
-        match curr {
-            Some(c) => {
-                let curr_act = &c.actions;
-                let mut current_ids = vec![];
-                for a in curr_act.iter() {
-                    current_ids.push(a.id.clone())
-                }
-                assert_eq!(current_ids, expected[&ix.to_string()]);
+        let curr = &brain.get_current_cactions();
+        match curr.len().cmp(&0) {
+            Ordering::Greater => {
+                assert_eq!(
+                    format!("{:#?}", curr),
+                    format!("{:#?}", expected[&ix.to_string()])
+                );
             }
-            None => {
+            _ => {
                 assert_eq!(vec![""], expected[&ix.to_string()]);
             }
         }
