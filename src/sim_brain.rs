@@ -47,19 +47,35 @@ impl Brain {
         result
     }
 
-    pub fn update(&mut self, ts: Duration) {
-        match &self
-            .incoming
-            .iter()
-            .position(|x| ts.as_millis() > x.starts_at)
-        {
-            Some(i) => {
-                //for c in i.get_c_actions() {
-                //    if c.
-                //}
-                ()
+    pub fn update(&mut self, ts: Duration) -> Vec<Action> {
+        let mut tmp_incoming = vec![];
+        for i in self.incoming.iter_mut() {
+            if i.starts_at <= ts.as_millis() {
+                i.validate();
+                self.current.push(i.clone());
+            } else {
+                tmp_incoming.push(i.clone());
             }
-            None => (),
         }
+        self.incoming = tmp_incoming;
+        let mut result: Vec<Action> = vec![];
+        let mut tmp_current = vec![];
+        for c in self.current.iter_mut() {
+            let mut tmp_actions = vec![];
+            for a in c.actions.iter_mut() {
+                if ts.as_millis() < (c.starts_at + a.delay_ms) {
+                    tmp_actions.push(a.clone())
+                } else if ts.as_millis() < (c.starts_at + a.delay_ms + a.duration_ms) {
+                    tmp_actions.push(a.clone());
+                    result.push(a.clone());
+                }
+            }
+            c.actions = tmp_actions.clone();
+            if c.actions.len() > 0 {
+                tmp_current.push(c.clone());
+            }
+        }
+        self.current = tmp_current;
+        result
     }
 }

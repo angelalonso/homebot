@@ -1,7 +1,7 @@
 # How this is architected
 - Main - checks mode and triggers different libraries depending on whether it runs on a laptop (sim) or the robot (live)
 - both sim and live should be structured as similar as it gets
-  - each library that is EXCLUSIVLEY for one or the other starts with sim_ or live_ (e.g.: sim_bindings.rs)
+  - each library that is EXCLUSIVELY for one or the other starts with sim_ or live_ (e.g.: sim_bindings.rs)
   - A library can start as exclusive to one (e.g.: sim_brain.rs) and then be renamed once adapted for the other (then becoming just brain.rs)
 - sim.rs and live.rs each have its own run function.
   - This function first initializes what each mode requires then run a loop, but both modes should follow a similar structure
@@ -13,7 +13,12 @@
 
 
 # NEXT:
-- Brain update
+- react to inputs
+  - make timestamp an input too
+- transform active into stuff
+  - mock for testing
+- use the system for a basic setup on the sime
+- create the live part
 
 
 - Speed goes from -1 to 1, config says multiplier factor.
