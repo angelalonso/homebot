@@ -18,7 +18,7 @@ test_online() {
 check_mode() {
   # If we are on the robot, we run live
   if [[ "$1" == "" ]]; then
-    MODE="simulate"
+    MODE="sim"
   else
     MODE="$1"
   fi
@@ -31,17 +31,21 @@ check_mode() {
 
 check_mode $1
 
-cargo build --features $MODE
+if [[ ${MODE} == "test" ]]; then
+  cargo build --features sim
+else
+  cargo build --features $MODE
+fi
 
 if [[ ${MODE} == "live" ]]; then
   echo "RUNNING LIVE"
-elif [[ ${MODE} == "simulate" ]]; then
+elif [[ ${MODE} == "sim" ]]; then
 	mkdir -p simulation/controllers/rust_controller/
 	cp target/debug/homebot simulation/controllers/rust_controller/rust_controller
 	cp cfg.yaml simulation/controllers/rust_controller/
 	webots simulation/worlds/homebot_simulation_world.wbt
 elif [[ ${MODE} == "test" ]]; then
-  cargo test
+  cargo test --features sim -- --nocapture
 else
   echo ${MODE} NOT RECOGNIZED
 fi

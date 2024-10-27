@@ -14,4 +14,5 @@ serde = "*"
 [features]
 
 sim = ["dep:bindgen"]
+test = ["dep:bindgen"]
 live = []

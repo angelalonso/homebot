@@ -1,7 +1,9 @@
 pub mod loggin;
 pub mod sim_action;
 pub mod sim_brain;
-pub mod sim_queue;
+pub mod sim_input;
+pub mod sim_output;
+pub mod sim_reactionset;
 
 #[cfg(feature = "sim")]
 pub mod sim;

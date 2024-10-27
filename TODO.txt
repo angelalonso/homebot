@@ -13,11 +13,10 @@
 
 
 # NEXT:
-- react to inputs
-  - make timestamp an input too
+- sort tests - see progress on output
 - transform active into stuff
-  - mock for testing
-- use the system for a basic setup on the sime
+  - Just make it work on Sim
+- Solve all TODOs
 - create the live part
 
 

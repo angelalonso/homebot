@@ -39,7 +39,7 @@ impl Action {
             "motor_r" => {
                 let test_val: Result<f32, _> = self.value.parse();
                 match test_val {
-                    Ok(n) => (),
+                    Ok(_) => (),
                     Err(_) => self.id = "error_value_format_".to_string() + &self.object,
                 }
             }
@@ -47,7 +47,7 @@ impl Action {
             "motor_l" => {
                 let test_val: Result<f32, _> = self.value.parse();
                 match test_val {
-                    Ok(n) => (),
+                    Ok(_) => (),
                     Err(_) => self.id = "error_value_format_".to_string() + &self.object,
                 }
             }
@@ -66,11 +66,11 @@ pub struct CompositeAction {
     pub id: String,
     pub actions: Vec<Action>,
     pub starts_at: u128,
-    pub prio: u16,
+    pub prio: u8,
 }
 
 impl CompositeAction {
-    pub fn new(id: String, actions: Vec<Action>, starts_at: u128, prio: u16) -> CompositeAction {
+    pub fn new(id: String, actions: Vec<Action>, starts_at: u128, prio: u8) -> CompositeAction {
         CompositeAction {
             id,
             actions,
@@ -84,13 +84,21 @@ impl CompositeAction {
     }
 
     pub fn validate(&mut self) {
-        for mut a in &mut self.actions {
+        for a in &mut self.actions {
             a.validate();
         }
     }
 }
 
 pub fn get_ids_from_act_array(array: Vec<Action>) -> Vec<String> {
+    let mut id_array = vec![];
+    for i in array {
+        id_array.push(i.get_id());
+    }
+    id_array
+}
+
+pub fn get_ids_from_cact_array(array: Vec<CompositeAction>) -> Vec<String> {
     let mut id_array = vec![];
     for i in array {
         id_array.push(i.get_id());

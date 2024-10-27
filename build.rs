@@ -1,7 +1,7 @@
-#[cfg(any(feature = "sim"))]
+#[cfg(feature = "sim")]
 use std::env;
 //
-#[cfg(any(feature = "sim"))]
+#[cfg(feature = "sim")]
 use std::path::PathBuf;
 
 #[cfg(feature = "sim")]
