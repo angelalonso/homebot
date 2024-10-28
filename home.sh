@@ -31,11 +31,7 @@ check_mode() {
 
 check_mode $1
 
-if [[ ${MODE} == "test" ]]; then
-  cargo build --features sim
-else
-  cargo build --features $MODE
-fi
+cargo build --features $MODE
 
 if [[ ${MODE} == "live" ]]; then
   echo "RUNNING LIVE"
@@ -45,7 +41,7 @@ elif [[ ${MODE} == "sim" ]]; then
 	cp cfg.yaml simulation/controllers/rust_controller/
 	webots simulation/worlds/homebot_simulation_world.wbt
 elif [[ ${MODE} == "test" ]]; then
-  cargo test --features sim -- --nocapture
+  cargo test --features test -- --nocapture
 else
   echo ${MODE} NOT RECOGNIZED
 fi

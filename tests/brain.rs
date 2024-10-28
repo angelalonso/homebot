@@ -59,16 +59,10 @@ fn incoming_to_current() {
     // Define time and expectation
     let timelimit = 4.0;
     let mut expected: HashMap<String, Vec<&str>> = HashMap::new();
-    expected.insert("0".to_string(), ["turn_around"].to_vec());
-    expected.insert(
-        "1".to_string(),
-        ["turn_around", "test_ca", "turn_around"].to_vec(),
-    );
-    expected.insert(
-        "2".to_string(),
-        ["test_ca", "turn_around", "turn_around"].to_vec(),
-    );
-    expected.insert("3".to_string(), ["turn_around", "turn_around"].to_vec());
+    expected.insert("0".to_string(), [""].to_vec());
+    expected.insert("1".to_string(), ["test_ca"].to_vec());
+    expected.insert("2".to_string(), ["test_ca"].to_vec());
+    expected.insert("3".to_string(), [""].to_vec());
 
     // Append the action to a CAction
     let a1 = Action {
@@ -131,7 +125,7 @@ fn incoming_to_current_validate() {
     let timelimit = 4.0;
     let mut expected: HashMap<String, Output> = HashMap::new();
     let mut tmp_output: Output = Output::new();
-    tmp_output.set_sensor("off".to_string(), 0);
+    tmp_output.set_sensor("on".to_string(), 0);
     expected.insert("0".to_string(), tmp_output.clone());
     expected.insert("1".to_string(), tmp_output.clone());
     expected.insert("2".to_string(), tmp_output.clone());
