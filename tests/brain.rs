@@ -9,6 +9,9 @@ use std::collections::HashMap;
 use std::time::SystemTime;
 use std::{thread, time};
 
+// TODO: simplify all this, make tests for each "process" that is done at brain instead, then maybe
+// add extra tests for edge cases
+
 #[test]
 fn add_incoming() {
     /*
