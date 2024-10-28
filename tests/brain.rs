@@ -16,7 +16,7 @@ fn add_incoming() {
     It does not validate them, so the id will remain the same
     */
     // Create the brain
-    let mut brain = Brain::init();
+    let mut brain = Brain::init(true);
 
     // Define expectation
     let expected = ["test_a"];
@@ -53,7 +53,7 @@ fn incoming_to_current() {
     , then they are remove when all actions inside that CAction are done
     */
     // Create the brain and Time reference
-    let mut brain = Brain::init();
+    let mut brain = Brain::init(true);
     let start_timestamp: SystemTime = SystemTime::now();
 
     // Define time and expectation
@@ -118,7 +118,7 @@ fn incoming_to_current_validate() {
     , but most importantly, they get their IDs transformed after validation.
     */
     // Create the brain and Time reference
-    let mut brain = Brain::init();
+    let mut brain = Brain::init(true);
     let start_timestamp: SystemTime = SystemTime::now();
 
     // Define time and expectation

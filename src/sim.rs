@@ -7,6 +7,10 @@ use crate::sim_action::Action;
 use crate::sim_brain::Brain;
 
 pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::error::Error>> {
+    #[cfg(feature = "test")]
+    let test_mode = true;
+    #[cfg(feature = "sim")]
+    let test_mode = false;
     log.info("Loading config...");
     let infinity = cfg["INFINITY"].parse::<f64>()?;
     let time_step = cfg["TIME_STEP"].parse::<i32>()?;
@@ -17,7 +21,7 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
 
     log.info("Loading bot, giving it a brain");
     crate::wb_robot_init();
-    let mut brain = Brain::init();
+    let mut brain = Brain::init(test_mode);
     // TODO: make distance sensors update the input constantly
     // TODO: send tstamp as input
     log.info("Loading sensors...");

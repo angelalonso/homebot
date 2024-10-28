@@ -8,7 +8,7 @@ fn create_caction_with_validated_action() {
      TODO: maybe we get to validate actions from here, or maybe from the brain itself?
     */
     // Create the brain
-    let mut brain = Brain::init();
+    let mut brain = Brain::init(true);
 
     // Define expectation
     let expected = ["motor_fwd", "error_other_stuff"];

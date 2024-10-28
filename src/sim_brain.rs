@@ -11,10 +11,11 @@ pub struct Brain {
     incoming: Vec<CAction>,
     input: Input,
     output: Output,
+    test_mode: bool,
 }
 
 impl Brain {
-    pub fn init() -> Self {
+    pub fn init(test_mode: bool) -> Self {
         let current = vec![];
         let incoming = vec![];
         let input = Input::new();
@@ -24,15 +25,17 @@ impl Brain {
             incoming,
             input,
             output,
+            test_mode,
         }
     }
 
     pub fn update(&mut self, ts: Duration) -> Output {
         self.input.set_ts(ts);
         // We avoid doing this while testing, for higher control on tests
-        #[cfg(feature = "sim")]
-        for ac in self.input.react() {
-            self.add_incoming(ac);
+        if !self.test_mode {
+            for ac in self.input.react() {
+                self.add_incoming(ac);
+            }
         }
         let mut tmp_incoming = vec![];
         for i in self.incoming.iter_mut() {
@@ -69,6 +72,10 @@ impl Brain {
         }
         self.current = tmp_current;
         self.output.clone()
+    }
+
+    pub fn set_testmode(&mut self, test: bool) {
+        self.test_mode = test;
     }
 
     pub fn get_input(&self) -> Input {
