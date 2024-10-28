@@ -3,7 +3,7 @@ use homebot::loggin;
 use serde_yaml;
 use std::collections::BTreeMap;
 
-#[cfg(feature = "sim")]
+#[cfg(any(feature = "sim", feature = "test"))]
 use homebot::sim;
 
 pub fn load(filename: &str) -> Result<BTreeMap<String, String>, Box<dyn std::error::Error>> {
@@ -12,7 +12,7 @@ pub fn load(filename: &str) -> Result<BTreeMap<String, String>, Box<dyn std::err
     Ok(dm)
 }
 
-#[cfg(feature = "sim")]
+#[cfg(any(feature = "sim", feature = "test"))]
 fn main() {
     match load("cfg.yaml") {
         Ok(cfg) => {

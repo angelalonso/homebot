@@ -29,8 +29,8 @@ impl Brain {
 
     pub fn update(&mut self, ts: Duration) -> Output {
         self.input.set_ts(ts);
-        // TODO: avoid doing this while testing?
-        // TODO:  maybe using a different feature, or just check we are testing
+        // We avoid doing this while testing, for higher control on tests
+        #[cfg(feature = "sim")]
         for ac in self.input.react() {
             self.add_incoming(ac);
         }

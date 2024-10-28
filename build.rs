@@ -1,17 +1,18 @@
-#[cfg(feature = "sim")]
+#[cfg(any(feature = "sim", feature = "test"))]
 use std::env;
 //
-#[cfg(feature = "sim")]
+#[cfg(any(feature = "sim", feature = "test"))]
 use std::path::PathBuf;
 
-#[cfg(feature = "sim")]
+#[cfg(any(feature = "sim", feature = "test"))]
 static WEBOTS_LINUX_PATH: &'static str = "/usr/local/webots";
-#[cfg(feature = "sim")]
+#[cfg(any(feature = "sim", feature = "test"))]
 static WEBOTS_MACOS_PATH: &'static str = "/Applications/Webots.app";
-#[cfg(feature = "sim")]
+#[cfg(any(feature = "sim", feature = "test"))]
 static WEBOTS_WINDOWS_PATH: &'static str = "C:\\Program Files\\Webots";
 
-#[cfg(feature = "sim")]
+//#[cfg(feature = "sim")]
+#[cfg(any(feature = "sim", feature = "test"))]
 fn main() {
     println!("Building for simulation (Webots)");
     let env_path = env::var("WEBOTS_PATH").ok();
