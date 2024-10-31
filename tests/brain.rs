@@ -13,48 +13,11 @@ use std::{thread, time};
 // add extra tests for edge cases
 
 #[test]
-fn add_incoming() {
+fn test_update_to_current() {
     /*
-    This first test only checks that the Composite Actions (CAction) land on the incoming queue after having them added
-    It does not validate them, so the id will remain the same
-    */
-    // Create the brain
-    let mut brain = Brain::init(true);
-
-    // Define expectation
-    let expected = ["test_a"];
-
-    // Append the action to a CAction
-    let a1 = Action {
-        id: "test_a".to_string(),
-        delay_ms: 1000,
-        duration_ms: 1500,
-        object: "".to_string(),
-        value: "".to_string(),
-    };
-    let mut action_vector = vec![];
-    action_vector.push(a1);
-    let c_action = CAction {
-        id: "test_incoming".to_string(),
-        actions: action_vector,
-        starts_at: 0,
-        prio: 0,
-    };
-
-    // add CAction to brain
-    brain.add_incoming(c_action);
-
-    // Run the tests
-    //assert_eq!(brain.get_incoming_caction_ids(), expected);
-    assert_eq!(brain.get_incoming_action_ids(), expected);
-}
-
-#[test]
-fn incoming_to_current() {
-    /*
-    On this second test we check that the CActions are promoted from the incoming to the current queue as time progresses
-    , then they are remove when all actions inside that CAction are done
-    */
+     * Test that given a set of CActions added to incoming,
+     * they enter current when they should
+     */
     // Create the brain and Time reference
     let mut brain = Brain::init(true);
     let start_timestamp: SystemTime = SystemTime::now();
@@ -62,30 +25,47 @@ fn incoming_to_current() {
     // Define time and expectation
     let timelimit = 4.0;
     let mut expected: HashMap<String, Vec<&str>> = HashMap::new();
-    expected.insert("0".to_string(), [""].to_vec());
-    expected.insert("1".to_string(), ["test_ca"].to_vec());
-    expected.insert("2".to_string(), ["test_ca"].to_vec());
+    expected.insert("0".to_string(), ["test_ca1"].to_vec());
+    expected.insert("1".to_string(), ["test_ca1", "test_ca2"].to_vec());
+    expected.insert("2".to_string(), ["test_ca2"].to_vec());
     expected.insert("3".to_string(), [""].to_vec());
 
-    // Append the action to a CAction
+    // First action, First CAction
     let a1 = Action {
         id: "test_a".to_string(),
-        delay_ms: 500,
-        duration_ms: 1000,
+        delay_ms: 0,
+        duration_ms: 1250,
         object: "".to_string(),
         value: "".to_string(),
     };
     let mut action_vector = vec![];
     action_vector.push(a1);
-    let c_action = CAction {
-        id: "test_ca".to_string(),
+    let ca1 = CAction {
+        id: "test_ca1".to_string(),
         actions: action_vector,
-        starts_at: 1000,
+        starts_at: 0,
+        prio: 0,
+    };
+    // Second action, Second CAction
+    let a2 = Action {
+        id: "test_b".to_string(),
+        delay_ms: 250,
+        duration_ms: 1500,
+        object: "".to_string(),
+        value: "".to_string(),
+    };
+    let mut action_vector_2 = vec![];
+    action_vector_2.push(a2);
+    let ca2 = CAction {
+        id: "test_ca2".to_string(),
+        actions: action_vector_2,
+        starts_at: 500,
         prio: 0,
     };
 
-    // add CAction to brain
-    brain.add_incoming(c_action);
+    // add CActions to brain
+    brain.add_incoming(ca1);
+    brain.add_incoming(ca2);
 
     // Run the tests
     loop {
@@ -114,12 +94,12 @@ fn incoming_to_current() {
 }
 
 #[test]
-fn incoming_to_current_validate() {
+fn test_update_to_output_straightaway() {
     /*
-    On this second test we check that the CActions are promoted from the incoming to the current queue as time progresses
-    , and we also check they are removed as they get done
-    , but most importantly, they get their IDs transformed after validation.
-    */
+     * Test that given a set of CActions added to incoming,
+     * they are sent to output when they should
+     * TODO: another test for collision between actions on output
+     */
     // Create the brain and Time reference
     let mut brain = Brain::init(true);
     let start_timestamp: SystemTime = SystemTime::now();
@@ -127,57 +107,50 @@ fn incoming_to_current_validate() {
     // Define time and expectation
     let timelimit = 4.0;
     let mut expected: HashMap<String, Output> = HashMap::new();
-    let mut tmp_output: Output = Output::new();
-    tmp_output.set_sensor("on".to_string(), 0);
-    expected.insert("0".to_string(), tmp_output.clone());
-    expected.insert("1".to_string(), tmp_output.clone());
-    expected.insert("2".to_string(), tmp_output.clone());
-    expected.insert("3".to_string(), tmp_output.clone());
+    let mut this_output = Output::new();
+    this_output.set_sensor("on".to_string(), 0);
+    this_output.set_motor_l(1.0, 0);
+    this_output.set_motor_r(1.0, 0);
+    expected.insert("0".to_string(), this_output.clone());
+    expected.insert("1".to_string(), this_output.clone());
+    expected.insert("2".to_string(), this_output.clone());
+    expected.insert("3".to_string(), this_output.clone());
 
-    // Append the action to a CAction
-    let a11 = Action {
-        id: "test_a".to_string(),
-        delay_ms: 500,
-        duration_ms: 500,
-        object: "".to_string(),
-        value: "".to_string(),
+    // First action, First CAction
+    let a1 = Action {
+        id: "a1_sensor".to_string(),
+        delay_ms: 0,
+        duration_ms: 1250,
+        object: "sensor".to_string(),
+        value: "on".to_string(),
     };
-    let a12 = Action {
-        id: "test_b".to_string(),
-        delay_ms: 1000,
-        duration_ms: 1500,
+    let a2 = Action {
+        id: "a2_motor_l".to_string(),
+        delay_ms: 0,
+        duration_ms: 1250,
+        object: "motor_l".to_string(),
+        value: "1.0".to_string(),
+    };
+    let a3 = Action {
+        id: "a3_motor_r".to_string(),
+        delay_ms: 0,
+        duration_ms: 1250,
         object: "motor_r".to_string(),
-        value: "".to_string(),
+        value: "2.0".to_string(),
     };
     let mut action_vector_1 = vec![];
-    action_vector_1.push(a11);
-    action_vector_1.push(a12);
-    let c_action_1 = CAction {
-        id: "test_ca_1".to_string(),
+    action_vector_1.push(a1);
+    action_vector_1.push(a2);
+    action_vector_1.push(a3);
+    let ca1 = CAction {
+        id: "test_ca1".to_string(),
         actions: action_vector_1,
-        starts_at: 1000,
-        prio: 0,
-    };
-    //
-    let a21 = Action {
-        id: "test_c".to_string(),
-        delay_ms: 0,
-        duration_ms: 1500,
-        object: "motor_r".to_string(),
-        value: "1".to_string(),
-    };
-    let mut action_vector_2 = vec![];
-    action_vector_2.push(a21);
-    let c_action_2 = CAction {
-        id: "test_ca_2".to_string(),
-        actions: action_vector_2,
-        starts_at: 1000,
+        starts_at: 0,
         prio: 0,
     };
 
-    // add CAction to brain
-    brain.add_incoming(c_action_1);
-    brain.add_incoming(c_action_2);
+    // add CActions to brain
+    brain.add_incoming(ca1);
 
     // Run the tests
     loop {
@@ -187,11 +160,13 @@ fn incoming_to_current_validate() {
         if timestamp.as_secs_f32() >= timelimit {
             break;
         }
-        let active = brain.update(timestamp);
+        let output = brain.update(timestamp);
         let ix = timestamp.as_secs_f32().floor() as i32;
-        let curr = &brain.get_current_caction_ids();
+        println!("----------------------------------");
+        println!("{}", format!("{:#?}", brain.get_output()));
+        println!("{}", format!("{:#?}", output));
         assert_eq!(
-            format!("{:#?}", active),
+            format!("{:#?}", output),
             format!("{:#?}", expected[&ix.to_string()])
         );
         thread::sleep(time::Duration::from_secs(1));

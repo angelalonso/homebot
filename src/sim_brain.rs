@@ -55,12 +55,30 @@ impl Brain {
                     tmp_actions.push(a.clone())
                 } else if ts.as_millis() < (c.starts_at + a.delay_ms + a.duration_ms) {
                     tmp_actions.push(a.clone());
-                    //
-                    //
                     if a.object == "sensor" {
                         let (_, s_p) = self.output.get_sensor(); // TODO: find a more elegant way
                         if s_p <= c.prio {
                             self.output.set_sensor(a.value.clone(), c.prio);
+                        }
+                    } else if a.object == "motor_l" {
+                        let (_, s_p) = self.output.get_motor_l(); // TODO: find a more elegant way
+                        if s_p <= c.prio {
+                            self.output.set_motor_l(
+                                a.value
+                                    .parse::<f32>()
+                                    .expect("ERROR: value for motor_l was not a proper f32"),
+                                c.prio,
+                            );
+                        }
+                    } else if a.object == "motor_r" {
+                        let (_, s_p) = self.output.get_motor_r(); // TODO: find a more elegant way
+                        if s_p <= c.prio {
+                            self.output.set_motor_r(
+                                a.value
+                                    .parse::<f32>()
+                                    .expect("ERROR: value for motor_r was not a proper f32"),
+                                c.prio,
+                            );
                         }
                     }
                 }
