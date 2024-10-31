@@ -26,10 +26,12 @@ impl Output {
     }
 
     pub fn set_motor_l(&mut self, value: f32, prio: u8) {
+        self.motor_l = value;
         self.motor_l_prio = prio;
     }
 
     pub fn set_motor_r(&mut self, value: f32, prio: u8) {
+        self.motor_r = value;
         self.motor_r_prio = prio;
     }
 

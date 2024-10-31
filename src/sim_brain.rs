@@ -48,13 +48,21 @@ impl Brain {
         }
         self.incoming = tmp_incoming;
         let mut tmp_current = vec![];
+        // iterate through all CActions
         for c in self.current.iter_mut() {
             let mut tmp_actions = vec![];
+            // iterate through all Actions on that CAction
             for a in c.actions.iter_mut() {
+                // if it has not yet "happened", leave it on current
+                //   (add it to next version of current actually)
                 if ts.as_millis() < (c.starts_at + a.delay_ms) {
                     tmp_actions.push(a.clone())
+                // if it is ongoing, leave it on current
+                // (if no longer ongoing, have it removed)
                 } else if ts.as_millis() < (c.starts_at + a.delay_ms + a.duration_ms) {
                     tmp_actions.push(a.clone());
+                    // for each type of object, get it's current state
+                    // , then overwrite if the new one has a bigger prio
                     if a.object == "sensor" {
                         let (_, s_p) = self.output.get_sensor(); // TODO: find a more elegant way
                         if s_p <= c.prio {
@@ -81,6 +89,7 @@ impl Brain {
                             );
                         }
                     }
+                    println!("......................");
                 }
             }
             c.actions = tmp_actions.clone();
