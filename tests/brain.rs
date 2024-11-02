@@ -222,79 +222,66 @@ fn test_update_to_output_collisions() {
     let timelimit = 4.0;
     let mut expected: HashMap<String, Output> = HashMap::new();
     let mut this_output = Output::new();
+    this_output.set_motor_l(10.0, 0);
     expected.insert("0".to_string(), this_output.clone()); // the first composite action starts after 500ms
-    this_output.set_sensor("on".to_string(), 0);
-    this_output.set_motor_l(1.0, 0);
-    this_output.set_motor_r(2.0, 0);
+    this_output.set_motor_l(0.0, 90);
     expected.insert("1".to_string(), this_output.clone());
     expected.insert("2".to_string(), this_output.clone()); // the second starts at 2001ms so that it only shows up after this checkpoint
-    this_output.set_sensor("off".to_string(), 0);
-    this_output.set_motor_l(0.0, 0);
-    this_output.set_motor_r(-1.0, 0);
+    this_output.set_motor_l(2.0, 90);
     expected.insert("3".to_string(), this_output.clone());
+
+    // Expected scenario:
+    // b1 loads at 0, prio 0 -> 10.0
+    // a1 loads at 500, prio 90, overwrites -> 0.0
+    // b2 loads at 1500, prio 0 does not overwrite -> 0.0
+    // a2 loads at 2500, prio 90, overwrite -> 2.0
 
     // First actions and CAction
     let a1 = Action {
-        id: "a1_sensor".to_string(),
-        delay_ms: 0,
-        duration_ms: 1250,
-        object: "sensor".to_string(),
-        value: "on".to_string(),
+        id: "a1_motor_l".to_string(),
+        delay_ms: 500,
+        duration_ms: 4000,
+        object: "motor_l".to_string(),
+        value: "0.0".to_string(),
     };
     let a2 = Action {
         id: "a2_motor_l".to_string(),
-        delay_ms: 0,
-        duration_ms: 1250,
+        delay_ms: 2500,
+        duration_ms: 4000,
         object: "motor_l".to_string(),
-        value: "1.0".to_string(),
-    };
-    let a3 = Action {
-        id: "a3_motor_r".to_string(),
-        delay_ms: 0,
-        duration_ms: 1250,
-        object: "motor_r".to_string(),
         value: "2.0".to_string(),
     };
     let mut action_vector_1 = vec![];
     action_vector_1.push(a1);
     action_vector_1.push(a2);
-    action_vector_1.push(a3);
     let ca1 = CAction {
         id: "test_ca1".to_string(),
         actions: action_vector_1,
-        starts_at: 500,
-        prio: 0,
+        starts_at: 0,
+        prio: 90,
     };
     // Second actions and CAction
     let b1 = Action {
-        id: "b1_sensor".to_string(),
+        id: "b1_motor_l".to_string(),
         delay_ms: 0,
-        duration_ms: 1250,
-        object: "sensor".to_string(),
-        value: "off".to_string(),
+        duration_ms: 4000,
+        object: "motor_l".to_string(),
+        value: "10.0".to_string(),
     };
     let b2 = Action {
         id: "b2_motor_l".to_string(),
-        delay_ms: 0,
-        duration_ms: 1250,
+        delay_ms: 1500,
+        duration_ms: 4000,
         object: "motor_l".to_string(),
-        value: "0.0".to_string(),
-    };
-    let b3 = Action {
-        id: "b3_motor_r".to_string(),
-        delay_ms: 0,
-        duration_ms: 1250,
-        object: "motor_r".to_string(),
-        value: "-1.0".to_string(),
+        value: "20.0".to_string(),
     };
     let mut action_vector_2 = vec![];
     action_vector_2.push(b1);
     action_vector_2.push(b2);
-    action_vector_2.push(b3);
     let ca2 = CAction {
         id: "test_ca2".to_string(),
         actions: action_vector_2,
-        starts_at: 2001,
+        starts_at: 0,
         prio: 0,
     };
 
@@ -319,108 +306,3 @@ fn test_update_to_output_collisions() {
         thread::sleep(time::Duration::from_secs(1));
     }
 }
-
-// TODO: do when previous works fine
-//#[test]
-//fn find_actives() {
-//    /*
-//    On this third test we check that the Actions in current are properly idenitified as active, and returned upon update of Brain.
-//    */
-//    // Create the brain and Time reference
-//    let mut brain = Brain::init();
-//    let start_timestamp: SystemTime = SystemTime::now();
-//
-//    // Define time and expectation
-//    let timelimit = 4.0;
-//    let mut expected: HashMap<String, Vec<&str>> = HashMap::new();
-//    expected.insert(
-//        "0".to_string(),
-//        [
-//            "error_value_format_sensor",
-//            "01_motor_l_back",
-//            "01_motor_r_back",
-//        ]
-//        .to_vec(),
-//    );
-//    expected.insert(
-//        "1".to_string(),
-//        [
-//            "error_value_format_sensor",
-//            "03_motor_l_stop",
-//            "03_motor_r_stop",
-//            "error_value_format_sensor",
-//            "01_motor_l_back",
-//            "01_motor_r_back",
-//        ]
-//        .to_vec(),
-//    );
-//    expected.insert(
-//        "2".to_string(),
-//        [
-//            "test_a",
-//            "error_value_format_sensor",
-//            "03_motor_l_stop",
-//            "03_motor_r_stop",
-//            "error_value_format_sensor",
-//            "01_motor_l_back",
-//            "01_motor_r_back",
-//        ]
-//        .to_vec(),
-//    );
-//    expected.insert(
-//        "3".to_string(),
-//        [
-//            "error_value_format_sensor",
-//            "03_motor_l_stop",
-//            "03_motor_r_stop",
-//            "error_value_format_sensor",
-//            "01_motor_l_back",
-//            "01_motor_r_back",
-//        ]
-//        .to_vec(),
-//    );
-//
-//    // Append the action to a CAction
-//    let a1 = Action {
-//        id: "test_a".to_string(),
-//        delay_ms: 1000,
-//        duration_ms: 500,
-//        object: "motor_l".to_string(),
-//        value: "0.5".to_string(),
-//    };
-//    let mut action_vector = vec![];
-//    action_vector.push(a1);
-//    let c_action = CAction {
-//        id: "test_ca".to_string(),
-//        actions: action_vector,
-//        starts_at: 1000,
-//        prio: 0,
-//    };
-//
-//    // add CAction to brain
-//    brain.add_incoming(c_action);
-//
-//    // Run the tests
-//    loop {
-//        let timestamp = start_timestamp
-//            .elapsed()
-//            .expect("Error retrieving time since start");
-//        if timestamp.as_secs_f32() >= timelimit {
-//            break;
-//        }
-//        let active = brain.update(timestamp);
-//        let ix = timestamp.as_secs_f32().floor() as i32;
-//        match active.len().cmp(&0) {
-//            Ordering::Greater => {
-//                assert_eq!(
-//                    format!("{:#?}", get_ids_from_act_array(active)),
-//                    format!("{:#?}", expected[&ix.to_string()])
-//                );
-//            }
-//            _ => {
-//                assert_eq!(vec![""], expected[&ix.to_string()]);
-//            }
-//        }
-//        thread::sleep(time::Duration::from_secs(1));
-//    }
-//}
