@@ -89,7 +89,6 @@ impl Brain {
                             );
                         }
                     }
-                    println!("......................");
                 }
             }
             c.actions = tmp_actions.clone();
