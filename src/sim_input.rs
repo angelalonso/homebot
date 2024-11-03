@@ -48,21 +48,21 @@ impl Input {
         self.ts = ts;
     }
 
-    pub fn set_distance(&mut self, log: Log, distance: Vec<f64>) {
+    pub fn set_distance(&mut self, _log: Log, distance: Vec<f64>) {
         self.distance = distance.clone();
-        log.info(&format!("--->{:#?}", distance));
-        log.info(&format!("------>{:#?}", self.distance));
     }
 
     pub fn react(&self, log: Log) -> Vec<CAction> {
         let mut result = vec![];
-
-        log.info(&format!("----{:#?}", self.distance));
-        for ca in self.isit_turnaround() {
+        let ta = self.isit_turnaround();
+        let mo = self.isit_moveon();
+        log.debug(&format!("----{:#?}", self.distance[0]));
+        log.debug(&format!("TA: {:#?}, MO: {:#?}", ta.len(), mo.len()));
+        for ca in ta {
             log.info(&format!("-TA"));
             result.push(ca);
         }
-        for ca in self.isit_moveon() {
+        for ca in mo {
             log.info(&format!("-MO"));
             result.push(ca);
         }
@@ -73,7 +73,7 @@ impl Input {
         let mut yes_itis = false;
         let mut result = vec![];
         for dist in &self.distance {
-            if *dist < 200.0 {
+            if *dist < 500.0 {
                 yes_itis = true;
             };
         }
@@ -87,7 +87,7 @@ impl Input {
         let mut yes_itis = true;
         let mut result = vec![];
         for dist in &self.distance {
-            if *dist < 200.0 {
+            if *dist < 500.0 {
                 yes_itis = false;
             };
         }

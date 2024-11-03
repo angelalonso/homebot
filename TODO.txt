@@ -13,10 +13,9 @@
 
 
 # NEXT:
-- Distances is read at first but not after that
-- Move max speed to output
-- transform active into stuff
+- When turnaround is triggered, only the first actions are taken
   - Just make it work on Sim
+- Move max speed to output
 - Solve all TODOs
 - create the live part
 

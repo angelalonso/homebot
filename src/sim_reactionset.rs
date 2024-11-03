@@ -14,7 +14,7 @@ pub fn get_turnaround_reactionset(ts: Duration) -> CAction {
         delay_ms: 0,
         duration_ms: 500,
         object: "sensor".to_string(),
-        value: "on".to_string(),
+        value: "off".to_string(),
     };
     let a1b = Action {
         id: "01_motor_l_back".to_string(),
@@ -35,7 +35,7 @@ pub fn get_turnaround_reactionset(ts: Duration) -> CAction {
         delay_ms: 500,
         duration_ms: 500,
         object: "sensor".to_string(),
-        value: "on".to_string(),
+        value: "off".to_string(),
     };
     let a2b = Action {
         id: "02_motor_l_back".to_string(),

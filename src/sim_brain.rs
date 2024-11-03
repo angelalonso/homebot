@@ -103,10 +103,6 @@ impl Brain {
         self.test_mode = test;
     }
 
-    pub fn get_input(&self) -> Input {
-        return self.input.clone();
-    }
-
     pub fn add_incoming(&mut self, c_action: CAction) {
         self.incoming.push(c_action);
     }
@@ -153,6 +149,14 @@ impl Brain {
             }
         }
         result
+    }
+
+    pub fn get_input(&self) -> Input {
+        return self.input.clone();
+    }
+
+    pub fn set_input_distance(&mut self, log: Log, distance: Vec<f64>) {
+        self.input.set_distance(log, distance);
     }
 
     pub fn get_output(&self) -> Output {

@@ -1,7 +1,6 @@
 use crate::bindings::WbDeviceTag;
 use std::collections::BTreeMap;
 use std::time::SystemTime;
-use std::{thread, time::Duration};
 
 use crate::loggin::Log;
 use crate::sim_brain::Brain;
@@ -47,20 +46,17 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
         // TODO: move this to input code
         // TODO: check if related action allows for it
         //// Get values from sensors
-        let (sensor_state, _) = brain.get_output().get_sensor();
-        if sensor_state == "on" {
-            thread::sleep(Duration::from_millis(900));
+        let (sv, _) = brain.get_output().get_sensor();
+        if sv == "on" {
             let distance_values: Vec<f64> = distance_sensors
                 .iter()
                 .map(|sensor| crate::wb_distance_sensor_get_value(*sensor))
                 .collect();
-            log.info(&format!("{:#?}", distance_values));
-            brain.get_input().set_distance(log.clone(), distance_values);
-        } else {
-            log.info(&format!("{:#?}", sensor_state));
+            brain.set_input_distance(log.clone(), distance_values);
         }
         let _active = brain.update(log.clone(), timestamp);
 
+        log.debug(&format!("---------------------"));
         //log.debug(&format!("{:#?}", timestamp));
     }
 
