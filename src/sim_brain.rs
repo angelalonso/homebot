@@ -1,5 +1,4 @@
 use crate::loggin::Log;
-use crate::sim_action::Action;
 use crate::sim_action::CompositeAction as CAction;
 use crate::sim_input::Input;
 use crate::sim_output::Output;
@@ -15,11 +14,11 @@ pub struct Brain {
 }
 
 impl Brain {
-    pub fn init(test_mode: bool) -> Self {
+    pub fn init(log: Log, test_mode: bool) -> Self {
         let current = vec![];
         let incoming = vec![];
         let input = Input::new();
-        let output = Output::new();
+        let output = Output::new(log.clone());
         Self {
             current,
             incoming,
@@ -29,11 +28,11 @@ impl Brain {
         }
     }
 
-    pub fn update(&mut self, ts: Duration) -> Output {
+    pub fn update(&mut self, log: Log, ts: Duration) -> Output {
         self.input.set_ts(ts);
         // We avoid doing this while testing, for higher control on tests
         if !self.test_mode {
-            for ac in self.input.react() {
+            for ac in self.input.react(log.clone()) {
                 self.add_incoming(ac);
             }
         }

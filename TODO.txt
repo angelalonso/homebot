@@ -13,7 +13,8 @@
 
 
 # NEXT:
-- sort tests - see progress on output
+- Distances is read at first but not after that
+- Move max speed to output
 - transform active into stuff
   - Just make it work on Sim
 - Solve all TODOs

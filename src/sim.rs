@@ -1,9 +1,9 @@
 use crate::bindings::WbDeviceTag;
 use std::collections::BTreeMap;
 use std::time::SystemTime;
+use std::{thread, time::Duration};
 
 use crate::loggin::Log;
-use crate::sim_action::Action;
 use crate::sim_brain::Brain;
 
 pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::error::Error>> {
@@ -12,16 +12,15 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
     #[cfg(feature = "sim")]
     let test_mode = false;
     log.info("Loading config...");
-    let infinity = cfg["INFINITY"].parse::<f64>()?;
     let time_step = cfg["TIME_STEP"].parse::<i32>()?;
-    let max_speed = cfg["MAX_SPEED"].parse::<f64>()?;
+    let _max_speed = cfg["MAX_SPEED"].parse::<f64>()?; // TODO: pass this to output
 
     log.info("Configuring time...");
     let start_timestamp: SystemTime = SystemTime::now();
 
     log.info("Loading bot, giving it a brain");
     crate::wb_robot_init();
-    let mut brain = Brain::init(test_mode);
+    let mut brain = Brain::init(log.clone(), test_mode);
     // TODO: make distance sensors update the input constantly
     // TODO: send tstamp as input
     log.info("Loading sensors...");
@@ -34,16 +33,6 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
             sensor
         })
         .collect();
-
-    log.info("Loading motors...");
-    let left_motor = crate::wb_robot_get_device("left_wheel_motor");
-    let right_motor = crate::wb_robot_get_device("right_wheel_motor");
-    crate::wb_motor_set_position(left_motor, infinity);
-    crate::wb_motor_set_position(right_motor, infinity);
-    //crate::wb_motor_set_velocity(left_motor, 0.5 * max_speed);
-    //crate::wb_motor_set_velocity(right_motor, 0.5 * max_speed);
-    crate::wb_motor_set_velocity(left_motor, 0.0);
-    crate::wb_motor_set_velocity(right_motor, 0.0);
 
     log.info("Running!");
     loop {
@@ -58,25 +47,21 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
         // TODO: move this to input code
         // TODO: check if related action allows for it
         //// Get values from sensors
-        let distance_values: Vec<f64> = distance_sensors
-            .iter()
-            .map(|sensor| crate::wb_distance_sensor_get_value(*sensor))
-            .collect();
-        log.info(&format!("{:#?}", distance_values));
-        // TODO:
-        // pass distance and timestamp to input
-        // let brain calculate and send us active actions
-        // one by one, translate actions to...er...actions
+        let (sensor_state, _) = brain.get_output().get_sensor();
+        if sensor_state == "on" {
+            thread::sleep(Duration::from_millis(900));
+            let distance_values: Vec<f64> = distance_sensors
+                .iter()
+                .map(|sensor| crate::wb_distance_sensor_get_value(*sensor))
+                .collect();
+            log.info(&format!("{:#?}", distance_values));
+            brain.get_input().set_distance(log.clone(), distance_values);
+        } else {
+            log.info(&format!("{:#?}", sensor_state));
+        }
+        let _active = brain.update(log.clone(), timestamp);
 
-        brain.get_input().set_distance(distance_values);
-        let active = brain.update(timestamp);
-
-        // TODO: move this to output code
-        //// Define actions from sensor values
-        //// write actuators inputs
-        //crate::wb_motor_set_velocity(left_motor, left_speed);
-        //crate::wb_motor_set_velocity(right_motor, right_speed);
-        log.debug(&format!("{:#?}", timestamp));
+        //log.debug(&format!("{:#?}", timestamp));
     }
 
     crate::wb_robot_cleanup();
