@@ -25,8 +25,9 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
     // TODO: send tstamp as input
     log.info("Loading sensors...");
     let distance_sensor_names = vec!["distance_sensor_eyes"];
+    let mut distance_sensors: Vec<WbDeviceTag> = [].to_vec();
     if ! test_mode {
-        let distance_sensors: Vec<WbDeviceTag> = distance_sensor_names
+        distance_sensors = distance_sensor_names
             .iter()
             .map(|name| {
                 let sensor: WbDeviceTag = crate::wb_robot_get_device(name);
@@ -42,7 +43,7 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
         let timestamp = start_timestamp
             .elapsed()
             .expect("Error retrieving time since start");
-        let mut distance_values: Vec<f64>;
+        let mut distance_values: Vec<f64> = [].to_vec();
         // CAREFUL! This may be used to freeze time!!
         #[cfg(feature = "sim")]
         if crate::wb_robot_step(time_step) == -1 { break;}
@@ -53,7 +54,7 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
         let (sv, _) = brain.get_output().get_sensor();
         if sv == "on" {
             if ! test_mode {
-                distance_values: Vec<f64> = distance_sensors
+                distance_values = distance_sensors
                     .iter()
                     .map(|sensor| crate::wb_distance_sensor_get_value(*sensor))
                     .collect();
