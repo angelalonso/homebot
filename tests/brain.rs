@@ -3,6 +3,7 @@ use homebot::sim_action::Action;
 use homebot::sim_action::CompositeAction as CAction;
 use homebot::sim_brain::Brain;
 use homebot::sim_output::Output;
+use homebot::loggin::Log;
 
 use core::cmp::Ordering;
 use std::collections::HashMap;
@@ -19,7 +20,8 @@ fn test_update_to_current() {
      * they enter current when they should
      */
     // Create the brain and Time reference
-    let mut brain = Brain::init(true);
+    let log = Log::init("DEBUG".to_string());
+    let mut brain = Brain::init(log.clone(), true);
     let start_timestamp: SystemTime = SystemTime::now();
 
     // Define time and expectation
@@ -75,7 +77,7 @@ fn test_update_to_current() {
         if timestamp.as_secs_f32() >= timelimit {
             break;
         }
-        let _ = brain.update(timestamp);
+        let _ = brain.update(log.clone(), timestamp);
         let ix = timestamp.as_secs_f32().floor() as i32;
         let curr = &brain.get_current_caction_ids();
         match curr.len().cmp(&0) {
@@ -102,13 +104,14 @@ fn test_update_to_output_straightaway() {
      * TODO: we need a default state to come back, maybe?
      */
     // Create the brain and Time reference
-    let mut brain = Brain::init(true);
+    let log = Log::init("DEBUG".to_string());
+    let mut brain = Brain::init(log.clone(), true);
     let start_timestamp: SystemTime = SystemTime::now();
 
     // Define time and expectation
     let timelimit = 4.0;
     let mut expected: HashMap<String, Output> = HashMap::new();
-    let mut this_output = Output::new();
+    let mut this_output = Output::new(log.clone());
     expected.insert("0".to_string(), this_output.clone()); // the first composite action starts after 500ms
     this_output.set_sensor("on".to_string(), 0);
     this_output.set_motor_l(1.0, 0);
@@ -197,7 +200,7 @@ fn test_update_to_output_straightaway() {
         if timestamp.as_secs_f32() >= timelimit {
             break;
         }
-        let output = brain.update(timestamp);
+        let output = brain.update(log.clone(), timestamp);
         let ix = timestamp.as_secs_f32().floor() as i32;
         assert_eq!(
             format!("{:#?}", output),
@@ -215,13 +218,14 @@ fn test_update_to_output_collisions() {
      * AND their collisions are solved appropiately
      */
     // Create the brain and Time reference
-    let mut brain = Brain::init(true);
+    let log = Log::init("DEBUG".to_string());
+    let mut brain = Brain::init(log.clone(), true);
     let start_timestamp: SystemTime = SystemTime::now();
 
     // Define time and expectation
     let timelimit = 4.0;
     let mut expected: HashMap<String, Output> = HashMap::new();
-    let mut this_output = Output::new();
+    let mut this_output = Output::new(log.clone());
     this_output.set_motor_l(10.0, 0);
     expected.insert("0".to_string(), this_output.clone()); // the first composite action starts after 500ms
     this_output.set_motor_l(0.0, 90);
@@ -297,7 +301,7 @@ fn test_update_to_output_collisions() {
         if timestamp.as_secs_f32() >= timelimit {
             break;
         }
-        let output = brain.update(timestamp);
+        let output = brain.update(log.clone(), timestamp);
         let ix = timestamp.as_secs_f32().floor() as i32;
         assert_eq!(
             format!("{:#?}", output),
