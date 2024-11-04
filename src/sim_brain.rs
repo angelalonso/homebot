@@ -18,7 +18,7 @@ impl Brain {
         let current = vec![];
         let incoming = vec![];
         let input = Input::new();
-        let output = Output::new(log.clone());
+        let output = Output::new(log.clone(), test_mode);
         Self {
             current,
             incoming,
