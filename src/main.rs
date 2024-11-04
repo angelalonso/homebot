@@ -3,8 +3,10 @@ use homebot::loggin;
 use serde_yaml;
 use std::collections::BTreeMap;
 
-#[cfg(any(feature = "sim", feature = "test"))]
-use homebot::sim;
+#[cfg(feature = "sim")]
+use homebot::sim_env::*;
+#[cfg(feature = "test")]
+use homebot::test_env::*;
 
 pub fn load(filename: &str) -> Result<BTreeMap<String, String>, Box<dyn std::error::Error>> {
     let f = std::fs::File::open(filename)?;
@@ -18,7 +20,7 @@ fn main() {
         Ok(cfg) => {
             let log = loggin::Log::init(cfg["LOGLEVEL"].clone());
             log.info(&format!("- Mode: Webots Simulation"));
-            match sim::run(log.clone(), cfg) {
+            match run(log.clone(), cfg) {
                 Ok(()) => (),
                 Err(es) => {
                     log.err(&format!("ERROR running simulation: {:#?}", es));

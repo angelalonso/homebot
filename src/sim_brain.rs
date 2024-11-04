@@ -1,7 +1,10 @@
 use crate::loggin::Log;
 use crate::sim_action::CompositeAction as CAction;
 use crate::sim_input::Input;
+#[cfg(feature = "sim")]
 use crate::sim_output::Output;
+#[cfg(feature = "test")]
+use crate::test_output::Output;
 
 use std::time::Duration;
 

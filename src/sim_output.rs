@@ -16,23 +16,17 @@ pub struct Output {
 
 impl Output {
     pub fn new(log: Log, test_mode: bool) -> Self {
-
         let left_wheel_motor: u16;
         let right_wheel_motor: u16;
 
         log.info("Loading motors...");
         let infinity = f64::INFINITY;
-        if ! test_mode {
-            left_wheel_motor = crate::wb_robot_get_device("left_wheel_motor");
-            right_wheel_motor = crate::wb_robot_get_device("right_wheel_motor");
-            crate::wb_motor_set_position(left_wheel_motor, infinity);
-            crate::wb_motor_set_position(right_wheel_motor, infinity);
-            crate::wb_motor_set_velocity(left_wheel_motor, 0.0);
-            crate::wb_motor_set_velocity(right_wheel_motor, 0.0);
-        } else {
-            left_wheel_motor = 1;
-            right_wheel_motor = 2;
-        }
+        left_wheel_motor = crate::wb_robot_get_device("left_wheel_motor");
+        right_wheel_motor = crate::wb_robot_get_device("right_wheel_motor");
+        crate::wb_motor_set_position(left_wheel_motor, infinity);
+        crate::wb_motor_set_position(right_wheel_motor, infinity);
+        crate::wb_motor_set_velocity(left_wheel_motor, 0.0);
+        crate::wb_motor_set_velocity(right_wheel_motor, 0.0);
 
         Self {
             sensor: "on".to_string(),
@@ -53,18 +47,14 @@ impl Output {
 
     pub fn set_motor_l(&mut self, value: f32, prio: u8) {
         //let max_speed = 6.28;
-        #[cfg(feature = "sim")]
         let max_speed = 1.00;
-        #[cfg(feature = "sim")]
         crate::wb_motor_set_velocity(self.motor_l, (value * max_speed).into());
         self.motor_l_vel = value;
         self.motor_l_prio = prio;
     }
 
     pub fn set_motor_r(&mut self, value: f32, prio: u8) {
-        #[cfg(feature = "sim")]
         let max_speed = 1.00;
-        #[cfg(feature = "sim")]
         crate::wb_motor_set_velocity(self.motor_r, (value * max_speed).into());
         self.motor_r_vel = value;
         self.motor_r_prio = prio;
