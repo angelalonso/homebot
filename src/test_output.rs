@@ -15,12 +15,12 @@ pub struct Output {
 }
 
 impl Output {
-    pub fn new(log: Log, test_mode: bool) -> Self {
+    pub fn new(log: Log) -> Self {
         let left_wheel_motor: u16;
         let right_wheel_motor: u16;
 
         log.info("Loading motors...");
-        let infinity = f64::INFINITY;
+        let _infinity = f64::INFINITY;
 
         left_wheel_motor = 1;
         right_wheel_motor = 2;

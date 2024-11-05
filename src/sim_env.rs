@@ -44,7 +44,6 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
             .expect("Error retrieving time since start");
         let mut distance_values: Vec<f64> = [].to_vec();
         // CAREFUL! This may be used to freeze time!!
-        #[cfg(feature = "sim")]
         if crate::wb_robot_step(time_step) == -1 {
             break;
         }

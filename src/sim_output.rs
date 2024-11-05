@@ -15,7 +15,7 @@ pub struct Output {
 }
 
 impl Output {
-    pub fn new(log: Log, test_mode: bool) -> Self {
+    pub fn new(log: Log) -> Self {
         let left_wheel_motor: u16;
         let right_wheel_motor: u16;
 

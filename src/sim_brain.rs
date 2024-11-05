@@ -21,7 +21,7 @@ impl Brain {
         let current = vec![];
         let incoming = vec![];
         let input = Input::new();
-        let output = Output::new(log.clone(), test_mode);
+        let output = Output::new(log.clone());
         Self {
             current,
             incoming,
@@ -34,6 +34,7 @@ impl Brain {
     pub fn update(&mut self, log: Log, ts: Duration) -> Output {
         self.input.set_ts(ts);
         // We avoid doing this while testing, for higher control on tests
+        // TODO: remove test_mode
         if !self.test_mode {
             for ac in self.input.react(log.clone()) {
                 self.add_incoming(ac);

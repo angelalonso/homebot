@@ -2,7 +2,7 @@
 use homebot::sim_action::Action;
 use homebot::sim_action::CompositeAction as CAction;
 use homebot::sim_brain::Brain;
-use homebot::sim_output::Output;
+use homebot::test_output::Output;
 use homebot::loggin::Log;
 
 use core::cmp::Ordering;
