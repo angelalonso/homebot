@@ -1,7 +1,7 @@
 //use homebot::sim_action::get_ids_from_act_array;
-use homebot::sim_action::Action;
-use homebot::sim_action::CompositeAction as CAction;
-use homebot::sim_brain::Brain;
+use homebot::homebot_action::Action;
+use homebot::homebot_action::CompositeAction as CAction;
+use homebot::homebot_brain::Brain;
 use homebot::test_output::Output;
 use homebot::loggin::Log;
 

@@ -1,5 +1,5 @@
-use crate::sim_action::Action;
-use crate::sim_action::CompositeAction as CAction;
+use crate::homebot_action::Action;
+use crate::homebot_action::CompositeAction as CAction;
 use std::time::Duration;
 
 // TODO: accept variables but only optional (e.g.: id)

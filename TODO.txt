@@ -13,7 +13,7 @@
 
 
 # NEXT:
-- Sort out tests - avoid running sim code on tests -> maybe time to create a copy of the sim_ files ?
+- See if more code can be shared, moved to homebot_* files?
 - When turnaround is triggered, only the first actions are taken
   - Just make it work on Sim
 - Move max speed to output

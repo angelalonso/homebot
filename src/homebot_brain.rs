@@ -1,6 +1,6 @@
 use crate::loggin::Log;
-use crate::sim_action::CompositeAction as CAction;
-use crate::sim_input::Input;
+use crate::homebot_action::CompositeAction as CAction;
+use crate::homebot_input::Input;
 #[cfg(feature = "sim")]
 use crate::sim_output::Output;
 #[cfg(feature = "test")]

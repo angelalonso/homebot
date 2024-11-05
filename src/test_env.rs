@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 use std::time::SystemTime;
 
 use crate::loggin::Log;
-use crate::sim_brain::Brain;
+use crate::homebot_brain::Brain;
 
 pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(feature = "test")]

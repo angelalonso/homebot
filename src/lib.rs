@@ -1,26 +1,14 @@
+// -- Common to all Modes
 pub mod loggin;
-pub mod sim_action;
-pub mod sim_input;
-pub mod sim_reactionset;
+pub mod homebot_action;
+pub mod homebot_input;
+pub mod homebot_reactionset;
 
+// This cfg is here for reference ;) 
 #[cfg(any(feature = "sim", feature = "test"))]
-pub mod sim_brain;
+pub mod homebot_brain;
 
-#[cfg(feature = "sim")]
-pub mod sim_env;
-#[cfg(feature = "sim")]
-pub mod sim_output;
-#[cfg(feature = "sim")]
-pub mod sim_bindings {
-    #![allow(non_upper_case_globals)]
-    #![allow(non_camel_case_types)]
-    #![allow(non_snake_case)]
-    #![allow(improper_ctypes)]
-    include!("sim_bindings.rs");
-}
-#[cfg(feature = "sim")]
-pub mod sim_webots;
-
+// -- Test Mode
 #[cfg(feature = "test")]
 pub mod test_env;
 #[cfg(feature = "test")]
@@ -35,3 +23,19 @@ pub mod test_bindings {
 }
 #[cfg(feature = "test")]
 pub mod test_nowebots;
+
+// -- Sim Mode
+#[cfg(feature = "sim")]
+pub mod sim_env;
+#[cfg(feature = "sim")]
+pub mod sim_output;
+#[cfg(feature = "sim")]
+pub mod sim_bindings {
+    #![allow(non_upper_case_globals)]
+    #![allow(non_camel_case_types)]
+    #![allow(non_snake_case)]
+    #![allow(improper_ctypes)]
+    include!("sim_bindings.rs");
+}
+#[cfg(feature = "sim")]
+pub mod sim_webots;
