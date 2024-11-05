@@ -1,6 +1,6 @@
-use crate::loggin::Log;
 use crate::homebot_action::CompositeAction as CAction;
 use crate::homebot_input::Input;
+use crate::loggin::Log;
 #[cfg(feature = "sim")]
 use crate::sim_output::Output;
 #[cfg(feature = "test")]
@@ -31,15 +31,16 @@ impl Brain {
         }
     }
 
-    pub fn update(&mut self, log: Log, ts: Duration) -> Output {
+    pub fn update(&mut self, log: Log, ts: Duration, add_incoming: String) -> Output {
         self.input.set_ts(ts);
         // We avoid doing this while testing, for higher control on tests
         // TODO: remove test_mode
-        if !self.test_mode {
+        if !self.test_mode && add_incoming == "on" {
             for ac in self.input.react(log.clone()) {
                 self.add_incoming(ac);
             }
         }
+        log.debug(&format!("iii: {:#?}", self.get_incoming_caction_ids()));
         let mut tmp_incoming = vec![];
         for i in self.incoming.iter_mut() {
             if i.starts_at <= ts.as_millis() {

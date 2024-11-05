@@ -1,9 +1,9 @@
 use std::collections::BTreeMap;
 use std::time::SystemTime;
 
-use crate::sim_bindings::WbDeviceTag;
-use crate::loggin::Log;
 use crate::homebot_brain::Brain;
+use crate::loggin::Log;
+use crate::sim_bindings::WbDeviceTag;
 
 pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(feature = "test")]
@@ -51,6 +51,8 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
         // TODO: move this to input code
         // TODO: check if related action allows for it
         //// Get values from sensors
+        // TODO: avoid more incomings by a different tag than get_sensor
+        // TODO: test with continuous distance
         let (sv, _) = brain.get_output().get_sensor();
         if sv == "on" {
             if !test_mode {
@@ -61,7 +63,7 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
             }
             brain.set_input_distance(log.clone(), distance_values);
         }
-        let _active = brain.update(log.clone(), timestamp);
+        let _active = brain.update(log.clone(), timestamp, sv);
 
         log.debug(&format!("---------------------"));
         //log.debug(&format!("{:#?}", timestamp));

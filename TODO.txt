@@ -13,9 +13,7 @@
 
 
 # NEXT:
-- See if more code can be shared, moved to homebot_* files?
-- When turnaround is triggered, only the first actions are taken
-  - Just make it work on Sim
+- Make Sensor "flap" be more generic when deciding if new incoming actions are allowed. Maybe improve on the prio system?
 - Move max speed to output
 - Solve all TODOs
 - create the live part

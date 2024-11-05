@@ -3,8 +3,8 @@ use crate::test_nowebots::*;
 use std::collections::BTreeMap;
 use std::time::SystemTime;
 
-use crate::loggin::Log;
 use crate::homebot_brain::Brain;
+use crate::loggin::Log;
 
 pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(feature = "test")]
@@ -39,9 +39,10 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
             break;
         }
 
+        let (sv, _) = brain.get_output().get_sensor();
         //brain.set_input_distance(log.clone(), distance_values);
 
-        let _active = brain.update(log.clone(), timestamp);
+        let _active = brain.update(log.clone(), timestamp, sv);
 
         log.debug(&format!("---------------------"));
         //log.debug(&format!("{:#?}", timestamp));

@@ -2,8 +2,8 @@
 use homebot::homebot_action::Action;
 use homebot::homebot_action::CompositeAction as CAction;
 use homebot::homebot_brain::Brain;
-use homebot::test_output::Output;
 use homebot::loggin::Log;
+use homebot::test_output::Output;
 
 use core::cmp::Ordering;
 use std::collections::HashMap;
@@ -77,7 +77,8 @@ fn test_update_to_current() {
         if timestamp.as_secs_f32() >= timelimit {
             break;
         }
-        let _ = brain.update(log.clone(), timestamp);
+        let (sv, _) = brain.get_output().get_sensor();
+        let _ = brain.update(log.clone(), timestamp, sv);
         let ix = timestamp.as_secs_f32().floor() as i32;
         let curr = &brain.get_current_caction_ids();
         match curr.len().cmp(&0) {
@@ -200,7 +201,8 @@ fn test_update_to_output_straightaway() {
         if timestamp.as_secs_f32() >= timelimit {
             break;
         }
-        let output = brain.update(log.clone(), timestamp);
+        let (sv, _) = brain.get_output().get_sensor();
+        let output = brain.update(log.clone(), timestamp, sv);
         let ix = timestamp.as_secs_f32().floor() as i32;
         assert_eq!(
             format!("{:#?}", output),
@@ -301,7 +303,8 @@ fn test_update_to_output_collisions() {
         if timestamp.as_secs_f32() >= timelimit {
             break;
         }
-        let output = brain.update(log.clone(), timestamp);
+        let (sv, _) = brain.get_output().get_sensor();
+        let output = brain.update(log.clone(), timestamp, sv);
         let ix = timestamp.as_secs_f32().floor() as i32;
         assert_eq!(
             format!("{:#?}", output),
