@@ -14,7 +14,7 @@ run:
 test:
 	cargo build --features test
 	@echo
-	@echo Build for Robot Done.
+	@echo Build for Testing Done.
 
 .PHONY:simulate
 simulate: 
@@ -24,6 +24,12 @@ simulate:
 	mkdir -p simulation/controllers/rust_controller/
 	cp target/debug/homebot simulation/controllers/rust_controller/rust_controller
 	webots simulation/worlds/homebot_simulation_world.wbt
+
+.PHONY:clisimulate
+clisimulate: 
+	cargo build --features clisimulate
+	@echo
+	@echo Build for CLI Simulation Done.
 
 
 .PHONY:clean

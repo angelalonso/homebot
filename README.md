@@ -1,6 +1,20 @@
 # Complete suite to control my own Home robot
 
-The goal is to have a code base to control my home robot.
+The goal is to have a system to control my home robot.
+Some kind of wrapper to define actions would also be great to have.
+
+# How the code under src/ is architected
+- Main - checks mode and triggers different libraries depending on whether it runs on a laptop (sim) or the robot (live)
+- Both sim and live should be structured as similar as it gets
+  - Each library that is EXCLUSIVELY for one or the other starts with sim_ or live_ (e.g.: sim_bindings.rs)
+  - A library can start as exclusive to one (e.g.: sim_brain.rs) and then be renamed once adapted for the other (then becoming just brain.rs)
+- test_env.rs, sim_env.rs and live_env.rs each will have its own run function.
+  - This function first initializes what each mode requires then run a loop, but both modes should follow a similar structure
+- Regarding that loop, it uses the following mechanisms
+  - Time - To base changes on time passed since the program started -  shall we treat time as an input maybe?
+  - Input - This gets the current values from several sensors
+    - For now we don't turn those sensors on or off, we just ignore values that we don't need
+  - Brain - This "analyzes" the Input (Time also being one) schedules actions to be taken
 
 ## What is the plan now?
 I had a working version in https://github.com/angelalonso/robot but it had several problems and the only way to improve was to have a tesitng environment.
@@ -10,23 +24,21 @@ I am trying Webots now because it seems to have a much simpler way of making Rus
 
 This project is based on https://github.com/acj/webots-rs as of September 2023. 
 
-I am planning on using that example to have a testing environment from which I can tailor the code to what my robot actually has (some sensors, some motors...).
+The idea was to use that example and build a testing environment, from which I can tailor the code to what my robot actually has (some sensors, some motors...).
 
-Once that works, I will create a second mode for the robot, for when the code runs live on the actual robot instead of a Webots simulation.
-
-## NEXTUP:
-- Mirror the simulate code to make it run on a physical robot.
-- Generate tests for everything (except maybe the simulation part).
+Now that I have a base, I will create another mode for when the code runs live on the actual robot instead of a Webots simulation or a test.
 
 ## DONE :
-- Modified current workflow for Webots, including everything needed to run the code on simulation mode under make simulate
-- Added test mode, where only code is tested.
-- Added run mode, where the code is run at the physical robot.
+- Added a home.sh script to trigger test, sim or live modes
+- Modified current workflow for Webots, including everything needed to run the code on simulation mode with ./home.sh sim
+- Separated code that is exclusive to one mode or another (e.g.: sim needs to call webots bindings, test does not)
+- Have tests for the functionality, like a grown-up program!
 
-## Actual docs
-The following comes from the original Repo (see above) until I get to adapt it.
+## NEXTUP:
 
-### Simulation Mode
+See TODO.txt
+
+## Original docs for how the webots part works:
 
 1. Download and install [Webots](https://cyberbotics.com) for your operating system
 1. Install [Rust](https://www.rust-lang.org/learn/get-started) if you haven't already

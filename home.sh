@@ -17,39 +17,31 @@ test_online() {
 
 check_mode() {
   # If we are on the robot, we run live
-  THIS_MACHINE=$(hostname)
-  if [[ ${ROBOT_MACHINE_NAME} == ${THIS_MACHINE} ]]; then
-    MODE="live"
+  if [[ "$1" == "" ]]; then
+    MODE="sim"
   else
-    MODE="simulate"
+    MODE="$1"
   fi
   
   # If we have access to Internet, it will rebuild in any case, if not, it will take the latest build
-  test_online
-  if [[ $am_online == True ]]; then
-    NEEDS_BUILD=True
-  else
-    NEEDS_BUILD=False
-  fi
+  #test_online
 }
 
 
 
-source ./variables
+check_mode $1
 
-
-check_mode
-if [[ $NEEDS_BUILD == True ]];then
-	cargo build --features $MODE
-fi
+cargo build --features $MODE
 
 if [[ ${MODE} == "live" ]]; then
   echo "RUNNING LIVE"
-elif [[ ${MODE} == "simulate" ]]; then
-  echo "TESTING LOCALLY"
+elif [[ ${MODE} == "sim" ]]; then
 	mkdir -p simulation/controllers/rust_controller/
 	cp target/debug/homebot simulation/controllers/rust_controller/rust_controller
+	cp cfg.yaml simulation/controllers/rust_controller/
 	webots simulation/worlds/homebot_simulation_world.wbt
+elif [[ ${MODE} == "test" ]]; then
+  cargo test --features test -- --nocapture
 else
   echo ${MODE} NOT RECOGNIZED
 fi

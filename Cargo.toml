@@ -6,8 +6,13 @@ edition = "2018"
 [build-dependencies]
 bindgen = { version = "0.59", optional = true }
 
+[dependencies]
+serde_yaml = "0.8.7"
+serde = "*"
+
 
 [features]
 
-simulate = ["dep:bindgen"]
-run = []
+sim = ["dep:bindgen"]
+test = ["dep:bindgen"]
+live = []

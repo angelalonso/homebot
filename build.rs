@@ -1,18 +1,20 @@
-#[cfg(feature = "simulate")]
+#[cfg(any(feature = "sim", feature = "test"))]
 use std::env;
-
-#[cfg(feature = "simulate")]
+//
+#[cfg(any(feature = "sim", feature = "test"))]
 use std::path::PathBuf;
 
-#[cfg(feature = "simulate")]
+#[cfg(any(feature = "sim", feature = "test"))]
 static WEBOTS_LINUX_PATH: &'static str = "/usr/local/webots";
-#[cfg(feature = "simulate")]
+#[cfg(any(feature = "sim", feature = "test"))]
 static WEBOTS_MACOS_PATH: &'static str = "/Applications/Webots.app";
-#[cfg(feature = "simulate")]
+#[cfg(any(feature = "sim", feature = "test"))]
 static WEBOTS_WINDOWS_PATH: &'static str = "C:\\Program Files\\Webots";
 
-#[cfg(feature = "simulate")]
+//#[cfg(feature = "sim")]
+#[cfg(any(feature = "sim", feature = "test"))]
 fn main() {
+    println!("Building for simulation (Webots)");
     let env_path = env::var("WEBOTS_PATH").ok();
     let webots_path = if cfg!(target_os = "linux") {
         WEBOTS_LINUX_PATH.to_string()
@@ -52,8 +54,8 @@ fn main() {
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Unable to write bindings");
 }
-
-#[cfg(not(feature = "simulate"))]
-fn main() {
-    println!("Regular Build -----");
-}
+// # TODO:
+//#[cfg(feature = "live")]
+//fn main() {
+//    println!("Regular Build -----");
+//}

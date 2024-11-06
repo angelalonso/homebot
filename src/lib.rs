@@ -1,64 +1,41 @@
-pub mod movement;
-pub mod queue;
+// -- Common to all Modes
+pub mod loggin;
+pub mod homebot_action;
+pub mod homebot_input;
+pub mod homebot_reactionset;
 
-#[cfg(feature = "simulate")]
-pub mod bindings {
+// This cfg is here for reference ;) 
+#[cfg(any(feature = "sim", feature = "test"))]
+pub mod homebot_brain;
+
+// -- Test Mode
+#[cfg(feature = "test")]
+pub mod test_env;
+#[cfg(feature = "test")]
+pub mod test_output;
+#[cfg(feature = "test")]
+pub mod test_bindings {
     #![allow(non_upper_case_globals)]
     #![allow(non_camel_case_types)]
     #![allow(non_snake_case)]
     #![allow(improper_ctypes)]
-    include!("bindings.rs");
+    include!("test_bindings.rs");
 }
+#[cfg(feature = "test")]
+pub mod test_nowebots;
 
-#[cfg(feature = "simulate")]
-use bindings::WbDeviceTag;
-#[cfg(feature = "simulate")]
-use std::ffi::CString;
-
-#[cfg(feature = "simulate")]
-pub fn wb_distance_sensor_enable(tag: WbDeviceTag, sampling_period: i32) {
-    unsafe {
-        crate::bindings::wb_distance_sensor_enable(tag, sampling_period);
-    }
+// -- Sim Mode
+#[cfg(feature = "sim")]
+pub mod sim_env;
+#[cfg(feature = "sim")]
+pub mod sim_output;
+#[cfg(feature = "sim")]
+pub mod sim_bindings {
+    #![allow(non_upper_case_globals)]
+    #![allow(non_camel_case_types)]
+    #![allow(non_snake_case)]
+    #![allow(improper_ctypes)]
+    include!("sim_bindings.rs");
 }
-
-#[cfg(feature = "simulate")]
-pub fn wb_distance_sensor_get_value(tag: WbDeviceTag) -> f64 {
-    unsafe { crate::bindings::wb_distance_sensor_get_value(tag) }
-}
-
-#[cfg(feature = "simulate")]
-pub fn wb_motor_set_position(device: WbDeviceTag, position: f64) {
-    unsafe { crate::bindings::wb_motor_set_position(device, position) }
-}
-
-#[cfg(feature = "simulate")]
-pub fn wb_motor_set_velocity(device: WbDeviceTag, velocity: f64) {
-    unsafe { crate::bindings::wb_motor_set_velocity(device, velocity) }
-}
-
-#[cfg(feature = "simulate")]
-pub fn wb_robot_get_device(id: &str) -> WbDeviceTag {
-    let name = CString::new(id).expect("CString::new failed");
-    unsafe { crate::bindings::wb_robot_get_device(name.as_ptr()) }
-}
-
-#[cfg(feature = "simulate")]
-pub fn wb_robot_cleanup() {
-    unsafe { crate::bindings::wb_robot_cleanup() }
-}
-
-#[cfg(feature = "simulate")]
-pub fn wb_robot_init() {
-    unsafe {
-        crate::bindings::wb_robot_init();
-    }
-}
-
-#[cfg(feature = "simulate")]
-pub fn wb_robot_step(step: i32) -> i32 {
-    unsafe { crate::bindings::wb_robot_step(step) }
-}
-
-#[cfg(not(feature = "simulate"))]
-pub mod robot;
+#[cfg(feature = "sim")]
+pub mod sim_webots;
