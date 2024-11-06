@@ -1,16 +1,3 @@
-# How this is architected
-- Main - checks mode and triggers different libraries depending on whether it runs on a laptop (sim) or the robot (live)
-- both sim and live should be structured as similar as it gets
-  - each library that is EXCLUSIVELY for one or the other starts with sim_ or live_ (e.g.: sim_bindings.rs)
-  - A library can start as exclusive to one (e.g.: sim_brain.rs) and then be renamed once adapted for the other (then becoming just brain.rs)
-- sim.rs and live.rs each have its own run function.
-  - This function first initializes what each mode requires then run a loop, but both modes should follow a similar structure
-- Regarding that loop, it uses the following mechanisms
-  - Time - To base changes on time passed since the program started -  shall we treat time as an input maybe?
-  - Input - This gets the current values from several sensors
-    - For now we don't turn those sensors on or off, we just ignore values that we don't need
-  - Brain - This "analyzes" the Input (Time also being one) schedules actions to be taken
-
 
 # NEXT:
 - Make Sensor "flap" be more generic when deciding if new incoming actions are allowed. Maybe improve on the prio system?
