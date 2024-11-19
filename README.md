@@ -1,7 +1,17 @@
 # Complete suite to control my own Home robot
 
 The goal is to have a system to control my home robot.
-Some kind of wrapper to define actions would also be great to have.
+My main challenge so far as been managing complex sets of actions, and so this time I will try to follow these rules:
+- Start small, with simple action sets.
+- The code should run fast but also should be easy to understand and expand.
+- Everything should be tested and simulated.
+- The simulation should correlate with what happens at the robot.
+
+# TL;DR
+1. Download and install [Webots](https://cyberbotics.com)
+1. Install [Rust](https://www.rust-lang.org/learn/get-started)
+1. Run ./home.sh sim for the simulated mode
+
 
 # How the code under src/ is architected
 - Main - checks mode and triggers different libraries depending on whether it runs on a laptop (sim) or the robot (live)
@@ -16,29 +26,31 @@ Some kind of wrapper to define actions would also be great to have.
     - For now we don't turn those sensors on or off, we just ignore values that we don't need
   - Brain - This "analyzes" the Input (Time also being one) schedules actions to be taken
 
-## What is the plan now?
-I had a working version in https://github.com/angelalonso/robot but it had several problems and the only way to improve was to have a tesitng environment.
-
-Gazebo seems to be tight friends with ROS. Python on ROS is too slow, I don"t know C and using some bindings there was a mess. 
-I am trying Webots now because it seems to have a much simpler way of making Rust work.
-
-This project is based on https://github.com/acj/webots-rs as of September 2023. 
-
-The idea was to use that example and build a testing environment, from which I can tailor the code to what my robot actually has (some sensors, some motors...).
-
-Now that I have a base, I will create another mode for when the code runs live on the actual robot instead of a Webots simulation or a test.
-
-## DONE :
-- Added a home.sh script to trigger test, sim or live modes
+# What works
+- Simulation mode works
+- Added a home.sh script to trigger test, sim (or live in the future) modes
 - Modified current workflow for Webots, including everything needed to run the code on simulation mode with ./home.sh sim
 - Separated code that is exclusive to one mode or another (e.g.: sim needs to call webots bindings, test does not)
 - Have tests for the functionality, like a grown-up program!
 
-## NEXTUP:
-
+# What does not work yet
 See TODO.txt
 
-## Original docs for how the webots part works:
+## Why?
+### Why is it so tightly linked to Webots?
+I had a working version in https://github.com/angelalonso/robot but it had several problems and the only way to improve was to have a testing environment.
+
+For this new project I based it originally on https://github.com/acj/webots-rs as of September 2023. 
+
+The idea was to use that example and build a testing environment, from which I can tailor the code to what my robot actually has (some sensors, some motors...).
+
+### Why using this Stack when there is ROS and Gazebo?
+Gazebo seems to be tight friends with ROS. Python on ROS is too slow, I don't know C and using some bindings there was a mess. 
+I am trying Webots now because it seems to have a much simpler way of making Rust work.
+
+
+
+# Original docs for how the webots part works:
 
 1. Download and install [Webots](https://cyberbotics.com) for your operating system
 1. Install [Rust](https://www.rust-lang.org/learn/get-started) if you haven't already
@@ -59,3 +71,5 @@ At compile time, we use [bindgen](https://github.com/rust-lang/rust-bindgen) to 
 
 MIT
 Please find The original LICENSE from Adam Jensen under LICENSE_included. Any further works from that day on are also licensed under the MIT one.
+
+
