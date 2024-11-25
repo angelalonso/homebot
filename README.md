@@ -14,9 +14,7 @@ My main challenge so far as been managing complex sets of actions, and so this t
 
 
 # Robot Software installation
-1. Download https://raspi.debian.net/tested/20231109_raspi_3_bookworm.img.xz from https://raspi.debian.net/tested-images/ 
-1. unxz 20231109_raspi_3_bookworm.img.xz
-1. TBD
+See [the related Readme for the installation on the robot](ROBOT_README.md)
 
 
 # How the code under src/ is architected
