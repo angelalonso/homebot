@@ -13,6 +13,11 @@ My main challenge so far as been managing complex sets of actions, and so this t
 1. Run ./home.sh sim for the simulated mode
 
 
+# Robot Software installation
+1. Download https://raspi.debian.net/tested/20231109_raspi_4_bookworm.img.xz from https://raspi.debian.net/tested-images/ 
+2. TBD
+
+
 # How the code under src/ is architected
 - Main - checks mode and triggers different libraries depending on whether it runs on a laptop (sim) or the robot (live)
 - Both sim and live should be structured as similar as it gets
@@ -34,6 +39,7 @@ My main challenge so far as been managing complex sets of actions, and so this t
 - Have tests for the functionality, like a grown-up program!
 
 # What does not work yet
+Installation into robot
 See TODO.txt
 
 ## Why?
