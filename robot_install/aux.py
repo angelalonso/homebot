@@ -27,3 +27,21 @@ class CustomFormatter(logging.Formatter):
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+def printfmt(msg, msgtype):
+    msgt = f"{bcolors.OKGREEN}"
+    print(f"{bcolors.WARNING}" + msg + f"{bcolors.ENDC}")
+    print(msgt + msg + f"{bcolors.ENDC}")
+
