@@ -50,10 +50,12 @@ def main():
 # ./chroot_pi.sh /dev/mmcblk0
 # vi /etc/ssh/sshd_config
 #   PermitRootLogin yes
+# exit
+
 
 # ## Common
-# save, connect to raspberry
-# Connect raspi with RJ45, find it
+# unmount the /media partitions, connect microSD to raspberry
+# Connect raspi with RJ45, boot it, wait and find it
 # nmap -sP 192.168.1.0/24 - ask if needs to be used, 
 #   then get list before starting, then compare and get the new IP, asking for confirmation step by step
 # ssh pi@<IP> - raspberry doesnt work
