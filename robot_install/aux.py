@@ -29,10 +29,10 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
+    LILA = '\033[95m'
+    BLUE = '\033[94m'
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
     WARNING = '\033[93m'
     FAIL = '\033[91m'
     ENDC = '\033[0m'
@@ -40,8 +40,24 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-def printfmt(msg, msgtype):
-    msgt = f"{bcolors.OKGREEN}"
-    print(f"{bcolors.WARNING}" + msg + f"{bcolors.ENDC}")
+def printfmt(msgtype, msg):
+    if msgtype == "lila":
+        msgt = f"{bcolors.LILA}"
+    elif msgtype == "blue":
+        msgt = f"{bcolors.BLUE}"
+    elif msgtype == "cyan":
+        msgt = f"{bcolors.CYAN}"
+    elif msgtype == "green":
+        msgt = f"{bcolors.GREEN}"
+    elif msgtype == "yellow":
+        msgt = f"{bcolors.WARNING}"
+    elif msgtype == "red":
+        msgt = f"{bcolors.FAIL}"
+    elif msgtype == "bold":
+        msgt = f"{bcolors.BOLD}"
+    elif msgtype == "underline":
+        msgt = f"{bcolors.UNDERLINE}"
+    else:
+        msgt = f"{bcolors.ENDC}"
     print(msgt + msg + f"{bcolors.ENDC}")
 

@@ -2,6 +2,7 @@ import logging
 import sys
 
 import aux
+from aux import printfmt as pfmt
 
 
 def main():
@@ -27,34 +28,55 @@ def main():
                 \n ln -s $HOME/Downloads/balenaEtcher-linux-x64-1.19.25/balenaEtcher-linux-x64/balena-etcher $HOME/.local/bin/balena-etcher")
         sys.exit(2)
 
-    aux.printfmt("REQUIREMENTS:", aux.bcolors.HEADER)
-    logger.info("Requirements:\n\
-            - Now run balena-etcher")
-# - MicroSD Card, I have used 16G but maybe 8G is enough.
-# - Raspberry pi 3B+
-# 1. Download https://raspi.debian.net/tested/20231109_raspi_3_bookworm.img.xz from https://raspi.debian.net/tested-images/ 
-# 1. unxz 20231109_raspi_3_bookworm.img.xz
-    # Do you have a microSD with Debian ARMHF installed?
-    # Do you want to do it now?
-#    sudo dd if=20231109_raspi_3_bookworm.img of=/dev/mmcblk0 status=progress
-# Mounted at /media/aaf/RASPIFIRM/ and /media/aaf/RASPIROOT ? 
-# touch /media/aaf/RASPIFIRM/ssh
-# Do you have a key pair? do you want to create it?
-# ## OPTION 1 -DID NOT WORK
-# sudo vim /media/aaf/RASPIFIRM/sysconf.txt
-# root_authorized_key=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINmEzgdeRcX5iGbVmeYT7X0fyDzAh58juL6xYAwyPHCR alonsofonseca.angel@gmail.com
-# ## OPTION 2 -CHROOT
-# sudo apt install qemu qemu-user-static binfmt-support
-# chmod +x chroot_pi.sh
-#     Thanks to https://gist.github.com/htruong/7df502fb60268eeee5bca21ef3e436eb
-# ./chroot_pi.sh /dev/mmcblk0
-# vi /etc/ssh/sshd_config
-#   PermitRootLogin yes
-# exit
+    pfmt("lila", "REQUIREMENTS:")
+    pfmt("normal", " - A laptop running linux (ubuntu maybe?)")
+    pfmt("normal", " - MicroSD Card, Minimum 16G")
+    pfmt("normal", " - Raspberry Pi 3B+ or newer")
+    pfmt("normal", " - A home Router")
+    pfmt("normal", " - A Network cable, RJ45")
+    pfmt("normal", " - Debian image for armhf")
+    pfmt("yellow", "   - https://raspi.debian.net/tested/20231109_raspi_3_bookworm.img.xz")
+    pfmt("red", "Press <ENTER> to continue when you have them all, CTRL+C to exit")
+    input()
+    pfmt("lila", "")
+    pfmt("lila", "PREPARATION STEPS: Burn the base image")
+    pfmt("normal", " - Unzip the Debian image")
+    pfmt("yellow", "   - unxz 20231109_raspi_3_bookworm.img.xz")
+    pfmt("normal", " - Connect the MicroSD to your computer")
+    pfmt("normal", " - Get the MAIN device ID for the MicroSD. E.g.:mmcblk0 and not mmcblk0p1")
+    pfmt("yellow", "   - lsblk")
+    pfmt("normal", " - Copy over the image to the MicroSD")
+    pfmt("yellow", "  - sudo dd if=20231109_raspi_3_bookworm.img of=</dev/whatever> status=progress")
+    pfmt("normal", " - Once finished, mount the two partitions to /media/<USER>/RASPIFIRM/ and /media/<USER>/RASPIROOT ?")
+    pfmt("red", "Press <ENTER> to continue when you are ready and the partitions are mounted, CTRL+C to exit")
+    input()
+    pfmt("lila", "")
+    pfmt("lila", "PREPARATION STEPS: Modify the Debian defaults")
+    pfmt("normal", " - Enable SSH")
+    pfmt("yellow", "  - touch /media/<USER>/RASPIFIRM/ssh")
+    pfmt("normal", " - Install dependencies to run wemu and chroot")
+    pfmt("yellow", "  - sudo apt install qemu qemu-user-static binfmt-support")
+    pfmt("normal", " - Make sure our script is executable")
+    pfmt("yellow", "  - chmod +x chroot_pi.sh")
+    pfmt("normal", " - Run the chroot script (Thanks to https://gist.github.com/htruong/7df502fb60268eeee5bca21ef3e436eb)")
+    pfmt("yellow", "  - ./chroot_pi.sh /dev/mmcblk0")
+    pfmt("normal", " - Make sure you are no longer on your machine, then edit the sshd config")
+    pfmt("yellow", "  - vi /etc/ssh/sshd_config")
+    pfmt("blue", "  PermitRootLogin yes")
+    pfmt("normal", " - Save and get out of the chroot")
+    pfmt("yellow", "  - exit ")
+    pfmt("red", "Press <ENTER> to continue when you are have exited chroot, CTRL+C to exit")
+    input()
+    pfmt("lila", "")
+    pfmt("lila", "PREPARATION STEPS: Plug the Raspberry and boot it")
+    pfmt("normal", " - Now unmount the /media partitions,")
+    pfmt("normal", "     connect the MicroSD to the Raspberry,")
+    pfmt("normal", "     connect the Raspberry to your Router with the RJ45 cable,")
+    pfmt("normal", "     plug the Raspberry in, have it boot")
+    pfmt("red", "Press <ENTER> to continue when your Raspberry is connected and started, CTRL+C to exit")
+    input()
 
 
-# ## Common
-# unmount the /media partitions, connect microSD to raspberry
 # Connect raspi with RJ45, boot it, wait and find it
 # nmap -sP 192.168.1.0/24 - ask if needs to be used, 
 #   then get list before starting, then compare and get the new IP, asking for confirmation step by step
