@@ -1,9 +1,13 @@
 from shutil import which
 import logging
+import yaml
+from pathlib import Path
+
 
 def is_installed(name):
     """Check whether `name` is on PATH and marked as executable."""
     return which(name) is not None
+
 
 class CustomFormatter(logging.Formatter):
     grey = "\x1b[38;20m"
@@ -27,6 +31,7 @@ class CustomFormatter(logging.Formatter):
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
+
 
 class bcolors:
     LILA = '\033[95m'
@@ -61,3 +66,12 @@ def printfmt(msgtype, msg):
         msgt = f"{bcolors.ENDC}"
     print(msgt + msg + f"{bcolors.ENDC}")
 
+
+def read_cfg(filename):
+    result = yaml.safe_load(Path(filename).read_text())
+    return result
+
+
+def write_cfg(filename, data):
+    with open(filename, 'w') as yaml_file:
+        yaml.dump(data, yaml_file, default_flow_style=False)
