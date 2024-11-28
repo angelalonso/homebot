@@ -13,21 +13,7 @@ def main():
     logger.setLevel("DEBUG")
     logger.addHandler(ch)
 
-    # Check all requirements, then only continue if all are satisfied
-    set_to_go = True
-    # balena-etcher - TODO: don't stick to balena-etcher,
-    #   rather "have image downloaded from here, burn it,
-    #   maybe with balena-etcher, then mount it, then press enter"
-    if not aux.is_installed("balena-etcher"):
-        set_to_go = False
-        logger.error("ERROR: etcher not found on this machine!\
-                \n  You may want to\
-                \n  - download it from https://etcher.balena.io/#download-etcher\
-                \n  - unzip to a folder of your liking\
-                \n  - make a link into $HOME/.local/bin:\
-                \n ln -s $HOME/Downloads/balenaEtcher-linux-x64-1.19.25/balenaEtcher-linux-x64/balena-etcher $HOME/.local/bin/balena-etcher")
-        sys.exit(2)
-
+    # Guide user through preparations
     pfmt("lila", "REQUIREMENTS:")
     pfmt("normal", " - A laptop running linux (ubuntu maybe?)")
     pfmt("normal", " - MicroSD Card, Minimum 16G")
@@ -75,14 +61,19 @@ def main():
     pfmt("normal", "     plug the Raspberry in, have it boot")
     pfmt("red", "Press <ENTER> to continue when your Raspberry is connected and started, CTRL+C to exit")
     input()
+    pfmt("lila", "")
+    pfmt("lila", "PREPARATION STEPS: Add your Raspberry Pi IP")
+    pfmt("normal", " - Find the IP of your Raspberry once it has connected")
+    pfmt("normal", "  - Modify the following to the IP range your router uses:")
+    pfmt("yellow", "  - nmap -sP 192.168.1.0/24")
+    pfmt("red", "Press <ENTER> when you have found the IP")
+    input()
+    eth_ip = input("Enter your IP: ")
+    logger.info(eth_ip)
+    # Save ethip to config
+    # Give us a TEMPORARY password to use
 
 
-# Connect raspi with RJ45, boot it, wait and find it
-# nmap -sP 192.168.1.0/24 - ask if needs to be used, 
-#   then get list before starting, then compare and get the new IP, asking for confirmation step by step
-# ssh pi@<IP> - raspberry doesnt work
-    if set_to_go:
-        logger.info("Applying...")
 
     logger.info("ALL DONE.")
 
