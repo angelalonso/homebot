@@ -2,8 +2,7 @@
 # NEXT:
 - Make Sensor "flap" be more generic when deciding if new incoming actions are allowed. Maybe improve on the prio system?
 - Move max speed to output
-- Solve all TODOs
-- create the live part
+- Solve all TO
 
 
 - Speed goes from -1 to 1, config says multiplier factor.

@@ -1,5 +1,6 @@
 import logging
 import sys
+import os
 
 import aux
 from steps import *
@@ -14,8 +15,13 @@ def main():
     logger.setLevel("DEBUG")
     logger.addHandler(ch)
 
+    # Use config file to store status
     cfg_file = "cfg.yml"
-    cfg = aux.read_cfg(cfg_file)
+    try: 
+        cfg = aux.read_cfg(cfg_file)
+    except FileNotFoundError:
+        os.mknod(cfg_file)
+        cfg = {}
 
     # Guide user through preparations
     # We avoid repeating steps that were done
@@ -27,58 +33,27 @@ def main():
         cfg['steps_done'] = 0
     aux.write_cfg(cfg_file, cfg)
 
-    if cfg['steps_done'] < 1:
-        step_1()
-        cfg['steps_done'] = 1
-    else:
-        pfmt("lila", "- REQUIREMENTS already met")
+    # Check steps.py for what each one does
+
+    cfg = step_1(cfg)
     aux.write_cfg(cfg_file, cfg)
 
-    if cfg['steps_done'] < 2:
-        step_2()
-        cfg['steps_done'] = 2
-    else:
-        pfmt("lila", "- Base Image was already burnt")
+    cfg = step_2(cfg)
     aux.write_cfg(cfg_file, cfg)
 
-    if cfg['steps_done'] < 3:
-        step_3()
-        cfg['steps_done'] = 3
-    else:
-        pfmt("lila", "- Debian defaults were changed")
+    cfg = step_3(cfg)
     aux.write_cfg(cfg_file, cfg)
 
-    if cfg['steps_done'] < 4:
-        step_4()
-        cfg['steps_done'] = 4
-    else:
-        pfmt("lila", "- Raspberry already booted")
+    cfg = step_4(cfg)
     aux.write_cfg(cfg_file, cfg)
 
-    if cfg['steps_done'] < 5:
-        step_5()
-        eth_ip = input("Enter your IP: ")
-        cfg['eth_ip'] = eth_ip
-        cfg['steps_done'] = 5
-    else:
-        pfmt("lila", "- Raspberrys IP is known: " + cfg['eth_ip'])
+    cfg = step_5(cfg, cfg_file)
     aux.write_cfg(cfg_file, cfg)
 
-    if cfg['steps_done'] < 6:
-        step_6()
-        user = input("Enter the name of the user you want on the Raspberry: ")
-        passwd = input("Enter a password for that user: ")
-        cfg['user'] = user
-        cfg['pass'] = passwd
-        cfg['steps_done'] = 6
-    else:
-        pfmt("lila", "- User (and password) is known: " + cfg['user'])
+    cfg = step_6(logger, cfg)
     aux.write_cfg(cfg_file, cfg)
 
-    aux.write_cfg(cfg_file, cfg)
-    # Give us a TEMPORARY password to use
-
-
+    cfg = step_test(logger, cfg)
 
     logger.info("ALL DONE.")
 
