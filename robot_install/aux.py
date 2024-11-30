@@ -92,7 +92,9 @@ def read_bytesfile(file):
 
 def get_sshkeypair(logger, cfg):
     pubkey = 'homebot.pub'
+    cfg['pubkeyfile'] = pubkey
     privkey = 'homebot.priv'
+    cfg['privkeyfile'] = privkey
 
     if os.path.isfile(pubkey) and os.path.isfile(privkey):
         fpb = open(pubkey, "r")
