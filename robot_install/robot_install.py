@@ -17,7 +17,7 @@ def main():
 
     # Use config file to store status
     cfg_file = "cfg.yml"
-    try: 
+    try:
         cfg = aux.read_cfg(cfg_file)
     except FileNotFoundError:
         os.mknod(cfg_file)
@@ -26,7 +26,7 @@ def main():
     # Guide user through preparations
     # We avoid repeating steps that were done
     try:
-        if 'steps_done' not in cfg: 
+        if 'steps_done' not in cfg:
             cfg['steps_done'] = 0
     except TypeError:
         cfg = {}
@@ -34,22 +34,24 @@ def main():
     aux.write_cfg(cfg_file, cfg)
 
     # Check steps.py for what each one does
-
+    # Requirements
     cfg = step_1(cfg)
     aux.write_cfg(cfg_file, cfg)
-
+    # Image burn
     cfg = step_2(cfg)
     aux.write_cfg(cfg_file, cfg)
-
+    # Modify base system 
     cfg = step_3(cfg)
     aux.write_cfg(cfg_file, cfg)
-
+    # Boot Raspberry
     cfg = step_4(cfg)
     aux.write_cfg(cfg_file, cfg)
-
+    # Add Raspberry IP
     cfg = step_5(cfg, cfg_file)
     aux.write_cfg(cfg_file, cfg)
 
+    cfg = aux.get_sshkeypair(logger, cfg)
+    # Create user
     cfg = step_6(logger, cfg)
     aux.write_cfg(cfg_file, cfg)
 

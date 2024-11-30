@@ -1,6 +1,7 @@
 from aux import printfmt as pfmt
 from getpass import getpass
 import ssh
+import aux
 
 def step_1(cfg):
     if cfg['steps_done'] < 1:
@@ -19,6 +20,7 @@ def step_1(cfg):
         pfmt("lila", "- REQUIREMENTS already met")
     return cfg
 
+
 def step_2(cfg):
     if cfg['steps_done'] < 2:
         pfmt("lila", "PREPARATION STEPS: Burn the base image")
@@ -36,6 +38,7 @@ def step_2(cfg):
     else:
         pfmt("lila", "- Base Image was already burnt")
     return cfg
+
 
 def step_3(cfg):
     if cfg['steps_done'] < 3:
@@ -65,6 +68,7 @@ def step_3(cfg):
         pfmt("lila", "- Debian defaults were changed")
     return cfg
 
+
 def step_4(cfg):
     if cfg['steps_done'] < 4:
         pfmt("lila", "PREPARATION STEPS: Plug the Raspberry and boot it")
@@ -78,6 +82,7 @@ def step_4(cfg):
     else:
         pfmt("lila", "- Raspberry already booted")
     return cfg
+
 
 def step_5(cfg, cfg_file):
     if cfg['steps_done'] < 5:
@@ -95,18 +100,25 @@ def step_5(cfg, cfg_file):
         pfmt("lila", "- Raspberrys IP is known: " + cfg['eth_ip'])
     return cfg
 
+
 def step_6(logger, cfg):
     if cfg['steps_done'] < 6:
         pfmt("lila", "PREPARATION STEPS: Create a user")
         user = input("Enter the name of the user you want on the Raspberry: ")
-        passwd = getpass("Enter a password for that user: ")
         cfg['user'] = user
-        cfg['passwd'] = passwd
+        ssh.create_user(logger,
+                        cfg['eth_ip'],
+                        cfg['ssh_port'],
+                        'root',
+                        cfg['rootpasswd'],
+                        cfg['user'],
+                        cfg['pubkey']
+                        )
         cfg['steps_done'] = 6
     else:
         pfmt("lila", "- User (and password) is known: " + cfg['user'])
     return cfg
 
+
 def step_test(logger, cfg):
-    ssh.create_user(logger, cfg['eth_ip'], cfg['ssh_port'], 'root', cfg['rootpasswd'], cfg['user'], cfg['passwd'])
     return cfg
