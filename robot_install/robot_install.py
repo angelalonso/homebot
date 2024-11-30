@@ -55,6 +55,7 @@ def main():
     cfg = step_6(logger, cfg)
     aux.write_cfg(cfg_file, cfg)
 
+
     cfg = step_test(logger, cfg)
 
     logger.info("ALL DONE.")

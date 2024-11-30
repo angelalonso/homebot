@@ -78,10 +78,11 @@ def read_cfg(filename):
 
 
 def write_cfg(filename, data):
-    data.pop('privkey', None)
-    data.pop('pubkey', None)
+    new_data = data.copy()
+    new_data.pop('privkey', None)
+    new_data.pop('pubkey', None)
     with open(filename, 'w') as yaml_file:
-        yaml.dump(data, yaml_file, default_flow_style=False)
+        yaml.dump(new_data, yaml_file, default_flow_style=False)
 
 def read_bytesfile(file):
     with open(file, "rb") as f:

@@ -121,4 +121,12 @@ def step_6(logger, cfg):
 
 
 def step_test(logger, cfg):
+    ssh.test(logger,
+             cfg['eth_ip'],
+             cfg['ssh_port'],
+             'root',
+             cfg['rootpasswd'],
+             cfg['user'],
+             cfg['pubkey']
+             )
     return cfg

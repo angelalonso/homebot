@@ -42,3 +42,23 @@ def create_user(logger,
             logger.info(o)
 
 
+def test(logger,
+         raspi_ip,
+         raspi_port,
+         sshuser,
+         sshpasswd,
+         newuser,
+         newpubkey
+         ):
+    cmd_1 = 'whoami'
+    (stdout, errcode, stderr) = run(raspi_ip, raspi_port, sshuser, sshpasswd, cmd_1)
+
+    if errcode != 0:
+        logger.error("ERROR executing: " + cmd_1)
+        for e in stderr:
+            logger.error(e)
+        for o in stdout:
+            logger.info(o)
+    else: 
+        for o in stdout:
+            logger.info(o)
