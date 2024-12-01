@@ -6,6 +6,12 @@ import aux
 from steps import *
 from aux import printfmt as pfmt
 
+# TODO next:
+#  add user to sudoers, no passwd
+#  Test that ssh worked, y -> remove access from root, n -> remind to ssh-add
+#  add user to sudoers
+#  install git, download this repo
+#  install rust, run test
 
 def main():
     # "Start" the logging facility
