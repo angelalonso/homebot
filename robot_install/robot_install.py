@@ -7,9 +7,8 @@ from steps import *
 from aux import printfmt as pfmt
 
 # TODO next:
-#  add user to sudoers, no passwd
-#  Test that ssh worked, y -> remove access from root, n -> remind to ssh-add
-#  add user to sudoers
+#  Make sure no error shows up from having previous keys or their names on cfg.yml
+#  Test that ssh worked, y -> remove access from root
 #  install git, download this repo
 #  install rust, run test
 

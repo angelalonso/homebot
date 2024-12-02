@@ -7,6 +7,7 @@ import logging
 import yaml
 from pathlib import Path
 import os.path
+import os
 
 
 def is_installed(name):
@@ -126,7 +127,9 @@ def get_sshkeypair(logger, cfg):
         os.chmod(privkey, 0o600)
         pubfile.close()
         privfile.close()
+
+    printfmt('red', " (*) we create a new keypair, now we'll tell your agent to add it:")
+    cwd = os.getcwd()
+    os.system("ssh-add " + cwd + "/" + privkey)
+
     return cfg
-
-    # TODO: load them for use with ssh (copy public over for the user)
-

@@ -43,8 +43,7 @@ def create_user(logger,
                 newpubkey
                 ):
     homessh = '/home/' + newuser + '/.ssh'
-    cmd_1 = 'adduser ' + newuser + ' --disabled-password --gecos "" || true; mkdir -p ' + homessh + ';echo ' + newpubkey.decode("utf-8") + ' >> ' + homessh + '/authorized_keys; usermod -aG sudo ' + newuser + '; apt update && apt install -y sudo'
-    # echo "$USER ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/$USER
+    cmd_1 = 'adduser ' + newuser + ' --disabled-password --gecos "" || true; mkdir -p ' + homessh + ';echo ' + newpubkey.decode("utf-8") + ' >> ' + homessh + '/authorized_keys; usermod -aG sudo ' + newuser + '; apt update && apt install -y sudo; echo "' + newuser + ' ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/' + newuser
 
     (stdout, errcode, stderr) = run_w_pass(raspi_ip, raspi_port, sshuser, sshpasswd, cmd_1)
 
