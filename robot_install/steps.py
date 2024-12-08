@@ -120,6 +120,101 @@ def step_6(logger, cfg):
     return cfg
 
 
+def step_7(logger, cfg):
+    if cfg['steps_done'] < 7:
+        pfmt("lila", "PREPARATION STEPS: Secure access")
+        ssh.secure_access(logger,
+                          cfg['eth_ip'],
+                          cfg['ssh_port'],
+                          cfg['user'],
+                          cfg['privkeyfile']
+                          )
+        cfg['rootpasswd'] = ""
+        cfg['passwd'] = ""
+        cfg['pass'] = ""
+        cfg['steps_done'] = 7
+    else:
+        pfmt("lila", "- Access is secured. No root SSH access and no passwords on your config")
+    return cfg
+
+
+# TODO: this:
+def step_8(logger, cfg):
+    if cfg['steps_done'] < 8:
+        pfmt("lila", "PREPARATION STEPS: change connection to wifi")
+        #ssh.config_wifi(logger,
+        #                 cfg['eth_ip'],
+        #                 cfg['ssh_port'],
+        #                 cfg['user'],
+        #                 cfg['privkeyfile']
+        #                 )
+        #cfg['steps_done'] = 8
+    else:
+        pfmt("lila", "- The Robot is now accessible through wifi")
+    return cfg
+
+
+def step_9(logger, cfg):
+    if cfg['steps_done'] < 9:
+        pfmt("lila", "PREPARATION STEPS: install packages")
+        ssh.install_pkgs(logger,
+                         cfg['eth_ip'],
+                         cfg['ssh_port'],
+                         cfg['user'],
+                         cfg['privkeyfile']
+                         )
+        cfg['steps_done'] = 9
+    else:
+        pfmt("lila", "- Required packages have been installed")
+    return cfg
+
+
+# TODO: this:
+def step_10(logger, cfg):
+    if cfg['steps_done'] < 10:
+        pfmt("lila", "PREPARATION STEPS: copy Homebot's code to the Robot")
+        ssh.git_clone(logger,
+                      cfg['eth_ip'],
+                      cfg['ssh_port'],
+                      cfg['user'],
+                      cfg['privkeyfile']
+                      )
+        #cfg['steps_done'] = 10 
+    else:
+        pfmt("lila", "- Homebot's code has been copied to the Robot")
+    return cfg
+
+
+# TODO: this:
+def step_11(logger, cfg):
+    if cfg['steps_done'] < 11:
+        pfmt("lila", "PREPARATION STEPS: Create a system service to run the Robot")
+        ssh.homebot_service(logger,
+                            cfg['eth_ip'],
+                            cfg['ssh_port'],
+                            cfg['user'],
+                            cfg['privkeyfile']
+                            )
+        #cfg['steps_done'] = 9000 # 900 because it's the last one
+    else:
+        pfmt("lila", "- There is a System Service ready to run Homebot at the Robot")
+    return cfg
+
+
+# TODO: this:
+def step_refresh(logger, cfg):
+    if cfg['steps_done'] == 9000:
+        pfmt("lila", "PREPARATION STEPS: Create a system service to run the Robot")
+        ssh.homebot_refresh(logger,
+                            cfg['eth_ip'],
+                            cfg['ssh_port'],
+                            cfg['user'],
+                            cfg['privkeyfile']
+                            )
+    else:
+        pfmt("lila", "- Homebot refresh done")
+    return cfg
+
 def step_test(logger, cfg):
     ssh.test(logger,
              cfg['eth_ip'],

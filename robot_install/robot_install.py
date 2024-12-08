@@ -3,7 +3,20 @@ import sys
 import os
 
 import aux
-from steps import *
+from steps import \
+        step_1, \
+        step_2, \
+        step_3, \
+        step_4, \
+        step_5, \
+        step_6, \
+        step_7, \
+        step_8, \
+        step_9, \
+        step_10, \
+        step_11, \
+        step_refresh, \
+        step_test
 from aux import printfmt as pfmt
 
 # TODO next:
@@ -11,6 +24,7 @@ from aux import printfmt as pfmt
 #  Test that ssh worked, y -> remove access from root
 #  install git, download this repo
 #  install rust, run test
+
 
 def main():
     # "Start" the logging facility
@@ -57,11 +71,29 @@ def main():
 
     cfg = aux.get_sshkeypair(logger, cfg)
     # Create user
+
     cfg = step_6(logger, cfg)
     aux.write_cfg(cfg_file, cfg)
+    # Secure access
+    cfg = step_7(logger, cfg)
+    aux.write_cfg(cfg_file, cfg)
+    # Connect to WiFi
+    cfg = step_8(logger, cfg)
+    aux.write_cfg(cfg_file, cfg)
+    # Install required packages
+    cfg = step_9(logger, cfg)
+    aux.write_cfg(cfg_file, cfg)
+    # Git clone of Homebot code
+    cfg = step_10(logger, cfg)
+    aux.write_cfg(cfg_file, cfg)
+    # System service to run the Homebot code
+    cfg = step_11(logger, cfg)
+    aux.write_cfg(cfg_file, cfg)
+    # Refresh code and start/restart the service
+    cfg = step_refresh(logger, cfg)
+    aux.write_cfg(cfg_file, cfg)
 
-
-    cfg = step_test(logger, cfg)
+#    cfg = step_test(logger, cfg)
 
     logger.info("ALL DONE.")
 

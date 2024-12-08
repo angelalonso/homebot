@@ -98,9 +98,9 @@ def get_sshkeypair(logger, cfg):
     cfg['privkeyfile'] = privkey
 
     if os.path.isfile(pubkey) and os.path.isfile(privkey):
-        fpb = open(pubkey, "r")
+        fpb = open(pubkey, "rb")
         cfg['pubkey'] = fpb.read()
-        fpv = open(privkey, "r")
+        fpv = open(privkey, "rb")
         cfg['privkey'] = fpv.read()
 
     else:
