@@ -2,3 +2,11 @@ cfg.yml
 homebot.priv
 homebot.pub
 test_machine/**
+OVMF_VARS.fd
+debian-12-nocloud-amd64.qcow2
+debian-12-nocloud-amd64.qcow2.orig
+debian-vm.conf
+debian-vm.log
+debian-vm.pid
+debian-vm.ports
+debian-vm.sh
