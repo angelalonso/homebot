@@ -106,15 +106,15 @@ def step_6(logger, cfg):
         pfmt("lila", "PREPARATION STEPS: Create a user")
         user = input("Enter the name of the user you want on the Raspberry: ")
         cfg['user'] = user
-        ssh.create_user(logger,
+        if ssh.create_user(logger,
                         cfg['eth_ip'],
                         cfg['ssh_port'],
                         'root',
                         cfg['rootpasswd'],
                         cfg['user'],
                         cfg['pubkey']
-                        )
-        cfg['steps_done'] = 6
+                        ):
+            cfg['steps_done'] = 6
     else:
         pfmt("lila", "- User (and password) is known: " + cfg['user'])
     return cfg
@@ -123,16 +123,16 @@ def step_6(logger, cfg):
 def step_7(logger, cfg):
     if cfg['steps_done'] < 7:
         pfmt("lila", "PREPARATION STEPS: Secure access")
-        ssh.secure_access(logger,
+        if ssh.secure_access(logger,
                           cfg['eth_ip'],
                           cfg['ssh_port'],
                           cfg['user'],
                           cfg['privkeyfile']
-                          )
-        cfg['rootpasswd'] = ""
-        cfg['passwd'] = ""
-        cfg['pass'] = ""
-        cfg['steps_done'] = 7
+                          ):
+            cfg['rootpasswd'] = ""
+            cfg['passwd'] = ""
+            cfg['pass'] = ""
+            cfg['steps_done'] = 7
     else:
         pfmt("lila", "- Access is secured. No root SSH access and no passwords on your config")
     return cfg
@@ -157,13 +157,13 @@ def step_8(logger, cfg):
 def step_9(logger, cfg):
     if cfg['steps_done'] < 9:
         pfmt("lila", "PREPARATION STEPS: install packages")
-        ssh.install_pkgs(logger,
+        if ssh.install_pkgs(logger,
                          cfg['eth_ip'],
                          cfg['ssh_port'],
                          cfg['user'],
                          cfg['privkeyfile']
-                         )
-        cfg['steps_done'] = 9
+                         ):
+            cfg['steps_done'] = 9
     else:
         pfmt("lila", "- Required packages have been installed")
     return cfg
@@ -172,29 +172,28 @@ def step_9(logger, cfg):
 def step_10(logger, cfg):
     if cfg['steps_done'] < 10:
         pfmt("lila", "PREPARATION STEPS: copy Homebot's code to the Robot")
-        ssh.git_clone(logger,
+        if ssh.git_clone(logger,
                       cfg['eth_ip'],
                       cfg['ssh_port'],
                       cfg['user'],
                       cfg['privkeyfile']
-                      )
-        cfg['steps_done'] = 10
+                      ):
+            cfg['steps_done'] = 10
     else:
         pfmt("lila", "- Homebot's code has been copied to the Robot")
     return cfg
 
 
-# TODO: this:
 def step_11(logger, cfg):
     if cfg['steps_done'] < 11:
         pfmt("lila", "PREPARATION STEPS: Create a system service to run the Robot")
-        ssh.homebot_service(logger,
+        if ssh.homebot_service(logger,
                             cfg['eth_ip'],
                             cfg['ssh_port'],
                             cfg['user'],
                             cfg['privkeyfile']
-                            )
-        #cfg['steps_done'] = 9000 # 900 because it's the last one
+                            ):
+            cfg['steps_done'] = 11
     else:
         pfmt("lila", "- There is a System Service ready to run Homebot at the Robot")
     return cfg

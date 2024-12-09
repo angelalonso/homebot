@@ -61,10 +61,12 @@ def create_user(logger,
                 logger.error(e)
             for o in stdout:
                 logger.info(o)
+        return False
     else:
         logger.info("User " + newuser + " successfully created")
         for o in stdout:
             logger.info(o)
+        return True
 
 
 def secure_access(logger,
@@ -87,10 +89,12 @@ def secure_access(logger,
                 logger.error(e)
             for o in stdout:
                 logger.info(o)
+        return False
     else:
         logger.info("SSH access allowed only to regular users with key")
         for o in stdout:
             logger.info(o)
+        return True
 
 
 # TODO: this:
@@ -145,10 +149,12 @@ def install_pkgs(logger,
                 logger.error(e)
             for o in stdout:
                 logger.info(o)
+        return False
     else:
         logger.info("Required packages have been installed")
         for o in stdout:
             logger.info(o)
+        return True
 
 
 def git_clone(logger,
@@ -171,10 +177,12 @@ def git_clone(logger,
                 logger.error(e)
             for o in stdout:
                 logger.info(o)
+        return False
     else:
         logger.info("Homebot code has been installed to the Robot")
         for o in stdout:
             logger.info(o)
+        return True
 
 
 # TODO: this:
@@ -184,24 +192,25 @@ def homebot_service(logger,
                     user,
                     keyfile,
                     ):
-    cmd_1 = ''
+    cmd_1 = 'echo -e "[Service]\nUser=aafmin\nWorkingDirectory=/home/aafmin/homebot\nExecStart=/home/aafmin/homebot/test.sh\nRestart=on-failure\n[Install]\nWantedBy=multi-user.target" | sudo tee /etc/systemd/system/homebot.service && sudo systemctl enable homebot && sudo systemctl daemon-reload && sudo systemctl start homebot && sudo systemctl status homebot'
 
     (stdout, errcode, stderr) = run(raspi_ip, raspi_port, user, keyfile, cmd_1)
 
     if errcode != 0:
         if errcode == "SSH Exception":
             logger.error("Host " + raspi_ip + " is probably not on known_hosts! Try connecting manually with ssh root@" + raspi_ip + " -p " + str(raspi_port) + ", and accept to continue connecting.")
-
         else:
             logger.error("ERROR executing: " + cmd_1)
             for e in stderr:
                 logger.error(e)
             for o in stdout:
                 logger.info(o)
+        return False
     else:
         logger.info("The Homebot service has been created")
         for o in stdout:
             logger.info(o)
+    return True
 
 
 # TODO: this:

@@ -52,6 +52,7 @@ def main():
         cfg['steps_done'] = 0
     aux.write_cfg(cfg_file, cfg)
 
+    # TODO: Stop at the step that fails first
     # Check steps.py for what each one does
     # Requirements
     cfg = step_1(cfg)
