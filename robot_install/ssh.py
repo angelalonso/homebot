@@ -151,14 +151,13 @@ def install_pkgs(logger,
             logger.info(o)
 
 
-# TODO: this:
 def git_clone(logger,
               raspi_ip,
               raspi_port,
               user,
               keyfile,
               ):
-    cmd_1 = 'cd $HOME && git clone https://gitlab.com/angelalonso/homebot'
+    cmd_1 = 'cd $HOME && if [ ! -d "homebot"  ] ; then git clone https://github.com/angelalonso/homebot fi'
 
     (stdout, errcode, stderr) = run(raspi_ip, raspi_port, user, keyfile, cmd_1)
 

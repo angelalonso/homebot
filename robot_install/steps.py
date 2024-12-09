@@ -169,7 +169,6 @@ def step_9(logger, cfg):
     return cfg
 
 
-# TODO: this:
 def step_10(logger, cfg):
     if cfg['steps_done'] < 10:
         pfmt("lila", "PREPARATION STEPS: copy Homebot's code to the Robot")
@@ -179,7 +178,7 @@ def step_10(logger, cfg):
                       cfg['user'],
                       cfg['privkeyfile']
                       )
-        #cfg['steps_done'] = 10 
+        cfg['steps_done'] = 10
     else:
         pfmt("lila", "- Homebot's code has been copied to the Robot")
     return cfg
