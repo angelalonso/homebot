@@ -33,41 +33,41 @@ pub fn get_turnaround_reactionset(ts: Duration) -> CAction {
     let a2a = Action {
         id: "02_sensor_off".to_string(),
         delay_ms: 1000,
-        duration_ms: 1000,
+        duration_ms: 3000,
         object: "sensor".to_string(),
         value: "off".to_string(),
     };
     let a2b = Action {
         id: "02_motor_l_back".to_string(),
         delay_ms: 1000,
-        duration_ms: 1000,
+        duration_ms: 3000,
         object: "motor_l".to_string(),
         value: "-1.0".to_string(),
     };
     let a2c = Action {
         id: "02_motor_r_fwd".to_string(),
         delay_ms: 1000,
-        duration_ms: 1000,
+        duration_ms: 3000,
         object: "motor_r".to_string(),
         value: "1.0".to_string(),
     };
     let a3a = Action {
         id: "03_sensor_on".to_string(),
-        delay_ms: 2000,
+        delay_ms: 4000,
         duration_ms: 500,
         object: "sensor".to_string(),
         value: "on".to_string(),
     };
     let a3b = Action {
         id: "03_motor_l_stop".to_string(),
-        delay_ms: 2000,
+        delay_ms: 4000,
         duration_ms: 500,
         object: "motor_l".to_string(),
         value: "0.0".to_string(),
     };
     let a3c = Action {
         id: "03_motor_r_stop".to_string(),
-        delay_ms: 2000,
+        delay_ms: 4000,
         duration_ms: 500,
         object: "motor_r".to_string(),
         value: "0.0".to_string(),
