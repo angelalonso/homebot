@@ -1,6 +1,7 @@
 # Robot Base software
 
 We run a Debian on the Raspberry pi. This part explains what is done there.
+12.2 arm64
 
 # Installation
 
