@@ -3,7 +3,20 @@
 We run a Debian on the Raspberry pi. This part explains what is done there.
 12.2 arm64
 
-# Installation
+# Preparation
+- new user and password, add pubkey
+- user, pass and key on cfg.yml
+- sudoers -> no password needed
+- port to 21012
+- update, upgrade
+- install vim git curl build-essential libclang-dev
+- curl https://sh.rustup.rs -sSf | sh
+ - default
+- source $HOME/.cargo/env
+
+
+## Automatic Installation
+-- TO BE TESTED --
 
 - Get to ./robot_install
 - Run:

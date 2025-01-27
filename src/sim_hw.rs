@@ -9,8 +9,6 @@ pub mod bindings {
 use bindings::WbDeviceTag;
 use std::ffi::CString;
 
-// ////the clisim alternatives are on clibot.rs
-
 pub fn wb_distance_sensor_enable(tag: WbDeviceTag, sampling_period: i32) {
     unsafe {
         bindings::wb_distance_sensor_enable(tag, sampling_period);
@@ -47,4 +45,3 @@ pub fn wb_robot_init() {
 pub fn wb_robot_step(step: i32) -> i32 {
     unsafe { bindings::wb_robot_step(step) }
 }
-

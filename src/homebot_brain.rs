@@ -1,5 +1,7 @@
 use crate::homebot_action::CompositeAction as CAction;
 use crate::homebot_input::Input;
+#[cfg(feature = "live")]
+use crate::live_output::Output;
 use crate::loggin::Log;
 #[cfg(feature = "sim")]
 use crate::sim_output::Output;

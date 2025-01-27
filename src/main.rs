@@ -3,12 +3,10 @@ use homebot::loggin;
 use serde_yaml;
 use std::collections::BTreeMap;
 
+#[cfg(any(feature = "test", feature = "live"))]
+use homebot::env::*;
 #[cfg(feature = "sim")]
 use homebot::sim_env::*;
-#[cfg(feature = "test")]
-use homebot::test_env::*;
-#[cfg(feature = "live")]
-use homebot::live_env::*;
 
 pub fn load(filename: &str) -> Result<BTreeMap<String, String>, Box<dyn std::error::Error>> {
     let f = std::fs::File::open(filename)?;
