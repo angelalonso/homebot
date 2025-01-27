@@ -7,6 +7,8 @@ use std::collections::BTreeMap;
 use homebot::sim_env::*;
 #[cfg(feature = "test")]
 use homebot::test_env::*;
+#[cfg(feature = "live")]
+use homebot::live_env::*;
 
 pub fn load(filename: &str) -> Result<BTreeMap<String, String>, Box<dyn std::error::Error>> {
     let f = std::fs::File::open(filename)?;
@@ -14,7 +16,7 @@ pub fn load(filename: &str) -> Result<BTreeMap<String, String>, Box<dyn std::err
     Ok(dm)
 }
 
-#[cfg(any(feature = "sim", feature = "test"))]
+#[cfg(feature = "sim")]
 fn main() {
     match load("cfg.yaml") {
         Ok(cfg) => {
@@ -24,6 +26,46 @@ fn main() {
                 Ok(()) => (),
                 Err(es) => {
                     log.err(&format!("ERROR running simulation: {:#?}", es));
+                }
+            };
+        }
+        Err(e) => {
+            let log = loggin::Log::init("DEBUG".to_string());
+            log.err(&format!("ERROR Reading YAML: {:#?}", e));
+        }
+    };
+}
+
+#[cfg(feature = "test")]
+fn main() {
+    match load("cfg.yaml") {
+        Ok(cfg) => {
+            let log = loggin::Log::init(cfg["LOGLEVEL"].clone());
+            log.info(&format!("- Mode: Code Tests"));
+            match run(log.clone(), cfg) {
+                Ok(()) => (),
+                Err(es) => {
+                    log.err(&format!("ERROR running tests: {:#?}", es));
+                }
+            };
+        }
+        Err(e) => {
+            let log = loggin::Log::init("DEBUG".to_string());
+            log.err(&format!("ERROR Reading YAML: {:#?}", e));
+        }
+    };
+}
+
+#[cfg(feature = "live")]
+fn main() {
+    match load("cfg.yaml") {
+        Ok(cfg) => {
+            let log = loggin::Log::init(cfg["LOGLEVEL"].clone());
+            log.info(&format!("- Mode: Hardware Live"));
+            match run(log.clone(), cfg) {
+                Ok(()) => (),
+                Err(es) => {
+                    log.err(&format!("ERROR running live: {:#?}", es));
                 }
             };
         }

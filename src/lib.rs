@@ -39,3 +39,20 @@ pub mod sim_bindings {
 }
 #[cfg(feature = "sim")]
 pub mod sim_webots;
+
+// -- Live Mode
+#[cfg(feature = "live")]
+pub mod live_env;
+#[cfg(feature = "live")]
+pub mod live_output;
+#[cfg(feature = "live")]
+pub mod live_bindings {
+    #![allow(non_upper_case_globals)]
+    #![allow(non_camel_case_types)]
+    #![allow(non_snake_case)]
+    #![allow(improper_ctypes)]
+    include!("live_bindings.rs");
+}
+#[cfg(feature = "live")]
+pub mod live_nowebots;
+

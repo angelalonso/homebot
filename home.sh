@@ -18,7 +18,7 @@ test_online() {
 check_mode() {
   # If we are on the robot, we run live
   if [[ "$1" == "" ]]; then
-    MODE="sim"
+    MODE="live"
   else
     MODE="$1"
   fi
