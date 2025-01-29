@@ -61,7 +61,8 @@ impl GPIOLed {
 
     pub fn on(&self) {
         if self.is_real {
-            write(self.pin, 1);
+            //write(self.pin, 1); // This will be the real function
+            write_integratedled(1);
         } else {
             println!(" Mocked ON, pin {}", self.pin);
         }
@@ -69,7 +70,8 @@ impl GPIOLed {
 
     pub fn off(&self) {
         if self.is_real {
-            write(self.pin, 0);
+            //write(self.pin, 0); // This will be the real function
+            write_integratedled(0);
         } else {
             println!(" Mocked OFF, pin {}", self.pin);
         }
@@ -194,6 +196,19 @@ pub fn unexport(gpio_num: u8) {
     };
 
     if let Err(why) = file.write_all(gpio_num.to_string().as_bytes()) {
+        panic!("couldn't write to {}: {}", filepath, why);
+    }
+}
+
+pub fn write_integratedled(signal: u8) {
+    let filepath = String::from("/sys/class/leds/led0/value");
+
+    let mut file: File = match open_file(&filepath) {
+        Err(why) => panic!("couldn't open {}: {}", filepath, why),
+        Ok(f) => f,
+    };
+
+    if let Err(why) = file.write_all(signal.to_string().as_bytes()) {
         panic!("couldn't write to {}: {}", filepath, why);
     }
 }
