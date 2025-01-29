@@ -1,3 +1,22 @@
+pub mod bindings {
+    #![allow(non_upper_case_globals)]
+    #![allow(non_camel_case_types)]
+    #![allow(non_snake_case)]
+    #![allow(improper_ctypes)]
+    include!("live_bindings.rs");
+}
+
+pub fn hw_led_enable(_tag: u16, pin: u8) {
+    let led = bindings::GPIOLed::new(pin);
+    led.on();
+}
+
+pub fn hw_led_disable(_tag: u16, pin: u8) {
+    let led = bindings::GPIOLed::new(pin);
+    led.off();
+}
+
+
 pub fn wb_distance_sensor_enable(_tag: u16, _sampling_period: i32) {
     ();
 }
