@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
 
+set -o errexit
+set -o nounset
+set -o pipefail
+set -o xtrace
+
+
 #- just run make
 #  - Some fuzzy intelligence behind the makefile determines whether it will run in a simulation, or the actual bot
 #      - Some autocleanup for the builds wouold be nice too
@@ -31,11 +37,15 @@ check_mode() {
 
 check_mode $1
 
-cargo build --features $MODE
 
-if [[ ${MODE} == "live" ]]; then
+if [[ ${MODE} == "build" ]]; then
+  echo "BUILDING FOR RASPBERRY PI"
+  cargo build --features live --release --target=armv7-unknown-linux-gnueabihf
+elif [[ ${MODE} == "live" ]]; then
+  cargo build --features $MODE # to be removed and use the built program instead
   echo "RUNNING LIVE"
 elif [[ ${MODE} == "sim" ]]; then
+  cargo build --features $MODE --release
 	mkdir -p simulation/controllers/rust_controller/
 	cp target/debug/homebot simulation/controllers/rust_controller/rust_controller
 	cp cfg.yaml simulation/controllers/rust_controller/

@@ -24,6 +24,10 @@ We run a Debian on the Raspberry pi. This part explains what is done there.
   - pipenv run python3 robot_install.py
 - ...and follow instructions 
 
+## Cross compiling
+rustup target add armv7-unknown-linux-gnueabihf
+sudo apt install gcc-arm-linux-gnueabihf
+
 # TO BE DONE
 - Install Rust
 - Download this code to the machine
