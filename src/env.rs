@@ -11,7 +11,7 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
     let test_mode = true;
     #[cfg(feature = "live")]
     let test_mode = false;
-    log.info("Loading config...");
+    log.info("Checking config...");
     let time_step = cfg["TIME_STEP"].parse::<i32>()?;
     let _max_speed = cfg["MAX_SPEED"].parse::<f64>()?; // TODO: pass this to output
 
@@ -19,7 +19,7 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
     let start_timestamp: SystemTime = SystemTime::now();
 
     log.info("Loading bot, giving it a brain");
-    wb_robot_init();
+    hw_robot_init();
     let mut brain = Brain::init(log.clone(), test_mode);
     // TODO: make distance sensors update the input constantly
     // TODO: send tstamp as input
@@ -35,7 +35,7 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
             .expect("Error retrieving time since start");
         let _distance_values: Vec<f64> = [].to_vec();
         // CAREFUL! This may be used to freeze time!!
-        if wb_robot_step(time_step) == -1 {
+        if hw_robot_step(time_step) == -1 {
             break;
         }
 

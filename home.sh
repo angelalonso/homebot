@@ -42,12 +42,14 @@ if [[ ${MODE} == "build" ]]; then
   echo "BUILDING FOR RASPBERRY PI"
   cargo build --features live --release --target=armv7-unknown-linux-gnueabihf
 elif [[ ${MODE} == "live" ]]; then
-  cargo build --features $MODE # to be removed and use the built program instead
   echo "RUNNING LIVE"
+  # to be moved to something else:
+  cargo run --features $MODE # to be removed and use the built program instead
 elif [[ ${MODE} == "sim" ]]; then
   cargo build --features $MODE --release
 	mkdir -p simulation/controllers/rust_controller/
-	cp target/debug/homebot simulation/controllers/rust_controller/rust_controller
+	#cp target/debug/homebot simulation/controllers/rust_controller/rust_controller
+	cp target/release/homebot simulation/controllers/rust_controller/rust_controller
 	cp cfg.yaml simulation/controllers/rust_controller/
 	webots simulation/worlds/homebot_simulation_world.wbt
 elif [[ ${MODE} == "test" ]]; then

@@ -1,13 +1,10 @@
 // -- Common to all Modes
+// ----------------------------------------------------------------
 pub mod homebot_action;
+pub mod homebot_brain;
 pub mod homebot_input;
 pub mod homebot_reactionset;
 pub mod loggin;
-
-// -- All Modes
-// ----------------------------------------------------------------
-#[cfg(any(feature = "test", feature = "sim", feature = "live"))]
-pub mod homebot_brain;
 
 // -- Live and Test Mode
 // ----------------------------------------------------------------
