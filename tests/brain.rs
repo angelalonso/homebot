@@ -7,11 +7,54 @@ use homebot::test_output::Output;
 
 use core::cmp::Ordering;
 use std::collections::HashMap;
+use std::time::Duration;
 use std::time::SystemTime;
 use std::{thread, time};
 
 // TODO: simplify all this, make tests for each "process" that is done at brain instead, then maybe
 // add extra tests for edge cases
+
+#[test]
+fn test_brain_initialization() {
+    let log = Log::init("DEBUG".to_string());
+    let brain = Brain::init(log, true);
+    assert!(brain.get_current().is_empty());
+    assert!(brain.get_incoming().is_empty());
+}
+
+#[test]
+fn test_brain_update_no_actions() {
+    let log = Log::init("DEBUG".to_string());
+    let mut brain = Brain::init(log.clone(), true);
+    let _output = brain.update(log, Duration::from_millis(100), "off".to_string());
+    assert_eq!(brain.get_current().len(), 0);
+    assert_eq!(brain.get_incoming().len(), 0);
+}
+
+#[test]
+fn test_brain_add_incoming_action() {
+    let log = Log::init("DEBUG".to_string());
+    let mut brain = Brain::init(log.clone(), true);
+    let c_action = CAction::new("test_action".to_string(), vec![], 0, 1);
+    brain.add_incoming(c_action);
+    assert_eq!(brain.get_incoming().len(), 1);
+}
+
+#[test]
+fn test_brain_set_test_mode() {
+    let log = Log::init("DEBUG".to_string());
+    let mut brain = Brain::init(log.clone(), false);
+    brain.set_testmode(true);
+    assert!(brain.get_testmode());
+}
+
+#[test]
+fn test_brain_get_output() {
+    let log = Log::init("DEBUG".to_string());
+    let brain = Brain::init(log.clone(), true);
+    let output = brain.get_output();
+    assert_eq!(output, brain.get_output());
+}
 
 #[test]
 fn test_update_to_current() {

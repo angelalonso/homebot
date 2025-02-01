@@ -1,6 +1,7 @@
 // -- Common to all Modes
 // ----------------------------------------------------------------
 pub mod homebot_action;
+pub mod homebot_aux_funcs;
 pub mod homebot_brain;
 pub mod homebot_input;
 pub mod homebot_reactionset;

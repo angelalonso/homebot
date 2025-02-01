@@ -1,6 +1,6 @@
 use crate::loggin::Log;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Output {
     sensor: String,
     sensor_prio: u8,

@@ -43,66 +43,61 @@ impl Brain {
             }
         }
         log.debug(&format!("iii: {:#?}", self.get_incoming_caction_ids()));
-        let mut tmp_incoming = vec![];
-        for i in self.incoming.iter_mut() {
+
+        self.incoming.retain(|i| {
             if i.starts_at <= ts.as_millis() {
                 i.validate();
                 self.current.push(i.clone());
+                false
             } else {
-                tmp_incoming.push(i.clone());
+                true
             }
-        }
-        self.incoming = tmp_incoming;
-        let mut tmp_current = vec![];
-        // iterate through all CActions
-        for c in self.current.iter_mut() {
-            let mut tmp_actions = vec![];
-            // iterate through all Actions on that CAction
-            for a in c.actions.iter_mut() {
-                // if it has not yet "happened", leave it on current
-                //   (add it to next version of current actually)
-                if ts.as_millis() < (c.starts_at + a.delay_ms) {
-                    tmp_actions.push(a.clone())
-                // if it is ongoing, leave it on current
-                // (if no longer ongoing, have it removed)
-                } else if ts.as_millis() < (c.starts_at + a.delay_ms + a.duration_ms) {
-                    tmp_actions.push(a.clone());
-                    // for each type of object, get it's current state
-                    // , then overwrite if the new one has a bigger prio
-                    if a.object == "sensor" {
-                        let (_, s_p) = self.output.get_sensor(); // TODO: find a more elegant way
-                        if s_p <= c.prio {
-                            self.output.set_sensor(a.value.clone(), c.prio);
+        });
+
+        self.current.retain_mut(|c| {
+            c.actions.retain_mut(|a| {
+                let action_time = c.starts_at + a.delay_ms;
+                let action_end = action_time + a.duration_ms;
+
+                match ts.as_millis() {
+                    t if t < action_time => true, // Not yet started
+                    t if t < action_end => {
+                        // Ongoing, update output if priority allows
+                        match a.object.as_str() {
+                            "sensor" => {
+                                let (_, s_p) = self.output.get_sensor();
+                                if s_p <= c.prio {
+                                    self.output.set_sensor(a.value.clone(), c.prio);
+                                }
+                            }
+                            "motor_l" => {
+                                let (_, s_p) = self.output.get_motor_l();
+                                if s_p <= c.prio {
+                                    self.output.set_motor_l(
+                                        a.value.parse().expect("Invalid motor_l value"),
+                                        c.prio,
+                                    );
+                                }
+                            }
+                            "motor_r" => {
+                                let (_, s_p) = self.output.get_motor_r();
+                                if s_p <= c.prio {
+                                    self.output.set_motor_r(
+                                        a.value.parse().expect("Invalid motor_r value"),
+                                        c.prio,
+                                    );
+                                }
+                            }
+                            _ => {}
                         }
-                    } else if a.object == "motor_l" {
-                        let (_, s_p) = self.output.get_motor_l(); // TODO: find a more elegant way
-                        if s_p <= c.prio {
-                            self.output.set_motor_l(
-                                a.value
-                                    .parse::<f32>()
-                                    .expect("ERROR: value for motor_l was not a proper f32"),
-                                c.prio,
-                            );
-                        }
-                    } else if a.object == "motor_r" {
-                        let (_, s_p) = self.output.get_motor_r(); // TODO: find a more elegant way
-                        if s_p <= c.prio {
-                            self.output.set_motor_r(
-                                a.value
-                                    .parse::<f32>()
-                                    .expect("ERROR: value for motor_r was not a proper f32"),
-                                c.prio,
-                            );
-                        }
+                        true
                     }
+                    _ => false, // Completed, remove
                 }
-            }
-            c.actions = tmp_actions.clone();
-            if c.actions.len() > 0 {
-                tmp_current.push(c.clone());
-            }
-        }
-        self.current = tmp_current;
+            });
+
+            !c.actions.is_empty()
+        });
         self.output.clone()
     }
 

@@ -3,6 +3,9 @@ name = "homebot"
 version = "0.0.1"
 edition = "2018"
 
+[dev-dependencies]
+tempfile = "3.16.0"
+
 [build-dependencies]
 bindgen = { version = "0.63", optional = true }
 

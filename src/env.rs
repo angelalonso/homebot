@@ -28,6 +28,7 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
     let _distance_sensors: Vec<HWDeviceTag> = [].to_vec();
 
     log.info("Running!");
+    let mut iteration = 0;
     loop {
         // Each iteration is marked by a timestamp
         let timestamp = start_timestamp
@@ -46,6 +47,13 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
 
         log.debug(&format!("---------------------"));
         //log.debug(&format!("{:#?}", timestamp));
+        #[cfg(feature = "test")]
+        {
+            iteration += 1;
+            if iteration >= 1 {
+                break;
+            }
+        }
     }
 
     #[cfg(feature = "sim")]
