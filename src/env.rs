@@ -1,9 +1,9 @@
-use crate::live_bindings::HWDeviceTag;
-use crate::live_hw::*;
 use std::collections::BTreeMap;
 use std::time::SystemTime;
 
 use crate::homebot_brain::Brain;
+use crate::live_bindings::HWDeviceTag;
+use crate::live_hw::*;
 use crate::loggin::Log;
 
 pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::error::Error>> {
@@ -26,7 +26,15 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
     log.info("Loading sensors...");
     let _distance_sensor_names = vec!["distance_sensor_eyes"];
     let _distance_sensors: Vec<HWDeviceTag> = [].to_vec();
-
+    // TODO: get sensors
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
     log.info("Running!");
     let mut iteration = 0;
     loop {
@@ -39,14 +47,24 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
         if hw_robot_step(time_step) == -1 {
             break;
         }
-
+        //
+        //
+        //
+        //
+        //
         let (sv, _) = brain.get_output().get_sensor();
         //brain.set_input_distance(log.clone(), distance_values);
-
+        //
+        //
+        //
+        //
+        //
+        //
         let _active = brain.update(log.clone(), timestamp, sv);
 
         log.debug(&format!("---------------------"));
         //log.debug(&format!("{:#?}", timestamp));
+
         #[cfg(feature = "test")]
         {
             iteration += 1;

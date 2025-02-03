@@ -10,7 +10,11 @@ My main challenge so far as been managing complex sets of actions, and so this t
 # TL;DR
 1. Download and install [Webots](https://cyberbotics.com)
 1. Install [Rust](https://www.rust-lang.org/learn/get-started)
-1. Run ./home.sh sim for the simulated mode
+1. Run 
+  1. ./home.sh test for the code tests
+  1. ./home.sh sim for the simulated mode
+  1. ./home.sh install to install into the actual robot
+  1. ./home.sh live to control how it runs in the actual robot
 
 
 # Robot Software installation

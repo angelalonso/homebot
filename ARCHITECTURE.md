@@ -1,14 +1,18 @@
 Code architecture Scheme
 
-./home.sh
-   | - Identifies mode
-   | - Builds
-   | - Installs
-   V
- Main
-   | - Loads config file
-   V
-  Env
+                       ./home.sh
+                          | - Identifies mode
+                          | - Builds
+                          | - Installs
+                          | - Runs/Stops
+   ===========================================================
+                          V
+                        main
+                          | - Loads config file
+   --- test, live --------|----------- sim ----------
+   V                                                V
+  env                                             sim_env
    | - Runs "run" function
    | - "run" is the loop
+   | - TODO: manage properly input
    V 
