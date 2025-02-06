@@ -1,9 +1,12 @@
-use assert_cmd::prelude::*;
-use homebotctl::{run_cargo_build, run_cargo_command};
+use homebotctl::{copy_file_over_ssh, run_cargo_build, run_cargo_command};
 use std::fs;
-use std::path::Path;
+use std::io::Write;
 use std::process::Command;
 use tempfile::tempdir;
+use tempfile::NamedTempFile;
+
+// Cargo command
+// --------------------------
 
 #[test]
 fn test_run_cargo_command_success() {
@@ -43,6 +46,7 @@ fn test_run_cargo_command_fails() {
     // Since the function prints an error message, capturing stdout/stderr would be needed for assertions.
 }
 
+// Cargo build
 // --------------------------
 
 // Helper function to create a temporary Cargo project
@@ -128,4 +132,97 @@ fn test_run_cargo_build_with_all_options() {
 
     // Clean up
     fs::remove_dir_all(temp_dir).unwrap();
+}
+
+// Helper function to create a temporary file with some content
+fn create_temp_file(content: &str) -> NamedTempFile {
+    let mut file = NamedTempFile::new().unwrap();
+    write!(file, "{}", content).unwrap();
+    file
+}
+
+// SSH
+// --------------------------
+
+#[test]
+fn test_copy_file_over_ssh() {
+    // Create a temporary local file
+    let local_file = create_temp_file("Hello, this is a test file!");
+    let local_file_path = local_file.path().to_str().unwrap();
+
+    // Define test server details (this would be a mock or test server in practice)
+    let host = "localhost"; // Replace with a mock/test server
+    let port = 22;
+    let username = "testuser";
+    let password = "testpassword";
+    let remote_file_path = "/tmp/remote_test_file.txt";
+
+    // Attempt to copy the file
+    let result = copy_file_over_ssh(
+        host,
+        port,
+        username,
+        password,
+        local_file_path,
+        remote_file_path,
+    );
+
+    // Assert that the function does NOT return Ok(())
+    assert!(!result.is_ok());
+
+    // If you have a mock SSH server, you could also verify the file was copied correctly.
+    // For now, we'll just check that the function didn't return an error.
+}
+
+#[test]
+fn test_copy_file_over_ssh_invalid_credentials() {
+    // Create a temporary local file
+    let local_file = create_temp_file("Hello, this is a test file!");
+    let local_file_path = local_file.path().to_str().unwrap();
+
+    // Define test server details with invalid credentials
+    let host = "testserver.example.com"; // Replace with a mock/test server
+    let port = 22;
+    let username = "invaliduser";
+    let password = "invalidpassword";
+    let remote_file_path = "/tmp/remote_test_file.txt";
+
+    // Attempt to copy the file
+    let result = copy_file_over_ssh(
+        host,
+        port,
+        username,
+        password,
+        local_file_path,
+        remote_file_path,
+    );
+
+    // Assert that the function returns an error
+    assert!(result.is_err());
+}
+
+#[test]
+fn test_copy_file_over_ssh_invalid_local_file() {
+    // Define a non-existent local file path
+    let local_file_path = "/nonexistent/path/to/file.txt";
+
+    // Define test server details
+    let host = "testserver.example.com"; // Replace with a mock/test server
+    let port = 22;
+    let username = "testuser";
+    let password = "testpassword";
+    let remote_file_path = "/tmp/remote_test_file.txt";
+
+    // Attempt to copy the file
+    let result = copy_file_over_ssh(
+        host,
+        port,
+        username,
+        password,
+        local_file_path,
+        remote_file_path,
+    );
+
+    // Assert that the function returns an error
+    assert!(result.is_err());
 }

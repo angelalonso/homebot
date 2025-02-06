@@ -1,3 +1,7 @@
+use ssh2::Session;
+use std::fs::File;
+use std::io::prelude::*;
+use std::net::TcpStream;
 use std::path::Path;
 use std::process::Command;
 
@@ -57,4 +61,49 @@ pub fn run_cargo_command(path: &str, command: &str, args: &[&str]) {
             status.code()
         );
     }
+}
+
+pub fn copy_file_over_ssh(
+    host: &str,
+    port: u16,
+    username: &str,
+    password: &str,
+    local_file_path: &str,
+    remote_file_path: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    // Connect to the remote server
+    let tcp = TcpStream::connect((host, port))?;
+    let mut sess = Session::new()?;
+    sess.set_tcp_stream(tcp);
+    sess.handshake()?;
+    sess.userauth_password(username, password)?;
+
+    // Ensure the session is authenticated
+    if !sess.authenticated() {
+        return Err("Authentication failed".into());
+    }
+
+    // Open the local file
+    let mut file = File::open(local_file_path)?;
+    let mut contents = Vec::new();
+    file.read_to_end(&mut contents)?;
+
+    // Create a new SCP session
+    let mut remote_file = sess.scp_send(
+        Path::new(remote_file_path),
+        0o644,
+        contents.len() as u64,
+        None,
+    )?;
+
+    // Write the file contents to the remote server
+    remote_file.write_all(&contents)?;
+
+    // Close the SCP session
+    remote_file.send_eof()?;
+    remote_file.wait_eof()?;
+    remote_file.close()?;
+    remote_file.wait_close()?;
+
+    Ok(())
 }

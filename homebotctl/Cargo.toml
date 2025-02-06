@@ -10,3 +10,4 @@ tempfile = "3.3"
 
 [dependencies]
 clap = { version = "4.0", features = ["derive"] }
+ssh2 = "0.9"
