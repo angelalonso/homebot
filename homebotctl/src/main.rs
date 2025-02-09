@@ -11,27 +11,23 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Run `cargo build` in the specified directory
-    Build {
-        /// Path to the directory containing the Cargo project
+    Test {
         path: String,
-        /// Enable specific features (e.g., "live")
+    },
+    Sim {
+        path: String,
+    },
+    Build {
+        path: String,
         #[arg(long)]
         features: Option<String>,
-        /// Build in release mode
         #[arg(long)]
         release: bool,
-        /// Target architecture (e.g., "armv7-unknown-linux-gnueabihf")
         #[arg(long)]
         target: Option<String>,
     },
-    /// Run `cargo test` in the specified directory
-    Test {
-        /// Path to the directory containing the Cargo project
-        path: String,
-    },
-    /// Run `cargo run` in the specified directory
     Deploy {
+        path: String,
         host: String,
         port: u16,
         username: String,
@@ -39,25 +35,31 @@ enum Commands {
         local_file_path: String,
         remote_file_path: String,
     },
-    /// Run `cargo run` in the specified directory
-    Run {
-        /// Path to the directory containing the Cargo project
-        path: String,
+    Stop {
+        host: String,
+        port: u16,
+        username: String,
+        password: String,
+        local_file_path: String,
+        remote_file_path: String,
     },
 }
 
 fn main() {
     let cli = Cli::parse();
 
+    // TODO: use the proper functions (run_local_command, run_over_ssh)
     match cli.command {
+        Commands::Test { path } => run_cargo_command(&path, "cargo", &["test"]),
+        Commands::Sim { path } => run_cargo_command(&path, "cargo", &["test"]),
         Commands::Build {
             path,
             features,
             release,
             target,
         } => run_cargo_build(&path, features, release, target),
-        Commands::Test { path } => run_cargo_command(&path, "cargo", &["test"]),
         Commands::Deploy {
+            path,
             host,
             port,
             username,
@@ -73,6 +75,21 @@ fn main() {
             &remote_file_path,
         )
         .expect("ERROR SSH'ing into the host"),
-        Commands::Run { path } => run_cargo_command(&path, "cargo", &["run"]),
+        Commands::Stop {
+            host,
+            port,
+            username,
+            password,
+            local_file_path,
+            remote_file_path,
+        } => copy_file_over_ssh(
+            &host,
+            port,
+            &username,
+            &password,
+            &local_file_path,
+            &remote_file_path,
+        )
+        .expect("ERROR SSH'ing into the host"),
     }
 }

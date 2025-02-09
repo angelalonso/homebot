@@ -5,6 +5,21 @@ use std::net::TcpStream;
 use std::path::Path;
 use std::process::Command;
 
+pub fn run_local_command(command: &str) {
+    let mut cmd = Command::new(command);
+
+    println!("Running: {}", command);
+
+    let status = cmd
+        .status()
+        .expect(&format!("Failed to execute '{}'", command));
+
+    // Check if the command succeeded
+    if !status.success() {
+        eprintln!("'{}' failed with exit code: {:?}", command, status.code());
+    }
+}
+
 pub fn run_cargo_build(
     path: &str,
     features: Option<String>,
@@ -61,6 +76,18 @@ pub fn run_cargo_command(path: &str, command: &str, args: &[&str]) {
             status.code()
         );
     }
+}
+
+pub fn run_over_ssh(
+    host: &str,
+    port: u16,
+    username: &str,
+    password: &str,
+    local_file_path: &str,
+    remote_file_path: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    // TODO: this and test
+    return Ok(());
 }
 
 pub fn copy_file_over_ssh(
