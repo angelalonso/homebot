@@ -1,6 +1,0 @@
----
-code_path: "../"
-host: "localhost"
-port: 22
-username: "testuser"
-password: "testpass"
