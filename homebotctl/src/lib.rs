@@ -4,15 +4,24 @@ use std::io::prelude::*;
 use std::net::TcpStream;
 use std::path::Path;
 use std::process::Command;
+use std::process::ExitStatus;
 
 pub mod cfg;
 
 pub fn run_local_command(command: &str) {
-    let mut cmd = Command::new(command);
+    // Split the command into program and arguments
+    let mut parts = command.split_whitespace();
+    let program = parts.next().expect("No program specified");
+    let args: Vec<&str> = parts.collect();
+
+    // Create a new Command instance
+    let mut cmd = Command::new(program);
+    cmd.args(args);
 
     println!("Running: {}", command);
 
-    let status = cmd
+    // Execute the command and handle the result
+    let status: ExitStatus = cmd
         .status()
         .expect(&format!("Failed to execute '{}'", command));
 
