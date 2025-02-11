@@ -1,7 +1,7 @@
 use serde::Deserialize;
+use serde_yaml;
 use std::fs;
 use std::path::Path;
-use serde_yaml;
 
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct Config {
@@ -10,6 +10,7 @@ pub struct Config {
     pub port: u16,
     pub username: String,
     pub password: String,
+    pub ssh_key_path: String,
 }
 
 impl Config {
@@ -19,4 +20,3 @@ impl Config {
         Ok(config)
     }
 }
-

@@ -36,6 +36,7 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
     //
     //
     log.info("Running!");
+    #[cfg(feature = "test")]
     let mut iteration = 0;
     loop {
         // Each iteration is marked by a timestamp

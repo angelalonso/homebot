@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 use homebotctl::cfg::Config;
-use homebotctl::{copy_file_over_ssh, run_cargo_build, run_cargo_command, run_local_command};
+use homebotctl::{run_cargo_command, run_local_command};
 
 #[derive(Parser)]
 #[command(name = "cargo-runner")]

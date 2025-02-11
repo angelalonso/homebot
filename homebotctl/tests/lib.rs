@@ -1,8 +1,8 @@
+use homebotctl::cfg::Config;
 use homebotctl::*;
 use std::fs;
 use std::io::Write;
 use tempfile::NamedTempFile;
-
 
 // Helper function to create a temporary file with some content
 fn create_temp_file(content: &str) -> NamedTempFile {
@@ -72,18 +72,47 @@ fn test_run_local_command_empty_command() {
 
 // Command over SSH
 // ----------------
+#[cfg(feature = "botonline")]
+#[test]
+fn test_run_ssh_command() {
+    let cfgfile_path = "ctlcfg.yml";
+    let cfg = Config::from_file(&cfgfile_path).unwrap();
+    let command = "echo Hello, SSH!";
+
+    // Run the SSH command
+    let result = run_over_ssh(
+        &cfg.host,
+        cfg.port,
+        &cfg.username,
+        Some(&cfg.password),
+        Some(&cfg.ssh_key_path),
+        command,
+    );
+
+    // Check if the command was successful
+    match result {
+        Ok(output) => {
+            assert_eq!(output, "Hello, SSH!\n");
+        }
+        Err(e) => {
+            assert!(e.contains("failed to lookup address information"));
+            panic!("SSH command SHOULD NOT have failed: {}", e);
+        }
+    }
+}
+
 #[test]
 fn test_run_ssh_command_fail() {
     // Replace these with your SSH server details
     let host = "your.ssh.server.com";
     let port = 22;
     let username = "your_username";
-    let password = "your_password";
+    let password = Some("your_password");
+    let ssh_key_path = None;
     let command = "echo Hello, SSH!";
 
     // Run the SSH command
-    let result = run_over_ssh(host, port, username, password, command);
-
+    let result = run_over_ssh(host, port, username, password, ssh_key_path, command);
     // Check if the command was successful
     match result {
         Ok(output) => {
@@ -98,37 +127,34 @@ fn test_run_ssh_command_fail() {
 
 // Copy over SSH
 // -------------
+#[cfg(feature = "botonline")]
 #[test]
 fn test_copy_file_over_ssh() {
-    // Replace these with valid values for your test environment
-    let host = "example.com";
-    let port = 22;
-    let username = "user";
-    let password = None; // Set to `None` if using SSH key
-    let ssh_key_path = Some("/path/to/id_rsa"); // Set to `None` if using password
-    let local_file_path = "test_local_file.txt";
-    let remote_file_path = "/tmp/test_remote_file.txt";
+    let cfgfile_path = "ctlcfg.yml";
+    let cfg = Config::from_file(&cfgfile_path).unwrap();
+    let local_file_path = "cargotest_local_file.tmp";
+    let remote_file_path = "/home/".to_owned() + &cfg.username + "/cargotest_remote_file.tmp";
 
     // Create a test file locally
-    let test_content = "This is a test file.";
+    let test_content = "This is a test file from running cargo tests.";
     fs::write(local_file_path, test_content).expect("Failed to create local test file");
 
     // Call the function to copy the file over SSH
     let result = copy_file_over_ssh(
-        host,
-        port,
-        username,
-        password,
-        ssh_key_path,
+        &cfg.host,
+        cfg.port,
+        &cfg.username,
+        Some(&cfg.password),
+        Some(&cfg.ssh_key_path),
         local_file_path,
-        remote_file_path,
+        &remote_file_path,
     );
 
     // Clean up: Delete the local test file
     fs::remove_file(local_file_path).expect("Failed to delete local test file");
 
     // Assert that the function succeeded
-    assert!(result.is_err());
+    assert!(result.is_ok());
 
     // Optional: Verify the file was copied correctly by reading it back (if you have SSH access)
     // This step is optional and depends on your test environment.
