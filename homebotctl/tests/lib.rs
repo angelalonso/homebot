@@ -1,5 +1,15 @@
 use homebotctl::*;
 use std::fs;
+use std::io::Write;
+use tempfile::NamedTempFile;
+
+
+// Helper function to create a temporary file with some content
+fn create_temp_file(content: &str) -> NamedTempFile {
+    let mut file = NamedTempFile::new().unwrap();
+    write!(file, "{}", content).unwrap();
+    file
+}
 
 // Local Command
 // ----------------
@@ -84,4 +94,99 @@ fn test_run_ssh_command_fail() {
             assert!(e.contains("failed to lookup address information"));
         }
     }
+}
+
+// Copy over SSH
+// -------------
+#[test]
+fn test_copy_file_over_ssh() {
+    // Replace these with valid values for your test environment
+    let host = "example.com";
+    let port = 22;
+    let username = "user";
+    let password = None; // Set to `None` if using SSH key
+    let ssh_key_path = Some("/path/to/id_rsa"); // Set to `None` if using password
+    let local_file_path = "test_local_file.txt";
+    let remote_file_path = "/tmp/test_remote_file.txt";
+
+    // Create a test file locally
+    let test_content = "This is a test file.";
+    fs::write(local_file_path, test_content).expect("Failed to create local test file");
+
+    // Call the function to copy the file over SSH
+    let result = copy_file_over_ssh(
+        host,
+        port,
+        username,
+        password,
+        ssh_key_path,
+        local_file_path,
+        remote_file_path,
+    );
+
+    // Clean up: Delete the local test file
+    fs::remove_file(local_file_path).expect("Failed to delete local test file");
+
+    // Assert that the function succeeded
+    assert!(result.is_err());
+
+    // Optional: Verify the file was copied correctly by reading it back (if you have SSH access)
+    // This step is optional and depends on your test environment.
+}
+
+#[test]
+fn test_copy_file_over_ssh_invalid_credentials() {
+    // Create a temporary local file
+    let local_file = create_temp_file("Hello, this is a test file!");
+    let local_file_path = local_file.path().to_str().unwrap();
+
+    // Define test server details with invalid credentials
+    let host = "testserver.example.com"; // Replace with a mock/test server
+    let port = 22;
+    let username = "invaliduser";
+    let password = Some("password"); // Set to `None` if using SSH key
+    let ssh_key_path = None; // Set to `None` if using password
+    let remote_file_path = "/tmp/remote_test_file.txt";
+
+    // Attempt to copy the file
+    let result = copy_file_over_ssh(
+        host,
+        port,
+        username,
+        password,
+        ssh_key_path,
+        local_file_path,
+        remote_file_path,
+    );
+
+    // Assert that the function returns an error
+    assert!(result.is_err());
+}
+
+#[test]
+fn test_copy_file_over_ssh_invalid_local_file() {
+    // Define a non-existent local file path
+    let local_file_path = "/nonexistent/path/to/file.txt";
+
+    // Define test server details
+    let host = "testserver.example.com"; // Replace with a mock/test server
+    let port = 22;
+    let username = "testuser";
+    let password = None; // Set to `None` if using SSH key
+    let ssh_key_path = Some("/path/to/id_rsa"); // Set to `None` if using password
+    let remote_file_path = "/tmp/remote_test_file.txt";
+
+    // Attempt to copy the file
+    let result = copy_file_over_ssh(
+        host,
+        port,
+        username,
+        password,
+        ssh_key_path,
+        local_file_path,
+        remote_file_path,
+    );
+
+    // Assert that the function returns an error
+    assert!(result.is_err());
 }
