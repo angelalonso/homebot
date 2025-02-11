@@ -1,19 +1,28 @@
+# Modes
+
+## Test Mode
+./cargo run test
+
+- Cargo test the code
+
+## Sim Mode
+./cargo run sim
+
+- Runs the code on Webots
+
+## Build Mode
+./cargo run build
+
+- Run test Mode
+- Compile for Raspberry arch
+
+
 # TO DO List
 This is a list of what modes of the robot this program should handle
 
 # Main functions
 ----------------------------
 These functions are the base to make the robot work
-
-## Test Mode
-Cargo test the code
-
-## Sim Mode
-Runs the code on Webots
-
-## Build Mode
-Run test Mode
-Compile for Raspberry arch
 
 ## Deploy Mode
 stop systemd if running
