@@ -9,7 +9,7 @@ def run(ip, port, user, privkeyfile, cmd):
     client.connect(hostname=ip,
                    port=port,
                    username=user,
-                   key_filename=os.getcwd() + "/" + privkeyfile,
+                   key_filename=privkeyfile,
                    look_for_keys=False
                    )
     ssh_stdin, ssh_stdout, ssh_stderr = client.exec_command(cmd)
@@ -103,11 +103,16 @@ def config_wifi(logger,
                 raspi_port,
                 user,
                 keyfile,
+                wifissid,
+                wifipass
                 ):
     # Config wifi user+pass
     # connect and test it worked
     # get new IP and save it to conf
-    cmd_1 = ''
+    #cmd_1 = f"'nmcli dev wifi connect '{ssid}' password '{wifipass}'"
+    cmd_1 = (
+        f"sudo nmcli dev wifi connect '{wifissid}' password '{wifipass}'"
+    )
 
     (stdout, errcode, stderr) = run(raspi_ip, raspi_port, user, keyfile, cmd_1)
 
@@ -134,6 +139,7 @@ def install_pkgs(logger,
                  keyfile,
                  ):
     pkgs = 'vim \
+            network-manager \
             git'
     cmd_1 = 'sudo apt update && sudo apt upgrade -y && sudo apt install -y ' + pkgs
 

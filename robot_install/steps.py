@@ -142,13 +142,15 @@ def step_7(logger, cfg):
 def step_8(logger, cfg):
     if cfg['steps_done'] < 8:
         pfmt("lila", "PREPARATION STEPS: change connection to wifi")
-        #ssh.config_wifi(logger,
-        #                 cfg['eth_ip'],
-        #                 cfg['ssh_port'],
-        #                 cfg['user'],
-        #                 cfg['privkeyfile']
-        #                 )
-        #cfg['steps_done'] = 8
+        ssh.config_wifi(logger,
+                         cfg['eth_ip'],
+                         cfg['ssh_port'],
+                         cfg['user'],
+                         cfg['privkeyfile'],
+                         cfg['wifissid'],
+                         cfg['wifipass'],
+                         )
+        cfg['steps_done'] = 8
     else:
         pfmt("lila", "- The Robot is now accessible through wifi")
     return cfg

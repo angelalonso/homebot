@@ -86,9 +86,9 @@ def write_cfg(filename, data):
         yaml.dump(new_data, yaml_file, default_flow_style=False)
 
 def get_sshkeypair(logger, cfg):
-    pubkey = 'homebot.pub'
+    pubkey = os.path.join(os.path.expanduser('~'), '.ssh', 'homebot.pub')
     cfg['pubkeyfile'] = pubkey
-    privkey = 'homebot.priv'
+    privkey = os.path.join(os.path.expanduser('~'), '.ssh', 'homebot.priv')
     cfg['privkeyfile'] = privkey
 
     if os.path.isfile(pubkey) and os.path.isfile(privkey):
@@ -124,6 +124,6 @@ def get_sshkeypair(logger, cfg):
 
     printfmt('red', " (*) we created a new keypair, now we'll tell your agent to add it:")
     cwd = os.getcwd()
-    os.system("ssh-add " + cwd + "/" + privkey)
+    os.system("ssh-add " + privkey)
 
     return cfg
