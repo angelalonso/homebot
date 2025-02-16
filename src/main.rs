@@ -9,6 +9,7 @@ use homebot::env::*;
 use homebot::sim_env::*;
 
 fn main() {
+    println!("Running...");
     match load(CFGFILE) {
         Ok(mut cfg) => {
             #[cfg(feature = "test")]
@@ -31,6 +32,7 @@ fn main() {
             log.err(&format!("ERROR Reading YAML: {:#?}", e));
         }
     };
+    println!("Bye!");
 }
 
 //#[cfg(feature = "sim")]

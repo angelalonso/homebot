@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 use homebotctl::cfg::Config;
-use homebotctl::{run_cargo_command, run_local_command};
+use homebotctl::{copy_file_over_ssh, run_cargo_command, run_local_command};
 
 #[derive(Parser)]
 #[command(name = "cargo-runner")]
@@ -15,15 +15,15 @@ enum Commands {
     Test {},
     Sim {},
     Build {},
-    //    Deploy {
-    //        path: String,
-    //        host: String,
-    //        port: u16,
-    //        username: String,
-    //        password: String,
-    //        local_file_path: String,
-    //        remote_file_path: String,
-    //    },
+    Deploy {
+        //        path: String,
+        //        host: String,
+        //        port: u16,
+        //        username: String,
+        //        password: String,
+        //        local_file_path: String,
+        //        remote_file_path: String,
+    },
     //    Stop {
     //        host: String,
     //        port: u16,
@@ -58,48 +58,53 @@ fn main() {
             run_local_command("cp ../cfg.yaml ../simulation/controllers/rust_controller/");
             run_local_command("webots ../simulation/worlds/homebot_simulation_world.wbt");
         }
-        Commands::Build {} => run_cargo_command(
-            &cfg.code_path,
-            "cargo",
-            &[
-                "build",
-                "--features",
-                "live",
-                "--release",
-                "--target=armv7-unknown-linux-gnueabihf",
-            ],
-        ),
-        //        Commands::Deploy {
-        //            cfg.host,
-        //            cfg.port,
-        //            cfg.username,
-        //            cfg.password,
-        //            local_file_path,
-        //            remote_file_path,
-        //        } => copy_file_over_ssh(
-        //            cfg.host,
-        //            cfg.port,
-        //            cfg.username,
-        //            cfg.password,
-        //            &local_file_path,
-        //            &remote_file_path,
-        //        )
-        //        .expect("ERROR SSH'ing into the host"),
-        //        Commands::Stop {
-        //            host,
-        //            port,
-        //            username,
-        //            password,
-        //            local_file_path,
-        //            remote_file_path,
-        //        } => copy_file_over_ssh(
-        //            &host,
-        //            port,
-        //            &username,
-        //            &password,
-        //            &local_file_path,
-        //            &remote_file_path,
-        //        )
-        //        .expect("ERROR SSH'ing into the host"),
+        Commands::Build {} => {
+            run_cargo_command(
+                &cfg.code_path,
+                "cargo",
+                &["test", "--features", "test", "--", "--nocapture"],
+            );
+            run_cargo_command(
+                &cfg.code_path,
+                "cargo",
+                &[
+                    "build",
+                    "--features",
+                    "live",
+                    "--release",
+                    "--target=aarch64-unknown-linux-gnu",
+                    //"--target=aarch64-unknown-linux-musl",
+                ],
+            );
+        }
+        Commands::Deploy {} => {
+            let local_file_path = "../target/aarch64-unknown-linux-gnu/release/homebot";
+            let remote_file_path = "/home/aafmin/homebot";
+            copy_file_over_ssh(
+                &cfg.host,
+                cfg.port,
+                &cfg.username,
+                Some(&cfg.password),
+                Some(&cfg.ssh_key_path),
+                &local_file_path,
+                &remote_file_path,
+            )
+            .expect("ERROR SSH'ing into the host")
+        } //        Commands::Stop {
+          //            host,
+          //            port,
+          //            username,
+          //            password,
+          //            local_file_path,
+          //            remote_file_path,
+          //        } => copy_file_over_ssh(
+          //            &host,
+          //            port,
+          //            &username,
+          //            &password,
+          //            &local_file_path,
+          //            &remote_file_path,
+          //        )
+          //        .expect("ERROR SSH'ing into the host"),
     }
 }
