@@ -16,6 +16,18 @@
 - Run test Mode
 - Compile for Raspberry arch
 
+## Deploy Mode
+- TBD: stop systemd if running
+- scp new binary and systemd
+- TBD: transfer config files to raspi
+- TBD: validate config files
+  - set up dependencies and env variables
+  - Security settings (Change passwords or keys)
+  - network configuration
+  - TODO: ctl.cfg is a separate config file
+  - TODO: Function to run commands over SSH
+- TBD: start systemd and captures output
+
 
 # TO DO List
 This is a list of what modes of the robot this program should handle
@@ -23,18 +35,6 @@ This is a list of what modes of the robot this program should handle
 # Main functions
 ----------------------------
 These functions are the base to make the robot work
-
-## Deploy Mode
-stop systemd if running
-scp new binary and systemd
-transfer config files to raspi
-validate config files
-  set up dependencies and env variables
-  Security settings (Change passwords or keys)
-  network configuration
-  TODO: ctl.cfg is a separate config file
-  TODO: Function to run commands over SSH
-start systemd and captures output
 
 ## Stop Mode
 Send stop commands to all actuators
