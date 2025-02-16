@@ -18,3 +18,5 @@ There are three parts to this software:
 - homebot
   - This is the robot software itself.
   - The first phase of basic movements works on Simulation but not yet on Hardware. Calibration phase should be next.
+  - A README specific to this part is not yet ready.
+    - It will be done once robot_install and homebotctl are working (at least on an MVP state)
