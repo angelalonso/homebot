@@ -1,5 +1,6 @@
 use homebot::homebot_aux_funcs::*;
 use homebot::loggin;
+use std::fs;
 
 const CFGFILE: &str = "cfg.yaml";
 
@@ -10,6 +11,15 @@ use homebot::sim_env::*;
 
 fn main() {
     println!("Running...");
+
+    // Check if the config file exists
+    if fs::metadata(CFGFILE).is_err() {
+        let log = loggin::Log::init("DEBUG".to_string());
+        log.err(&format!("ERROR: Config file '{}' does not exist.", CFGFILE));
+        println!("Create one. Bye!");
+        return;
+    }
+
     match load(CFGFILE) {
         Ok(mut cfg) => {
             #[cfg(feature = "test")]
@@ -34,65 +44,3 @@ fn main() {
     };
     println!("Bye!");
 }
-
-//#[cfg(feature = "sim")]
-//fn main() {
-//    match load(CFGFILE) {
-//        Ok(cfg) => {
-//            let log = loggin::Log::init(cfg["LOGLEVEL"].clone());
-//            log.info(&format!("- Mode: Webots Simulation"));
-//            match run(log.clone(), cfg) {
-//                Ok(()) => (),
-//                Err(es) => {
-//                    log.err(&format!("ERROR running simulation: {:#?}", es));
-//                }
-//            };
-//        }
-//        Err(e) => {
-//            let log = loggin::Log::init("DEBUG".to_string());
-//            log.err(&format!("ERROR Reading YAML: {:#?}", e));
-//        }
-//    };
-//}
-//
-//#[cfg(feature = "test")]
-//fn main() {
-//    match load(CFGFILE) {
-//        Ok(cfg) => {
-//            let log = loggin::Log::init(cfg["LOGLEVEL"].clone());
-//            check_cfg(cfg.clone(), CFGFILE, log.clone());
-//            log.info(&format!("- Mode: Code Tests"));
-//            match run(log.clone(), cfg) {
-//                Ok(()) => (),
-//                Err(es) => {
-//                    log.err(&format!("ERROR running tests: {:#?}", es));
-//                }
-//            };
-//        }
-//        Err(e) => {
-//            let log = loggin::Log::init("DEBUG".to_string());
-//            log.err(&format!("ERROR Reading YAML: {:#?}", e));
-//        }
-//    };
-//}
-//
-//#[cfg(feature = "live")]
-//fn main() {
-//    match load(CFGFILE) {
-//        Ok(cfg) => {
-//            let log = loggin::Log::init(cfg["LOGLEVEL"].clone());
-//            check_cfg(cfg.clone(), CFGFILE, log.clone());
-//            log.info(&format!("- Mode: Hardware Live"));
-//            //match run(log.clone(), cfg) {
-//            //    Ok(()) => (),
-//            //    Err(es) => {
-//            //        log.err(&format!("ERROR running live: {:#?}", es));
-//            //    }
-//            //};
-//        }
-//        Err(e) => {
-//            let log = loggin::Log::init("DEBUG".to_string());
-//            log.err(&format!("ERROR Reading YAML: {:#?}", e));
-//        }
-//    };
-//}
