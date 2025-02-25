@@ -16,7 +16,10 @@ fn main() {
     if fs::metadata(CFGFILE).is_err() {
         let log = loggin::Log::init("DEBUG".to_string());
         log.err(&format!("ERROR: Config file '{}' does not exist.", CFGFILE));
-        println!("Create one. Bye!");
+        println!(
+            "Create a {} config file before running, please. Bye!",
+            CFGFILE
+        );
         return;
     }
 

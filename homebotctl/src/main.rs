@@ -1,6 +1,8 @@
 use clap::{Parser, Subcommand};
 use homebotctl::cfg::Config;
-use homebotctl::{copy_file_over_ssh, run_cargo_command, run_local_command};
+use homebotctl::{
+    copy_file_over_ssh, get_ips_open, run_cargo_command, run_local_command, run_over_ssh,
+};
 
 #[derive(Parser)]
 #[command(name = "cargo-runner")]
@@ -15,15 +17,7 @@ enum Commands {
     Test {},
     Sim {},
     Build {},
-    Deploy {
-        //        path: String,
-        //        host: String,
-        //        port: u16,
-        //        username: String,
-        //        password: String,
-        //        local_file_path: String,
-        //        remote_file_path: String,
-    },
+    Deploy {},
     //    Stop {
     //        host: String,
     //        port: u16,
@@ -78,6 +72,7 @@ fn main() {
             );
         }
         Commands::Deploy {} => {
+            /*
             let local_file_path = "../target/aarch64-unknown-linux-gnu/release/homebot";
             let remote_file_path = "/home/aafmin/homebot";
             copy_file_over_ssh(
@@ -89,7 +84,21 @@ fn main() {
                 &local_file_path,
                 &remote_file_path,
             )
-            .expect("ERROR SSH'ing into the host")
+            .expect("ERROR SSH'ing into the host");
+            let _ = run_over_ssh(
+                &cfg.host,
+                cfg.port,
+                &cfg.username,
+                Some(&cfg.password),
+                Some(&cfg.ssh_key_path),
+                "whoami",
+            );
+            */
+            let base_ip = "192.168.1.0";
+            let subnet_mask = 24;
+            let port = 21012; // Port to test
+            get_ips_open(base_ip, subnet_mask, port);
+            println!("there");
         } //        Commands::Stop {
           //            host,
           //            port,
