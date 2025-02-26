@@ -1,14 +1,29 @@
 use ssh2::Session;
 use std::fs::File;
 use std::io::prelude::*;
-use std::net::{Ipv4Addr, SocketAddrV4, TcpStream};
+use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4, TcpStream};
 use std::path::Path;
 use std::process::Command;
 use std::process::ExitStatus;
 use std::str::FromStr;
 use std::time::Duration;
+use std::io;
 
 pub mod cfg;
+
+pub fn is_bot_online(ip: &str, port: u16) -> Result<bool, io::Error> {
+    // Create a SocketAddr from the IP and port
+    let socket_addr = format!("{}:{}", ip, port)
+        .parse::<SocketAddr>()
+        .map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
+
+    // Attempt to establish a TCP connection with a timeout
+    match TcpStream::connect_timeout(&socket_addr, Duration::from_secs(3)) {
+        Ok(_) => Ok(true), // Connection successful
+        Err(e) if e.kind() == io::ErrorKind::TimedOut => Ok(false), // Timeout, endpoint not reachable
+        Err(e) => Err(e), // Other IO errors
+    }
+}
 
 pub fn get_ips_open(base_ip: &str, subnet_mask: u32, port: u16) {
     let base_ip = Ipv4Addr::from_str(base_ip).expect("Invalid base IP address");

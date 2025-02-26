@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 use homebotctl::cfg::Config;
 use homebotctl::{
-    copy_file_over_ssh, get_ips_open, run_cargo_command, run_local_command, run_over_ssh,
+    is_bot_online, copy_file_over_ssh, get_ips_open, run_cargo_command, run_local_command, run_over_ssh,
 };
 
 #[derive(Parser)]
@@ -72,27 +72,37 @@ fn main() {
             );
         }
         Commands::Deploy {} => {
+            match is_bot_online(&cfg.host, cfg.port) {
+                Ok(true) => {
+                    let local_file_path = "../target/aarch64-unknown-linux-gnu/release/homebot";
+                    let remote_file_path = "/home/aafmin/homebot";
+                    copy_file_over_ssh(
+                        &cfg.host,
+                        cfg.port,
+                        &cfg.username,
+                        Some(&cfg.password),
+                        Some(&cfg.ssh_key_path),
+                        &local_file_path,
+                        &remote_file_path,
+                    )
+                    .expect("ERROR SSH'ing into the host");
+                    let run1 = run_over_ssh(
+                        &cfg.host,
+                        cfg.port,
+                        &cfg.username,
+                        Some(&cfg.password),
+                        Some(&cfg.ssh_key_path),
+                        "whoami",
+                    );
+                    println!("{:#?}", run1);
+                },
+                Ok(false) => {
+                    println!("Robot is not online or changed IP, let me check if it's on a different one...");
+                    get_ips_open(&cfg.lan_base, cfg.lan_mask, cfg.port);
+                },
+                Err(e) => println!("Error checking endpoint: {}", e),
+            }
             /*
-            let local_file_path = "../target/aarch64-unknown-linux-gnu/release/homebot";
-            let remote_file_path = "/home/aafmin/homebot";
-            copy_file_over_ssh(
-                &cfg.host,
-                cfg.port,
-                &cfg.username,
-                Some(&cfg.password),
-                Some(&cfg.ssh_key_path),
-                &local_file_path,
-                &remote_file_path,
-            )
-            .expect("ERROR SSH'ing into the host");
-            let _ = run_over_ssh(
-                &cfg.host,
-                cfg.port,
-                &cfg.username,
-                Some(&cfg.password),
-                Some(&cfg.ssh_key_path),
-                "whoami",
-            );
             */
             let base_ip = "192.168.1.0";
             let subnet_mask = 24;

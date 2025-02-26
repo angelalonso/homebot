@@ -12,6 +12,8 @@ fn test_load_config() {
     let config_data = r#"
     code_path: "./"
     host: "localhost"
+    lan_base: "192.168.0.1"
+    lan_mask: 24
     port: 22
     username: "testuser"
     password: "testpass"
@@ -24,6 +26,8 @@ fn test_load_config() {
     let config = Config::from_file(&file_path).unwrap();
 
     assert_eq!(config.host, "localhost");
+    assert_eq!(config.lan_base, "192.168.0.1");
+    assert_eq!(config.lan_mask, 24);
     assert_eq!(config.port, 22);
     assert_eq!(config.username, "testuser");
     assert_eq!(config.password, "testpass");

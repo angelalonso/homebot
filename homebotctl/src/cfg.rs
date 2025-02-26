@@ -7,6 +7,8 @@ use std::path::Path;
 pub struct Config {
     pub code_path: String,
     pub host: String,
+    pub lan_base: String,
+    pub lan_mask: u32,
     pub port: u16,
     pub username: String,
     pub password: String,
