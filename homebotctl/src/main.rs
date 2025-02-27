@@ -97,7 +97,7 @@ fn main() {
                     println!("{:#?}", run1);
                 },
                 Ok(false) => {
-                    println!("Robot is not online or changed IP, let me check if it's on a different one...");
+                    println!("WARNING - Robot is not online or changed IP, let me check if it's on a different one...");
                     get_ips_open(&cfg.lan_base, cfg.lan_mask, cfg.port);
                 },
                 Err(e) => println!("Error checking endpoint: {}", e),
