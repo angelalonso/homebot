@@ -1,28 +1,135 @@
 use ssh2::Session;
 use std::fs::File;
+use std::io;
 use std::io::prelude::*;
+use std::io::Read;
 use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4, TcpStream};
 use std::path::Path;
 use std::process::Command;
 use std::process::ExitStatus;
 use std::str::FromStr;
 use std::time::Duration;
-use std::io;
 
 pub mod cfg;
+//pub fn run_over_ssh(
+//    host: &str,
+//    port: u16,
+//    username: &str,
+//    password: Option<&str>,
+//    ssh_key_path: Option<&str>,
+//    command: &str,
+//) -> Result<String, String> {
+//    // Connect to the remote server
+//    let tcp = TcpStream::connect((host, port)).map_err(|e| e.to_string())?;
+//    let mut session = Session::new().map_err(|e| e.to_string())?;
+//    session.set_tcp_stream(tcp);
+//    session.handshake().map_err(|e| e.to_string())?;
+//
+//    // Authenticate with either password or SSH key
+//    if let Some(pass) = password {
+//        // Authenticate with password
+//        session
+//            .userauth_password(username, pass)
+//            .map_err(|e| e.to_string())?;
+//    } else if let Some(key_path) = ssh_key_path {
+//        // Authenticate with SSH key
+//        session
+//            .userauth_pubkey_file(username, None, Path::new(key_path), None)
+//            .map_err(|e| e.to_string())?;
+//    } else {
+//        return Err("Neither password nor SSH key provided".to_string());
+//    }
+//
+//    // Check if authentication was successful
+//    if !session.authenticated() {
+//        return Err("Authentication failed".to_string());
+//    }
+//
+//    // Execute the command
+//    let mut channel = session.channel_session().map_err(|e| e.to_string())?;
+//    channel.exec(command).map_err(|e| e.to_string())?;
+//
+//    // Read the output of the command
+//    let mut output = String::new();
+//    channel
+//        .read_to_string(&mut output)
+//        .map_err(|e| e.to_string())?;
+//
+//    // Close the channel and session
+//    channel.wait_close().map_err(|e| e.to_string())?;
+//    let exit_status = channel.exit_status().map_err(|e| e.to_string())?;
+//
+//    if exit_status != 0 {
+//        return Err(format!("Command failed with exit status: {}", exit_status));
+//    }
+//
+//    Ok(output)
+//}
 
-pub fn is_bot_online(ip: &str, port: u16) -> Result<bool, io::Error> {
-    // Create a SocketAddr from the IP and port
-    let socket_addr = format!("{}:{}", ip, port)
-        .parse::<SocketAddr>()
-        .map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
+pub fn run_over_ssh(
+    host: &str,
+    port: u16,
+    username: &str,
+    password: Option<&str>,
+    ssh_key_path: Option<&str>,
+    command: &str,
+) -> Result<String, String> {
+    // Connect to the remote server
+    let tcp = TcpStream::connect((host, port)).map_err(|e| e.to_string())?;
+    let mut session = Session::new().map_err(|e| e.to_string())?;
+    session.set_tcp_stream(tcp);
+    session.handshake().map_err(|e| e.to_string())?;
 
-    // Attempt to establish a TCP connection with a timeout
-    match TcpStream::connect_timeout(&socket_addr, Duration::from_secs(3)) {
-        Ok(_) => Ok(true), // Connection successful
-        Err(e) if e.kind() == io::ErrorKind::TimedOut => Ok(false), // Timeout, endpoint not reachable
-        Err(e) => Err(e), // Other IO errors
+    // Authenticate using either SSH key or password
+    if let Some(key_path) = ssh_key_path {
+        // Use SSH key for authentication
+        session
+            .userauth_pubkey_file(username, None, Path::new(key_path), None)
+            .map_err(|e| e.to_string())?;
+    } else if let Some(pass) = password {
+        // Use password for authentication
+        session
+            .userauth_password(username, pass)
+            .map_err(|e| e.to_string())?;
+    } else {
+        return Err("Either password or SSH key path must be provided".to_string());
     }
+
+    // Ensure the session is authenticated
+    if !session.authenticated() {
+        return Err("Authentication failed".to_string());
+    }
+
+    // Execute the command
+    let mut channel = session.channel_session().map_err(|e| e.to_string())?;
+    channel.exec(command).map_err(|e| e.to_string())?;
+
+    // Read the output of the command
+    let mut output = String::new();
+    channel
+        .read_to_string(&mut output)
+        .map_err(|e| e.to_string())?;
+
+    // Close the channel and session
+    channel.wait_close().map_err(|e| e.to_string())?;
+    let exit_status = channel.exit_status().map_err(|e| e.to_string())?;
+
+    if exit_status != 0 {
+        return Err(format!("Command failed with exit status: {}", exit_status));
+    }
+
+    Ok(output)
+}
+
+pub fn is_bot_online(ip_text: &str, port: u16) -> bool {
+    let ip =
+        Ipv4Addr::from_str(ip_text).map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e));
+    let socket_addr = SocketAddrV4::new(ip.expect("IP FORMAT IS RONG"), port);
+
+    if TcpStream::connect_timeout(&socket_addr.into(), Duration::from_millis(100)).is_ok() {
+        return true;
+    }
+    return false;
 }
 
 pub fn get_ips_open(base_ip: &str, subnet_mask: u32, port: u16) {
@@ -64,61 +171,6 @@ pub fn run_local_command(command: &str) {
     if !status.success() {
         eprintln!("'{}' failed with exit code: {:?}", command, status.code());
     }
-}
-
-pub fn run_over_ssh(
-    host: &str,
-    port: u16,
-    username: &str,
-    password: Option<&str>,
-    ssh_key_path: Option<&str>,
-    command: &str,
-) -> Result<String, String> {
-    // Connect to the remote server
-    let tcp = TcpStream::connect((host, port)).map_err(|e| e.to_string())?;
-    let mut session = Session::new().map_err(|e| e.to_string())?;
-    session.set_tcp_stream(tcp);
-    session.handshake().map_err(|e| e.to_string())?;
-
-    // Authenticate with either password or SSH key
-    if let Some(pass) = password {
-        // Authenticate with password
-        session
-            .userauth_password(username, pass)
-            .map_err(|e| e.to_string())?;
-    } else if let Some(key_path) = ssh_key_path {
-        // Authenticate with SSH key
-        session
-            .userauth_pubkey_file(username, None, Path::new(key_path), None)
-            .map_err(|e| e.to_string())?;
-    } else {
-        return Err("Neither password nor SSH key provided".to_string());
-    }
-
-    // Check if authentication was successful
-    if !session.authenticated() {
-        return Err("Authentication failed".to_string());
-    }
-
-    // Execute the command
-    let mut channel = session.channel_session().map_err(|e| e.to_string())?;
-    channel.exec(command).map_err(|e| e.to_string())?;
-
-    // Read the output of the command
-    let mut output = String::new();
-    channel
-        .read_to_string(&mut output)
-        .map_err(|e| e.to_string())?;
-
-    // Close the channel and session
-    channel.wait_close().map_err(|e| e.to_string())?;
-    let exit_status = channel.exit_status().map_err(|e| e.to_string())?;
-
-    if exit_status != 0 {
-        return Err(format!("Command failed with exit status: {}", exit_status));
-    }
-
-    Ok(output)
 }
 
 pub fn run_cargo_build(
