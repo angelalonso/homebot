@@ -11,6 +11,7 @@ use std::str::FromStr;
 use std::time::Duration;
 
 pub mod cfg;
+pub mod remote;
 
 pub fn run_over_ssh(
     host: &str,
