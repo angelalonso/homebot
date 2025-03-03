@@ -75,9 +75,24 @@ fn main() {
         Commands::Deploy {} => match is_bot_online(&cfg.host, cfg.port) {
             true => {
                 let local_file_path = "../target/aarch64-unknown-linux-gnu/release/homebot";
-                let remote_file_path = "/home/aafmin/homebot";
+                let mut remote_file_path: String = "/home/".to_owned();
+                remote_file_path.push_str(&cfg.username);
+                remote_file_path.push_str("/homebot");
+                println!("Cleaning up previous binary...");
+                let mut comm_rm = "rm ".to_owned();
+                comm_rm.push_str(&remote_file_path);
+                let run_comm_rm = run_over_ssh(
+                    &cfg.host,
+                    cfg.port,
+                    &cfg.username,
+                    Some(&cfg.password),
+                    Some(&cfg.ssh_key_path),
+                    &comm_rm,
+                );
+                // TODO: test result, stop if error
+                println!("Result: {:#?}", run_comm_rm);
                 println!("Copying binary to Bot...");
-                copy_file_over_ssh(
+                match copy_file_over_ssh(
                     &cfg.host,
                     cfg.port,
                     &cfg.username,
@@ -85,18 +100,28 @@ fn main() {
                     Some(&cfg.ssh_key_path),
                     &local_file_path,
                     &remote_file_path,
-                )
-                .expect("ERROR SSH'ing into the host");
-                println!("Running a test...");
-                let run1 = run_over_ssh(
-                    &cfg.host,
-                    cfg.port,
-                    &cfg.username,
-                    Some(&cfg.password),
-                    Some(&cfg.ssh_key_path),
-                    "whoami",
-                );
-                println!("{:#?}", run1);
+                ) {
+                    Ok(msg) => {
+                        println!("Result: {:#?}", msg);
+                        println!("Running a test...");
+                        let mut comm_chmod = "chmod +x ".to_owned();
+                        comm_chmod.push_str(&remote_file_path);
+                        let run_comm_chmod = run_over_ssh(
+                            &cfg.host,
+                            cfg.port,
+                            &cfg.username,
+                            Some(&cfg.password),
+                            Some(&cfg.ssh_key_path),
+                            &comm_chmod,
+                        );
+                        println!("{:#?}", run_comm_chmod);
+                        // TODO: what else is needed here? start system service maybe? -> need
+                        // previous step to deploy it
+                    },
+                    Err(e) => {
+                        println!("ERROR SCP'ing to the host: {:#?}", e);
+                    }
+                }
             }
             false => {
                 println!("WARNING - Robot is not online or changed IP, let me check if it's on a different one...");

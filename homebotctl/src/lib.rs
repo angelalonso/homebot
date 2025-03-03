@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io;
 use std::io::prelude::*;
 use std::io::Read;
-use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4, TcpStream};
+use std::net::{Ipv4Addr, SocketAddrV4, TcpStream};
 use std::path::Path;
 use std::process::Command;
 use std::process::ExitStatus;
@@ -11,60 +11,6 @@ use std::str::FromStr;
 use std::time::Duration;
 
 pub mod cfg;
-//pub fn run_over_ssh(
-//    host: &str,
-//    port: u16,
-//    username: &str,
-//    password: Option<&str>,
-//    ssh_key_path: Option<&str>,
-//    command: &str,
-//) -> Result<String, String> {
-//    // Connect to the remote server
-//    let tcp = TcpStream::connect((host, port)).map_err(|e| e.to_string())?;
-//    let mut session = Session::new().map_err(|e| e.to_string())?;
-//    session.set_tcp_stream(tcp);
-//    session.handshake().map_err(|e| e.to_string())?;
-//
-//    // Authenticate with either password or SSH key
-//    if let Some(pass) = password {
-//        // Authenticate with password
-//        session
-//            .userauth_password(username, pass)
-//            .map_err(|e| e.to_string())?;
-//    } else if let Some(key_path) = ssh_key_path {
-//        // Authenticate with SSH key
-//        session
-//            .userauth_pubkey_file(username, None, Path::new(key_path), None)
-//            .map_err(|e| e.to_string())?;
-//    } else {
-//        return Err("Neither password nor SSH key provided".to_string());
-//    }
-//
-//    // Check if authentication was successful
-//    if !session.authenticated() {
-//        return Err("Authentication failed".to_string());
-//    }
-//
-//    // Execute the command
-//    let mut channel = session.channel_session().map_err(|e| e.to_string())?;
-//    channel.exec(command).map_err(|e| e.to_string())?;
-//
-//    // Read the output of the command
-//    let mut output = String::new();
-//    channel
-//        .read_to_string(&mut output)
-//        .map_err(|e| e.to_string())?;
-//
-//    // Close the channel and session
-//    channel.wait_close().map_err(|e| e.to_string())?;
-//    let exit_status = channel.exit_status().map_err(|e| e.to_string())?;
-//
-//    if exit_status != 0 {
-//        return Err(format!("Command failed with exit status: {}", exit_status));
-//    }
-//
-//    Ok(output)
-//}
 
 pub fn run_over_ssh(
     host: &str,
