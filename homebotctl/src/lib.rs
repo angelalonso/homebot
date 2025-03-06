@@ -82,16 +82,14 @@ pub fn is_bot_online(ip_text: &str, port: u16) -> bool {
 pub fn get_ips_open(base_ip: &str, subnet_mask: u32, port: u16) {
     let base_ip = Ipv4Addr::from_str(base_ip).expect("Invalid base IP address");
     let num_hosts = 2u32.pow(32 - subnet_mask);
-    println!("HOSTS {}", num_hosts);
 
     for i in 1..num_hosts - 1 {
         let ip = Ipv4Addr::from(u32::from(base_ip) + i);
-        println!("{} --- {} ---", i, ip);
 
         let socket_addr = SocketAddrV4::new(ip, port);
 
         if TcpStream::connect_timeout(&socket_addr.into(), Duration::from_millis(100)).is_ok() {
-            println!("{}:{} is OPEN", ip, port);
+            println!("{}:{} is OPEN, please adapt ctl config file", ip, port);
             break;
         }
     }

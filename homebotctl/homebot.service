@@ -1,0 +1,6 @@
+[Unit]
+Description=Homebot Service
+[Service]
+ExecStart={HOME}/homebot live
+[Install]
+WantedBy=multi-user.target
