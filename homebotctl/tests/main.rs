@@ -1,4 +1,5 @@
-use homebotctl::{copy_file_over_ssh, run_cargo_build, run_cargo_command};
+use homebotctl::{copy_file_over_ssh};
+use homebotctl::local::*;
 use std::fs;
 use std::io::Write;
 use std::process::Command;

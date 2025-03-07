@@ -1,4 +1,5 @@
-use homebotctl::cfg::Config;
+use homebotctl::remote::*;
+use homebotctl::local::*;
 use homebotctl::*;
 use std::fs;
 use std::io::Write;

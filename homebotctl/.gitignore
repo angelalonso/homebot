@@ -4,3 +4,4 @@ src/bindings.rs
 **/*.swp
 **/*.sw0
 **/ctlcfg.yml
+homebot.service

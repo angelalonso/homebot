@@ -1,8 +1,10 @@
+use handlebars::Handlebars;
 use ssh2::Session;
+use std::collections::HashMap;
 use std::fs::File;
-use std::io;
+use std::io::{Read, Write};
 use std::io::prelude::*;
-use std::io::Read;
+use std::io;
 use std::net::{Ipv4Addr, SocketAddrV4, TcpStream};
 use std::path::Path;
 use std::str::FromStr;
@@ -12,6 +14,7 @@ pub mod cfg;
 pub mod modes;
 pub mod remote;
 pub mod local;
+
 pub fn is_bot_online(ip_text: &str, port: u16) -> bool {
     let ip =
         Ipv4Addr::from_str(ip_text).map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e));
@@ -92,4 +95,44 @@ pub fn copy_file_over_ssh(
     remote_file.wait_close()?;
 
     Ok(())
+}
+
+pub fn create_servicefile(username: &str) {
+    // Create a Handlebars registry
+    let mut handlebars = Handlebars::new();
+
+    // Register a template
+//    let template = "Hello, {{name}}! Welcome to {{city}}.";
+    let template = "[Unit]\nDescription=Homebot Service\n[Service]\n
+ExecStart=/home/{{username}}/homebot live\n[Install]\nWantedBy=multi-user.target";
+
+    handlebars
+        .register_template_string("template", template)
+        .expect("Failed to register template");
+
+    // Create a context with variables
+    let mut context = HashMap::new();
+    context.insert("username", username);
+
+    // Render the template
+    let content = handlebars.render("template", &context).expect("Failed to render template");
+
+    println!("{}", content);
+
+    match File::create("homebot.service") {
+        Ok(mut file) => {
+            match file.write_all(content.as_bytes()) {
+                Ok(_) => {
+                    println!("homebot.service created ok.");
+                }
+                Err(e) => {
+                    println!("ERROR creating homebot.service: {:#?}", e);
+                }
+
+            }; // Writes content
+        }
+        Err(e) => {
+            println!("ERROR Building code: {:#?}", e);
+        }
+    };
 }

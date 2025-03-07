@@ -1,9 +1,9 @@
-use crate::{copy_file_over_ssh};
+use crate::{copy_file_over_ssh, create_servicefile};
 use crate::remote::run_over_ssh;
 use crate::local::{run_cargo_command, run_local_command};
 
 pub fn test_mode(
-    code_path: &str
+    code_path: &str,
 ) {
     println!("Testing local code...");
     match run_cargo_command(
@@ -45,7 +45,8 @@ pub fn sim_mode(
 }
 
 pub fn build_mode(
-    code_path: &str
+    code_path: &str,
+    username: &str,
 ) {
     println!("Before Building code:");
     test_mode(code_path);
@@ -58,7 +59,7 @@ pub fn build_mode(
                     "--features",
                     "live",
                     "--release",
-                    "--target=aarch64-unknown-linux-gnu",
+                    //"--target=aarch64-unknown-linux-gnu",
                     //"--target=aarch64-unknown-linux-musl",
                 ],
     ) {
@@ -68,7 +69,8 @@ pub fn build_mode(
         Err(e) => {
             println!("ERROR Building code: {:#?}", e);
         }
-    }
+    };
+    create_servicefile(username);
 }
 
 pub fn deploy_mode(

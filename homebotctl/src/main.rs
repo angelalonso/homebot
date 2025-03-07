@@ -41,6 +41,7 @@ fn main() {
         ),
         Commands::Build {} => build_mode(
             &cfg.code_path,
+            &cfg.username,
         ),
         Commands::Deploy {} => match is_bot_online(&cfg.host, cfg.port) { // This could be moved to
                                                                           // modes.rs, but it's ok
