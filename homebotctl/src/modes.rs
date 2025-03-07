@@ -1,15 +1,13 @@
-use crate::{copy_file_over_ssh, create_servicefile};
-use crate::remote::{run_over_ssh, journal_over_ssh};
 use crate::local::{run_cargo_command, run_local_command};
+use crate::remote::{journal_over_ssh, run_over_ssh};
+use crate::{copy_file_over_ssh, create_servicefile};
 
-pub fn test_mode(
-    code_path: &str,
-) {
+pub fn test_mode(code_path: &str) {
     println!("Testing local code...");
     match run_cargo_command(
-            code_path,
-            "cargo",
-            &["test", "--features", "test", "--", "--nocapture"],
+        code_path,
+        "cargo",
+        &["test", "--features", "test", "--", "--nocapture"],
     ) {
         Ok(msg) => {
             println!("Result: {:#?}", msg);
@@ -20,16 +18,15 @@ pub fn test_mode(
     }
 }
 
-pub fn sim_mode(
-    code_path: &str
-) {
+pub fn sim_mode(code_path: &str) {
     println!("Running local Simulation...");
     match run_cargo_command(
         code_path,
         "cargo",
         &["build", "--features", "sim", "--release"],
     ) {
-        Ok(msg) => { // TODO: maybe test these as well?
+        Ok(msg) => {
+            // TODO: maybe test these as well?
             println!("Result: {:#?}", msg);
             run_local_command("mkdir -p ../simulation/controllers/rust_controller/");
             run_local_command(
@@ -44,24 +41,21 @@ pub fn sim_mode(
     }
 }
 
-pub fn build_mode(
-    code_path: &str,
-    username: &str,
-) {
+pub fn build_mode(code_path: &str, username: &str) {
     println!("Before Building code:");
     test_mode(code_path);
     println!("Building code...");
     match run_cargo_command(
-                code_path,
-                "cargo",
-                &[
-                    "build",
-                    "--features",
-                    "live",
-                    "--release",
-                    //"--target=aarch64-unknown-linux-gnu",
-                    //"--target=aarch64-unknown-linux-musl",
-                ],
+        code_path,
+        "cargo",
+        &[
+            "build",
+            "--features",
+            "live",
+            "--release",
+            "--target=aarch64-unknown-linux-gnu",
+            //"--target=aarch64-unknown-linux-musl",
+        ],
     ) {
         Ok(msg) => {
             println!("Result: {:#?}", msg);
@@ -93,11 +87,15 @@ pub fn deploy_mode(
         ssh_key_path,
         &local_svcfile,
         &remote_svcfile,
-    ).expect("ERROR Copying system service file to Bot!");
+    )
+    .expect("ERROR Copying system service file to Bot!");
 
     println!("Configuring System Service...");
-    let comm_systemd = "sudo systemctl daemon-reload && sudo systemctl enable your-service-name.service".to_owned();
-    let run_comm_systemd = run_over_ssh(host, port, username, password, ssh_key_path, &comm_systemd);
+    let comm_systemd =
+        "sudo systemctl daemon-reload && sudo systemctl enable your-service-name.service"
+            .to_owned();
+    let run_comm_systemd =
+        run_over_ssh(host, port, username, password, ssh_key_path, &comm_systemd);
     println!("Result: {:#?}", run_comm_systemd);
 
     println!("Cleaning up previous binary...");
@@ -133,7 +131,14 @@ pub fn deploy_mode(
                         Ok(msg) => {
                             println!("Result: {:#?}", msg);
                             let svcname = "homebot";
-                            match journal_over_ssh(host, port, username, password, ssh_key_path, &svcname) {
+                            match journal_over_ssh(
+                                host,
+                                port,
+                                username,
+                                password,
+                                ssh_key_path,
+                                &svcname,
+                            ) {
                                 Ok(msg) => {
                                     println!("Result: {:#?}", msg);
                                 }
@@ -157,4 +162,3 @@ pub fn deploy_mode(
         }
     }
 }
-
