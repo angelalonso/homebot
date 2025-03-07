@@ -1,5 +1,5 @@
 use crate::{copy_file_over_ssh, create_servicefile};
-use crate::remote::run_over_ssh;
+use crate::remote::{run_over_ssh, journal_over_ssh};
 use crate::local::{run_cargo_command, run_local_command};
 
 pub fn test_mode(
@@ -132,6 +132,15 @@ pub fn deploy_mode(
                     match run_over_ssh(host, port, username, password, ssh_key_path, &comm_run) {
                         Ok(msg) => {
                             println!("Result: {:#?}", msg);
+                            let svcname = "homebot";
+                            match journal_over_ssh(host, port, username, password, ssh_key_path, &svcname) {
+                                Ok(msg) => {
+                                    println!("Result: {:#?}", msg);
+                                }
+                                Err(e) => {
+                                    println!("ERROR Tailing the logfile: {:#?}", e);
+                                }
+                            }
                         }
                         Err(e) => {
                             println!("ERROR Running the binary: {:#?}", e);
