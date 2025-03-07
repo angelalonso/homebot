@@ -1,7 +1,77 @@
 use crate::{copy_file_over_ssh};
 use crate::remote::run_over_ssh;
+use crate::local::{run_cargo_command, run_local_command};
 
-pub fn deploy(
+pub fn test_mode(
+    code_path: &str
+) {
+    println!("Testing local code...");
+    match run_cargo_command(
+            code_path,
+            "cargo",
+            &["test", "--features", "test", "--", "--nocapture"],
+    ) {
+        Ok(msg) => {
+            println!("Result: {:#?}", msg);
+        }
+        Err(e) => {
+            println!("ERROR Testing local code: {:#?}", e);
+        }
+    }
+}
+
+pub fn sim_mode(
+    code_path: &str
+) {
+    println!("Running local Simulation...");
+    match run_cargo_command(
+        code_path,
+        "cargo",
+        &["build", "--features", "sim", "--release"],
+    ) {
+        Ok(msg) => { // TODO: maybe test these as well?
+            println!("Result: {:#?}", msg);
+            run_local_command("mkdir -p ../simulation/controllers/rust_controller/");
+            run_local_command(
+                "cp ../target/release/homebot ../simulation/controllers/rust_controller/rust_controller",
+            );
+            run_local_command("cp ../cfg.yaml ../simulation/controllers/rust_controller/");
+            run_local_command("webots ../simulation/worlds/homebot_simulation_world.wbt");
+        }
+        Err(e) => {
+            println!("ERROR Simulating locally: {:#?}", e);
+        }
+    }
+}
+
+pub fn build_mode(
+    code_path: &str
+) {
+    println!("Before Building code:");
+    test_mode(code_path);
+    println!("Building code...");
+    match run_cargo_command(
+                code_path,
+                "cargo",
+                &[
+                    "build",
+                    "--features",
+                    "live",
+                    "--release",
+                    "--target=aarch64-unknown-linux-gnu",
+                    //"--target=aarch64-unknown-linux-musl",
+                ],
+    ) {
+        Ok(msg) => {
+            println!("Result: {:#?}", msg);
+        }
+        Err(e) => {
+            println!("ERROR Building code: {:#?}", e);
+        }
+    }
+}
+
+pub fn deploy_mode(
     host: &str,
     port: u16,
     username: &str,
@@ -9,7 +79,7 @@ pub fn deploy(
     ssh_key_path: Option<&str>,
     local_file_path: &str,
     remote_file_path: &str,
-) -> Result<String, String> {
+) {
     println!("Cleaning up previous binary...");
     let mut comm_rm = "rm ".to_owned();
     comm_rm.push_str(&remote_file_path);
@@ -41,23 +111,19 @@ pub fn deploy(
                     match run_over_ssh(host, port, username, password, ssh_key_path, &comm_run) {
                         Ok(msg) => {
                             println!("Result: {:#?}", msg);
-                            Ok("OK".to_string())
                         }
                         Err(e) => {
                             println!("ERROR Running the binary: {:#?}", e);
-                            Err("ERROR".to_string())
                         }
                     }
                 }
                 Err(e) => {
                     println!("ERROR Chmoding the binary: {:#?}", e);
-                    Err("ERROR".to_string())
                 }
             }
         }
         Err(e) => {
             println!("ERROR SCP'ing to the host: {:#?}", e);
-            Err("ERROR".to_string())
         }
     }
 }

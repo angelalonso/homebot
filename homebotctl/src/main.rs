@@ -1,7 +1,6 @@
 use clap::{Parser, Subcommand};
 use homebotctl::cfg::Config;
-use homebotctl::modes::deploy;
-use homebotctl::local::{run_local_command, run_cargo_command};
+use homebotctl::modes::{test_mode, sim_mode, build_mode, deploy_mode};
 use homebotctl::{get_ips_open, is_bot_online};
 
 #[derive(Parser)]
@@ -34,50 +33,23 @@ fn main() {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Test {} => run_cargo_command(
+        Commands::Test {} => test_mode(
             &cfg.code_path,
-            "cargo",
-            &["test", "--features", "test", "--", "--nocapture"],
         ),
-        Commands::Sim {} => {
-            run_cargo_command(
-                &cfg.code_path,
-                "cargo",
-                &["build", "--features", "sim", "--release"],
-            );
-            run_local_command("mkdir -p ../simulation/controllers/rust_controller/");
-            run_local_command(
-                "cp ../target/release/homebot ../simulation/controllers/rust_controller/rust_controller",
-            );
-            run_local_command("cp ../cfg.yaml ../simulation/controllers/rust_controller/");
-            run_local_command("webots ../simulation/worlds/homebot_simulation_world.wbt");
-        }
-        Commands::Build {} => {
-            run_cargo_command(
-                &cfg.code_path,
-                "cargo",
-                &["test", "--features", "test", "--", "--nocapture"],
-            );
-            run_cargo_command(
-                &cfg.code_path,
-                "cargo",
-                &[
-                    "build",
-                    "--features",
-                    "live",
-                    "--release",
-                    "--target=aarch64-unknown-linux-gnu",
-                    //"--target=aarch64-unknown-linux-musl",
-                ],
-            );
-        }
-        Commands::Deploy {} => match is_bot_online(&cfg.host, cfg.port) {
+        Commands::Sim {} => sim_mode(
+            &cfg.code_path,
+        ),
+        Commands::Build {} => build_mode(
+            &cfg.code_path,
+        ),
+        Commands::Deploy {} => match is_bot_online(&cfg.host, cfg.port) { // This could be moved to
+                                                                          // modes.rs, but it's ok
             true => {
                 let local_file_path = "../target/aarch64-unknown-linux-gnu/release/homebot";
                 let mut remote_file_path: String = "/home/".to_owned();
                 remote_file_path.push_str(&cfg.username);
                 remote_file_path.push_str("/homebot");
-                let _ = deploy(
+                let _ = deploy_mode(
                     &cfg.host,
                     cfg.port,
                     &cfg.username,
