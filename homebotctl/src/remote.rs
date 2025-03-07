@@ -1,62 +1,60 @@
-use crate::{copy_file_over_ssh, run_over_ssh};
+use std::path::Path;
+use std::io::Read;
+use ssh2::Session;
+use std::net::{TcpStream};
 
-pub fn deploy(
+pub fn run_over_ssh(
     host: &str,
     port: u16,
     username: &str,
     password: Option<&str>,
     ssh_key_path: Option<&str>,
-    local_file_path: &str,
-    remote_file_path: &str,
+    command: &str,
 ) -> Result<String, String> {
-    println!("Cleaning up previous binary...");
-    let mut comm_rm = "rm ".to_owned();
-    comm_rm.push_str(&remote_file_path);
-    let run_comm_rm = run_over_ssh(host, port, username, password, ssh_key_path, &comm_rm);
-    println!("Result: {:#?}", run_comm_rm);
+    // Connect to the remote server
+    let tcp = TcpStream::connect((host, port)).map_err(|e| e.to_string())?;
+    let mut session = Session::new().map_err(|e| e.to_string())?;
+    session.set_tcp_stream(tcp);
+    session.handshake().map_err(|e| e.to_string())?;
 
-    println!("Copying binary to Bot...");
-    match copy_file_over_ssh(
-        host,
-        port,
-        username,
-        password,
-        ssh_key_path,
-        &local_file_path,
-        &remote_file_path,
-    ) {
-        Ok(msg) => {
-            println!("Result: {:#?}", msg);
-            println!("Making Binary Executable...");
-            let mut comm_chmod = "chmod +x ".to_owned();
-            comm_chmod.push_str(&remote_file_path);
-
-            match run_over_ssh(host, port, username, password, ssh_key_path, &comm_chmod) {
-                Ok(msg) => {
-                    println!("Result: {:#?}", msg);
-                    let mut comm_run = "".to_owned();
-                    comm_run.push_str(&remote_file_path);
-
-                    match run_over_ssh(host, port, username, password, ssh_key_path, &comm_run) {
-                        Ok(msg) => {
-                            println!("Result: {:#?}", msg);
-                            Ok("OK".to_string())
-                        }
-                        Err(e) => {
-                            println!("ERROR Running the binary: {:#?}", e);
-                            Err("ERROR".to_string())
-                        }
-                    }
-                }
-                Err(e) => {
-                    println!("ERROR Chmoding the binary: {:#?}", e);
-                    Err("ERROR".to_string())
-                }
-            }
-        }
-        Err(e) => {
-            println!("ERROR SCP'ing to the host: {:#?}", e);
-            Err("ERROR".to_string())
-        }
+    // Authenticate using either SSH key or password
+    if let Some(key_path) = ssh_key_path {
+        // Use SSH key for authentication
+        session
+            .userauth_pubkey_file(username, None, Path::new(key_path), None)
+            .map_err(|e| e.to_string())?;
+    } else if let Some(pass) = password {
+        // Use password for authentication
+        session
+            .userauth_password(username, pass)
+            .map_err(|e| e.to_string())?;
+    } else {
+        return Err("Either password or SSH key path must be provided".to_string());
     }
+
+    // Ensure the session is authenticated
+    if !session.authenticated() {
+        return Err("Authentication failed".to_string());
+    }
+
+    // Execute the command
+    let mut channel = session.channel_session().map_err(|e| e.to_string())?;
+    channel.exec(command).map_err(|e| e.to_string())?;
+
+    // Read the output of the command
+    let mut output = String::new();
+    channel
+        .read_to_string(&mut output)
+        .map_err(|e| e.to_string())?;
+
+    // Close the channel and session
+    channel.wait_close().map_err(|e| e.to_string())?;
+    let exit_status = channel.exit_status().map_err(|e| e.to_string())?;
+
+    if exit_status != 0 {
+        return Err(format!("Command failed with exit status: {}", exit_status));
+    }
+
+    Ok(output)
 }
+

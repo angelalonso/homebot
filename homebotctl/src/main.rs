@@ -1,7 +1,8 @@
 use clap::{Parser, Subcommand};
 use homebotctl::cfg::Config;
-use homebotctl::remote::deploy;
-use homebotctl::{get_ips_open, is_bot_online, run_cargo_command, run_local_command};
+use homebotctl::modes::deploy;
+use homebotctl::local::{run_local_command, run_cargo_command};
+use homebotctl::{get_ips_open, is_bot_online};
 
 #[derive(Parser)]
 #[command(name = "cargo-runner")]
