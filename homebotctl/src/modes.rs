@@ -82,7 +82,7 @@ pub fn deploy_mode(
     local_binary_path: &str,
     remote_binary_path: &str,
 ) {
-    println!("Copying system service files to Bot...");
+    println!("Copying System Service files to Bot...");
     let local_svcfile = "homebot.service";
     let remote_svcfile = "/etc/systemd/system/homebot.service";
     copy_file_over_ssh(
@@ -94,6 +94,12 @@ pub fn deploy_mode(
         &local_svcfile,
         &remote_svcfile,
     ).expect("ERROR Copying system service file to Bot!");
+
+    println!("Configuring System Service...");
+    let comm_systemd = "sudo systemctl daemon-reload && sudo systemctl enable your-service-name.service".to_owned();
+    let run_comm_systemd = run_over_ssh(host, port, username, password, ssh_key_path, &comm_systemd);
+    println!("Result: {:#?}", run_comm_systemd);
+
     println!("Cleaning up previous binary...");
     let mut comm_rm = "rm ".to_owned();
     comm_rm.push_str(&remote_binary_path);
@@ -119,8 +125,9 @@ pub fn deploy_mode(
             match run_over_ssh(host, port, username, password, ssh_key_path, &comm_chmod) {
                 Ok(msg) => {
                     println!("Result: {:#?}", msg);
-                    let mut comm_run = "".to_owned();
-                    comm_run.push_str(&remote_binary_path);
+                    // let mut comm_run = "".to_owned();
+                    // comm_run.push_str(&remote_binary_path);
+                    let comm_run = "sudo systemctl start your-service-name.service".to_owned();
 
                     match run_over_ssh(host, port, username, password, ssh_key_path, &comm_run) {
                         Ok(msg) => {

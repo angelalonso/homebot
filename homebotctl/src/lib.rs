@@ -3,7 +3,6 @@ use ssh2::Session;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
-use std::io::prelude::*;
 use std::io;
 use std::net::{Ipv4Addr, SocketAddrV4, TcpStream};
 use std::path::Path;
