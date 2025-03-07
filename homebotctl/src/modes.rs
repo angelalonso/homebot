@@ -79,12 +79,24 @@ pub fn deploy_mode(
     username: &str,
     password: Option<&str>,
     ssh_key_path: Option<&str>,
-    local_file_path: &str,
-    remote_file_path: &str,
+    local_binary_path: &str,
+    remote_binary_path: &str,
 ) {
+    println!("Copying system service files to Bot...");
+    let local_svcfile = "homebot.service";
+    let remote_svcfile = "/etc/systemd/system/homebot.service";
+    copy_file_over_ssh(
+        host,
+        port,
+        username,
+        password,
+        ssh_key_path,
+        &local_svcfile,
+        &remote_svcfile,
+    ).expect("ERROR Copying system service file to Bot!");
     println!("Cleaning up previous binary...");
     let mut comm_rm = "rm ".to_owned();
-    comm_rm.push_str(&remote_file_path);
+    comm_rm.push_str(&remote_binary_path);
     let run_comm_rm = run_over_ssh(host, port, username, password, ssh_key_path, &comm_rm);
     println!("Result: {:#?}", run_comm_rm);
 
@@ -95,20 +107,20 @@ pub fn deploy_mode(
         username,
         password,
         ssh_key_path,
-        &local_file_path,
-        &remote_file_path,
+        &local_binary_path,
+        &remote_binary_path,
     ) {
         Ok(msg) => {
             println!("Result: {:#?}", msg);
             println!("Making Binary Executable...");
             let mut comm_chmod = "chmod +x ".to_owned();
-            comm_chmod.push_str(&remote_file_path);
+            comm_chmod.push_str(&remote_binary_path);
 
             match run_over_ssh(host, port, username, password, ssh_key_path, &comm_chmod) {
                 Ok(msg) => {
                     println!("Result: {:#?}", msg);
                     let mut comm_run = "".to_owned();
-                    comm_run.push_str(&remote_file_path);
+                    comm_run.push_str(&remote_binary_path);
 
                     match run_over_ssh(host, port, username, password, ssh_key_path, &comm_run) {
                         Ok(msg) => {
