@@ -14,19 +14,18 @@
 ./cargo run build
 
 - Run test Mode
+- Create files through templates and variables
 - Compile for Raspberry arch
 
 ## Deploy Mode
-- TBD: stop systemd if running
 - scp new binary and systemd
-- TBD: transfer config files to raspi
+- transfer config files to raspi
 - TBD: validate config files
   - set up dependencies and env variables
   - Security settings (Change passwords or keys)
   - network configuration
-  - TODO: ctl.cfg is a separate config file
-  - TODO: Function to run commands over SSH
-- TBD: start systemd and captures output
+  - ctl.cfg is a separate config file
+- start systemd and captures output
 
 
 # TO DO List
