@@ -2,17 +2,17 @@ use handlebars::Handlebars;
 use ssh2::Session;
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{Read, Write};
 use std::io;
+use std::io::{Read, Write};
 use std::net::{Ipv4Addr, SocketAddrV4, TcpStream};
 use std::path::Path;
 use std::str::FromStr;
 use std::time::Duration;
 
 pub mod cfg;
+pub mod local;
 pub mod modes;
 pub mod remote;
-pub mod local;
 
 pub fn is_bot_online(ip_text: &str, port: u16) -> bool {
     let ip =
@@ -77,12 +77,14 @@ pub fn copy_file_over_ssh(
     file.read_to_end(&mut contents)?;
 
     // Create a new SCP session
-    let mut remote_file = sess.scp_send(
-        Path::new(remote_file_path),
-        0o644,
-        contents.len() as u64,
-        None,
-    )?;
+    let mut remote_file = sess
+        .scp_send(
+            Path::new(remote_file_path),
+            0o644,
+            contents.len() as u64,
+            None,
+        )
+        .expect("ERROR on scp_send Step");
 
     // Write the file contents to the remote server
     remote_file.write_all(&contents)?;
@@ -101,8 +103,9 @@ pub fn create_servicefile(username: &str) {
     let mut handlebars = Handlebars::new();
 
     // Register a template
-//    let template = "Hello, {{name}}! Welcome to {{city}}.";
-    let template = "[Unit]\nDescription=Homebot Service\n[Service]\n
+    //    let template = "Hello, {{name}}! Welcome to {{city}}.";
+    let template =
+        "[Unit]\nDescription=Homebot Service\n[Service]\nWorkingDirectory=/home/{{username}}
 ExecStart=/home/{{username}}/homebot live\n[Install]\nWantedBy=multi-user.target";
 
     handlebars
@@ -114,7 +117,9 @@ ExecStart=/home/{{username}}/homebot live\n[Install]\nWantedBy=multi-user.target
     context.insert("username", username);
 
     // Render the template
-    let content = handlebars.render("template", &context).expect("Failed to render template");
+    let content = handlebars
+        .render("template", &context)
+        .expect("Failed to render template");
 
     println!("{}", content);
 
@@ -127,7 +132,6 @@ ExecStart=/home/{{username}}/homebot live\n[Install]\nWantedBy=multi-user.target
                 Err(e) => {
                     println!("ERROR creating homebot.service: {:#?}", e);
                 }
-
             }; // Writes content
         }
         Err(e) => {

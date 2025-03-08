@@ -1,6 +1,6 @@
 use ssh2::Session;
-use std::io::{Read, BufRead, BufReader};
-use std::net::{TcpStream};
+use std::io::{BufRead, BufReader, Read};
+use std::net::TcpStream;
 use std::path::Path;
 use std::thread;
 use std::time::Duration;
@@ -68,7 +68,7 @@ pub fn journal_over_ssh(
     ssh_key_path: Option<&str>,
     servicename: &str,
 ) -> Result<(), String> {
-    let command = &format!("journalctl -u {}", servicename);
+    let command = &format!("sudo journalctl -u {} -f", servicename);
     // Connect to the remote server
     let tcp = TcpStream::connect((host, port)).map_err(|e| e.to_string())?;
     let mut session = Session::new().map_err(|e| e.to_string())?;

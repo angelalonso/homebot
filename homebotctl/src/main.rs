@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 use homebotctl::cfg::Config;
-use homebotctl::modes::{test_mode, sim_mode, build_mode, deploy_mode};
+use homebotctl::modes::{build_mode, deploy_mode, sim_mode, test_mode};
 use homebotctl::{get_ips_open, is_bot_online};
 
 #[derive(Parser)]
@@ -33,23 +33,15 @@ fn main() {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Test {} => test_mode(
-            &cfg.code_path,
-        ),
-        Commands::Sim {} => sim_mode(
-            &cfg.code_path,
-        ),
-        Commands::Build {} => build_mode(
-            &cfg.code_path,
-            &cfg.username,
-        ),
-        Commands::Deploy {} => match is_bot_online(&cfg.host, cfg.port) { // This could be moved to
-                                                                          // modes.rs, but it's ok
+        Commands::Test {} => test_mode(&cfg.code_path),
+        Commands::Sim {} => sim_mode(&cfg.code_path),
+        Commands::Build {} => build_mode(&cfg.code_path, &cfg.username),
+        Commands::Deploy {} => match is_bot_online(&cfg.host, cfg.port) {
+            // This could be moved to
+            // modes.rs, but it's ok
             true => {
                 let local_file_path = "../target/aarch64-unknown-linux-gnu/release/homebot";
-                let mut remote_file_path: String = "/home/".to_owned();
-                remote_file_path.push_str(&cfg.username);
-                remote_file_path.push_str("/homebot");
+                let remote_file_path = format!("/home/{}/homebot", &cfg.username);
                 let _ = deploy_mode(
                     &cfg.host,
                     cfg.port,

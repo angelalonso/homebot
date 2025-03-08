@@ -78,7 +78,7 @@ pub fn deploy_mode(
 ) {
     println!("Copying System Service files to Bot...");
     let local_svcfile = "homebot.service";
-    let remote_svcfile = "/etc/systemd/system/homebot.service";
+    let remote_tmpsvcfile = format!("/home/{}/{}", username, local_svcfile);
     copy_file_over_ssh(
         host,
         port,
@@ -86,21 +86,36 @@ pub fn deploy_mode(
         password,
         ssh_key_path,
         &local_svcfile,
-        &remote_svcfile,
+        &remote_tmpsvcfile,
     )
     .expect("ERROR Copying system service file to Bot!");
 
+    println!("Moving file to System Service folder...");
+    let comm_cp_systemd = format!(
+        "sudo cp {} /etc/systemd/system/{}",
+        remote_tmpsvcfile, local_svcfile
+    );
+    let run_comm_cp_systemd = run_over_ssh(
+        host,
+        port,
+        username,
+        password,
+        ssh_key_path,
+        &comm_cp_systemd,
+    );
+    println!("Result: {:#?}", run_comm_cp_systemd);
+
     println!("Configuring System Service...");
-    let comm_systemd =
-        "sudo systemctl daemon-reload && sudo systemctl enable your-service-name.service"
-            .to_owned();
+    let comm_systemd = format!(
+        "sudo systemctl daemon-reload && sudo systemctl enable {}",
+        local_svcfile
+    );
     let run_comm_systemd =
         run_over_ssh(host, port, username, password, ssh_key_path, &comm_systemd);
     println!("Result: {:#?}", run_comm_systemd);
 
     println!("Cleaning up previous binary...");
-    let mut comm_rm = "rm ".to_owned();
-    comm_rm.push_str(&remote_binary_path);
+    let comm_rm = format!("rm {}", remote_binary_path);
     let run_comm_rm = run_over_ssh(host, port, username, password, ssh_key_path, &comm_rm);
     println!("Result: {:#?}", run_comm_rm);
 
@@ -117,15 +132,12 @@ pub fn deploy_mode(
         Ok(msg) => {
             println!("Result: {:#?}", msg);
             println!("Making Binary Executable...");
-            let mut comm_chmod = "chmod +x ".to_owned();
-            comm_chmod.push_str(&remote_binary_path);
+            let comm_chmod = format!("chmod +x {}", remote_binary_path);
 
             match run_over_ssh(host, port, username, password, ssh_key_path, &comm_chmod) {
                 Ok(msg) => {
                     println!("Result: {:#?}", msg);
-                    // let mut comm_run = "".to_owned();
-                    // comm_run.push_str(&remote_binary_path);
-                    let comm_run = "sudo systemctl start your-service-name.service".to_owned();
+                    let comm_run = format!("sudo systemctl start {}", local_svcfile);
 
                     match run_over_ssh(host, port, username, password, ssh_key_path, &comm_run) {
                         Ok(msg) => {
