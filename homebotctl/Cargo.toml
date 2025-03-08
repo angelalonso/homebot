@@ -1,0 +1,19 @@
+[package]
+name = "homebotctl"
+version = "0.1.0"
+edition = "2021"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "2.1"
+tempfile = "3.3"
+
+[dependencies]
+clap = { version = "4.0", features = ["derive"] }
+ssh2 = "0.9"
+serde = { version = "1.0.217", features = ["derive"]}
+serde_yaml = "0.9.33"
+handlebars = "6.3.1"
+
+[features]
+botonline = []

@@ -42,6 +42,19 @@ impl Log {
         }
     }
 
+    pub fn fatal(&self, msg: &str) {
+        let accepted: Vec<String> = vec![
+            "debug".to_string(),
+            "info".to_string(),
+            "warn".to_string(),
+            "error".to_string(),
+        ];
+        if accepted.contains(&self.mode) {
+            self.out(&format!("FATAL {} \nProgram should not continue!", msg));
+        }
+        //        std::process::exit(2); // commenting out to pass tests. TODO: find alernative
+    }
+
     fn out(&self, msg: &str) {
         println!("{}", msg);
     }

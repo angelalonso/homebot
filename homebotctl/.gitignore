@@ -1,0 +1,7 @@
+**/target
+src/bindings.rs
+/sample_project/controllers/rust_controller/rust_controller
+**/*.swp
+**/*.sw0
+**/ctlcfg.yml
+homebot.service

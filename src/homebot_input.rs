@@ -96,4 +96,28 @@ impl Input {
         };
         return result;
     }
+
+    pub fn get_ts(&mut self) -> Duration {
+        self.ts
+    }
+
+    pub fn get_distance(&mut self) -> Vec<f64> {
+        self.distance.clone()
+    }
+
+    pub fn get_motor_l_pos(&mut self) -> f32 {
+        self.motor_l_pos
+    }
+
+    pub fn get_motor_l_vel(&mut self) -> f32 {
+        self.motor_l_vel
+    }
+
+    pub fn get_motor_r_pos(&mut self) -> f32 {
+        self.motor_r_pos
+    }
+
+    pub fn get_motor_r_vel(&mut self) -> f32 {
+        self.motor_r_vel
+    }
 }

@@ -1,29 +1,42 @@
+use homebot::homebot_aux_funcs::*;
 use homebot::loggin;
+use std::fs;
 
-use serde_yaml;
-use std::collections::BTreeMap;
+const CFGFILE: &str = "cfg.yaml";
 
+#[cfg(any(feature = "test", feature = "live"))]
+use homebot::env::*;
 #[cfg(feature = "sim")]
 use homebot::sim_env::*;
-#[cfg(feature = "test")]
-use homebot::test_env::*;
 
-pub fn load(filename: &str) -> Result<BTreeMap<String, String>, Box<dyn std::error::Error>> {
-    let f = std::fs::File::open(filename)?;
-    let dm: BTreeMap<String, String> = serde_yaml::from_reader(&f)?;
-    Ok(dm)
-}
-
-#[cfg(any(feature = "sim", feature = "test"))]
 fn main() {
-    match load("cfg.yaml") {
-        Ok(cfg) => {
+    println!("Running...");
+
+    // Check if the config file exists
+    if fs::metadata(CFGFILE).is_err() {
+        let log = loggin::Log::init("DEBUG".to_string());
+        log.err(&format!("ERROR: Config file '{}' does not exist.", CFGFILE));
+        println!(
+            "Create a {} config file before running, please. Bye!",
+            CFGFILE
+        );
+        return;
+    }
+
+    match load(CFGFILE) {
+        Ok(mut cfg) => {
+            #[cfg(feature = "test")]
+            cfg.insert("MODE".to_string(), "Code Testing".to_string());
+            #[cfg(feature = "sim")]
+            cfg.insert("MODE".to_string(), "Webots Simulation".to_string());
+            #[cfg(feature = "live")]
+            cfg.insert("MODE".to_string(), "real Hardware Run".to_string());
             let log = loggin::Log::init(cfg["LOGLEVEL"].clone());
-            log.info(&format!("- Mode: Webots Simulation"));
-            match run(log.clone(), cfg) {
+            log.info(&format!("- Mode: {}", cfg["MODE"]));
+            match run(log.clone(), cfg.clone()) {
                 Ok(()) => (),
                 Err(es) => {
-                    log.err(&format!("ERROR running simulation: {:#?}", es));
+                    log.err(&format!("ERROR while on {}: {:#?}", cfg["MODE"], es));
                 }
             };
         }
@@ -32,8 +45,5 @@ fn main() {
             log.err(&format!("ERROR Reading YAML: {:#?}", e));
         }
     };
+    println!("Bye!");
 }
-// TODO:
-// #[cfg(feature = "live")]
-// fn main() {
-// ...

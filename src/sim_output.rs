@@ -21,12 +21,12 @@ impl Output {
 
         log.info("Loading motors...");
         let infinity = f64::INFINITY;
-        left_wheel_motor = crate::sim_webots::wb_robot_get_device("left_wheel_motor");
-        right_wheel_motor = crate::sim_webots::wb_robot_get_device("right_wheel_motor");
-        crate::sim_webots::wb_motor_set_position(left_wheel_motor, infinity);
-        crate::sim_webots::wb_motor_set_position(right_wheel_motor, infinity);
-        crate::sim_webots::wb_motor_set_velocity(left_wheel_motor, 0.0);
-        crate::sim_webots::wb_motor_set_velocity(right_wheel_motor, 0.0);
+        left_wheel_motor = crate::sim_hw::wb_robot_get_device("left_wheel_motor");
+        right_wheel_motor = crate::sim_hw::wb_robot_get_device("right_wheel_motor");
+        crate::sim_hw::wb_motor_set_position(left_wheel_motor, infinity);
+        crate::sim_hw::wb_motor_set_position(right_wheel_motor, infinity);
+        crate::sim_hw::wb_motor_set_velocity(left_wheel_motor, 0.0);
+        crate::sim_hw::wb_motor_set_velocity(right_wheel_motor, 0.0);
 
         Self {
             sensor: "on".to_string(),
@@ -48,14 +48,14 @@ impl Output {
     pub fn set_motor_l(&mut self, value: f32, prio: u8) {
         //let max_speed = 6.28;
         let max_speed = 1.00;
-        crate::sim_webots::wb_motor_set_velocity(self.motor_l, (value * max_speed).into());
+        crate::sim_hw::wb_motor_set_velocity(self.motor_l, (value * max_speed).into());
         self.motor_l_vel = value;
         self.motor_l_prio = prio;
     }
 
     pub fn set_motor_r(&mut self, value: f32, prio: u8) {
         let max_speed = 1.00;
-        crate::sim_webots::wb_motor_set_velocity(self.motor_r, (value * max_speed).into());
+        crate::sim_hw::wb_motor_set_velocity(self.motor_r, (value * max_speed).into());
         self.motor_r_vel = value;
         self.motor_r_prio = prio;
     }

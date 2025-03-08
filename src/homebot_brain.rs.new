@@ -1,0 +1,175 @@
+use crate::homebot_action::CompositeAction as CAction;
+use crate::homebot_input::Input;
+#[cfg(feature = "live")]
+use crate::live_output::Output;
+use crate::loggin::Log;
+#[cfg(feature = "sim")]
+use crate::sim_output::Output;
+#[cfg(feature = "test")]
+use crate::test_output::Output;
+
+use std::time::Duration;
+
+pub struct Brain {
+    current: Vec<CAction>,
+    incoming: Vec<CAction>,
+    input: Input,
+    output: Output,
+    test_mode: bool,
+}
+
+impl Brain {
+    pub fn init(log: Log, test_mode: bool) -> Self {
+        let current = vec![];
+        let incoming = vec![];
+        let input = Input::new();
+        let output = Output::new(log.clone());
+        Self {
+            current,
+            incoming,
+            input,
+            output,
+            test_mode,
+        }
+    }
+
+    pub fn update(&mut self, log: Log, ts: Duration, add_incoming: String) -> Output {
+        self.input.set_ts(ts);
+        // We avoid doing this while testing, for higher control on tests
+        // TODO: remove test_mode
+        if !self.test_mode && add_incoming == "on" {
+            for ac in self.input.react(log.clone()) {
+                self.add_incoming(ac);
+            }
+        }
+        log.debug(&format!("iii: {:#?}", self.get_incoming_caction_ids()));
+
+        self.incoming.retain(|i| {
+            if i.starts_at <= ts.as_millis() {
+                i.validate();
+                self.current.push(i.clone());
+                false
+            } else {
+                true
+            }
+        });
+
+        self.current.retain_mut(|c| {
+            c.actions.retain_mut(|a| {
+                let action_time = c.starts_at + a.delay_ms;
+                let action_end = action_time + a.duration_ms;
+
+                match ts.as_millis() {
+                    t if t < action_time => true, // Not yet started
+                    t if t < action_end => {
+                        // Ongoing, update output if priority allows
+                        match a.object.as_str() {
+                            "sensor" => {
+                                let (_, s_p) = self.output.get_sensor();
+                                if s_p <= c.prio {
+                                    self.output.set_sensor(a.value.clone(), c.prio);
+                                }
+                            }
+                            "motor_l" => {
+                                let (_, s_p) = self.output.get_motor_l();
+                                if s_p <= c.prio {
+                                    self.output.set_motor_l(
+                                        a.value.parse().expect("Invalid motor_l value"),
+                                        c.prio,
+                                    );
+                                }
+                            }
+                            "motor_r" => {
+                                let (_, s_p) = self.output.get_motor_r();
+                                if s_p <= c.prio {
+                                    self.output.set_motor_r(
+                                        a.value.parse().expect("Invalid motor_r value"),
+                                        c.prio,
+                                    );
+                                }
+                            }
+                            _ => {}
+                        }
+                        true
+                    }
+                    _ => false, // Completed, remove
+                }
+            });
+
+            !c.actions.is_empty()
+        });
+        self.output.clone()
+    }
+
+    pub fn set_testmode(&mut self, test: bool) {
+        self.test_mode = test;
+    }
+
+    pub fn get_testmode(&mut self) -> bool {
+        return self.test_mode.clone();
+    }
+
+    pub fn add_incoming(&mut self, c_action: CAction) {
+        self.incoming.push(c_action);
+    }
+
+    pub fn get_incoming(&self) -> Vec<CAction> {
+        return self.incoming.clone();
+    }
+
+    pub fn get_incoming_caction_ids(&self) -> Vec<String> {
+        let mut result = vec![];
+        for c in self.incoming.iter() {
+            result.push(c.get_id());
+        }
+        result
+    }
+
+    pub fn get_incoming_action_ids(&self) -> Vec<String> {
+        let mut result = vec![];
+        for c in self.incoming.iter() {
+            for a in c.actions.iter() {
+                result.push(a.get_id());
+            }
+        }
+        result
+    }
+
+    pub fn status_queues(&self, log: Log, tstamp: Duration) {
+        log.debug(&format!("{:#?} Incoming:{}", tstamp, self.incoming.len()));
+    }
+
+    pub fn get_current(&self) -> Vec<CAction> {
+        return self.current.clone();
+    }
+
+    pub fn get_current_caction_ids(&self) -> Vec<String> {
+        let mut result = vec![];
+        for i in self.current.clone() {
+            result.push(i.id)
+        }
+        result
+    }
+
+    pub fn get_current_action_ids(&self) -> Vec<String> {
+        let mut result = vec![];
+        for c in self.current.clone() {
+            for a in c.actions.iter() {
+                result.push(a.get_id());
+            }
+        }
+        result
+    }
+
+    pub fn get_input(&self) -> Input {
+        return self.input.clone();
+    }
+
+    pub fn set_input_distance(&mut self, log: Log, distance: Vec<f64>) {
+        self.input.set_distance(log, distance);
+    }
+
+    pub fn get_output(&self) -> Output {
+        return self.output.clone();
+    }
+}
