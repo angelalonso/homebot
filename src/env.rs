@@ -14,15 +14,19 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
     log.info("Checking config...");
     let time_step = cfg["TIME_STEP"].parse::<i32>()?;
     let _max_speed = cfg["MAX_SPEED"].parse::<f64>()?; // TODO: pass this to output
-
+                                                       // -- Timestamps
     log.info("Configuring time...");
     let start_timestamp: SystemTime = SystemTime::now();
-
+    // -- Init
     log.info("Loading bot, giving it a brain");
     hw_robot_init();
     let mut brain = Brain::init(log.clone(), test_mode);
     // TODO: make distance sensors update the input constantly
     // TODO: send tstamp as input
+    // -- LEDs
+    log.info("Loading LEDs...");
+    let _led_names = vec!["led001", "led002"];
+    // -- Sensors
     log.info("Loading sensors...");
     let _distance_sensor_names = vec!["distance_sensor_eyes"];
     let _distance_sensors: Vec<HWDeviceTag> = [].to_vec();

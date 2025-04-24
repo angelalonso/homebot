@@ -15,6 +15,18 @@ pub fn wb_robot_init() {
     }
 }
 
+pub fn wbr_led_disable(tag: WbDeviceTag) {
+    unsafe {
+        bindings::wb_led_set(tag, 0);
+    }
+}
+
+pub fn wbr_led_enable(tag: WbDeviceTag) {
+    unsafe {
+        bindings::wb_led_set(tag, 1);
+    }
+}
+
 pub fn wb_distance_sensor_enable(tag: WbDeviceTag, sampling_period: i32) {
     unsafe {
         bindings::wb_distance_sensor_enable(tag, sampling_period);

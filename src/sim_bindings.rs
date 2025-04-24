@@ -160,6 +160,7 @@ pub const ANSI_MAGENTA_FOREGROUND: &'static [u8; 6usize] = b"\x1B[35m\0";
 pub const ANSI_CYAN_FOREGROUND: &'static [u8; 6usize] = b"\x1B[36m\0";
 pub const ANSI_WHITE_FOREGROUND: &'static [u8; 6usize] = b"\x1B[37m\0";
 pub const ANSI_CLEAR_SCREEN: &'static [u8; 5usize] = b"\x1B[2J\0";
+
 pub type WbDeviceTag = ::std::os::raw::c_ushort;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -281,6 +282,7 @@ pub type _Float32x = f64;
 pub type _Float64x = u128;
 pub type float_t = f32;
 pub type double_t = f64;
+
 extern "C" {
     pub fn __fpclassify(__value: f64) -> ::std::os::raw::c_int;
 }
@@ -1976,6 +1978,7 @@ fn bindgen_test_layout_WbContactPoint() {
         )
     );
 }
+
 pub const WbNodeType_WB_NODE_NO_NODE: WbNodeType = 0;
 pub const WbNodeType_WB_NODE_APPEARANCE: WbNodeType = 1;
 pub const WbNodeType_WB_NODE_BACKGROUND: WbNodeType = 2;
@@ -6416,6 +6419,7 @@ extern "C" {
 extern "C" {
     pub fn wbu_driver_get_wipers_mode() -> wbu_wipers_mode;
 }
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct __locale_data {

@@ -1,5 +1,5 @@
 ---
-LOGLEVEL: "debug" # "debug" "info" "warn" "error"
+LOGLEVEL: "info" # "debug" "info" "warn" "error"
 TIME_STEP: "64"
 MAX_SPEED: "6.28"
 DEV_LED1_PIN: "1"
