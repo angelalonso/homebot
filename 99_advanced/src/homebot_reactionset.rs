@@ -2,6 +2,72 @@ use crate::homebot_action::Action;
 use crate::homebot_action::CompositeAction as CAction;
 use std::time::Duration;
 
+pub fn get_base_reactionset(ts: Duration) -> CAction {
+    // define some vars
+    let id = "turn_around".to_string();
+    let starts_at = ts.as_millis();
+
+    // define actions
+    let a1a = Action {
+        id: "01_sensor_off".to_string(),
+        delay_ms: 0,
+        duration_ms: 1000,
+        object: "sensor".to_string(),
+        value: "off".to_string(),
+    };
+    let a1b = Action {
+        id: "01_motor_l_back".to_string(),
+        delay_ms: 0,
+        duration_ms: 1000,
+        object: "motor_l".to_string(),
+        value: "-1.0".to_string(),
+    };
+    let a1c = Action {
+        id: "01_motor_r_back".to_string(),
+        delay_ms: 0,
+        duration_ms: 1000,
+        object: "motor_r".to_string(),
+        value: "-1.0".to_string(),
+    };
+    let a2a = Action {
+        id: "02_sensor_off".to_string(),
+        delay_ms: 1000,
+        duration_ms: 3000,
+        object: "sensor".to_string(),
+        value: "off".to_string(),
+    };
+    let a2b = Action {
+        id: "02_motor_l_fwd".to_string(),
+        delay_ms: 1000,
+        duration_ms: 3000,
+        object: "motor_l".to_string(),
+        value: "1.0".to_string(),
+    };
+    let a2c = Action {
+        id: "02_motor_r_fwd".to_string(),
+        delay_ms: 1000,
+        duration_ms: 3000,
+        object: "motor_r".to_string(),
+        value: "1.0".to_string(),
+    };
+    // Create and fill the vector of actions
+    let mut action_vector = vec![];
+    action_vector.push(a1a);
+    action_vector.push(a1b);
+    action_vector.push(a1c);
+    action_vector.push(a2a);
+    action_vector.push(a2b);
+    action_vector.push(a2c);
+    let turnaround_ca = CAction {
+        id,
+        actions: action_vector,
+        starts_at,
+        prio: 0,
+    };
+
+    return turnaround_ca;
+}
+
 // TODO: accept variables but only optional (e.g.: id)
 pub fn get_turnaround_reactionset(ts: Duration) -> CAction {
     // define some vars

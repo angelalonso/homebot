@@ -1,4 +1,5 @@
 use crate::homebot_action::CompositeAction as CAction;
+use crate::homebot_reactionset::get_base_reactionset;
 use crate::homebot_reactionset::get_moveon_reactionset;
 use crate::homebot_reactionset::get_turnaround_reactionset;
 use crate::loggin::Log;
@@ -78,7 +79,8 @@ impl Input {
             };
         }
         if yes_itis {
-            result.push(get_turnaround_reactionset(self.ts.clone()));
+            //result.push(get_turnaround_reactionset(self.ts.clone()));
+            result.push(get_base_reactionset(self.ts.clone()));
         };
         return result;
     }
@@ -92,7 +94,8 @@ impl Input {
             };
         }
         if yes_itis {
-            result.push(get_moveon_reactionset(self.ts.clone()));
+            //result.push(get_moveon_reactionset(self.ts.clone()));
+            result.push(get_base_reactionset(self.ts.clone()));
         };
         return result;
     }
