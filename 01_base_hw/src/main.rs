@@ -8,7 +8,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Initialize two motors (left and right)
     let mut left_motor = Motor::new("gpiochip0", 17, 27, "pwmchip0", 0)?;
-    let mut right_motor = Motor::new("gpiochip0", 22, 23, "pwmchip0", 1)?;
+    let mut right_motor = Motor::new("gpiochip0", 23, 24, "pwmchip0", 1)?;
 
     println!("Moving forward at 50% speed for 2 seconds...");
     left_motor.set_speed(0.5)?;

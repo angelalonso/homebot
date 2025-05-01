@@ -20,6 +20,13 @@
                 -37-|O O|-38-
                 -39-|O O|-40-
 
+GPIO17 - IN1
+GPIO27 - IN2
+GPIO22 - ENA
+GPIO23 - IN3
+GPIO24 - IN4
+GPIO25 - ENB
+
 # GUIDES
 ## Raspberry Pi's 3 Model B GPIO
 
