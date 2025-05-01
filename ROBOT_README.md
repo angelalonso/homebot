@@ -34,3 +34,11 @@ sudo apt install gcc-arm-linux-gnueabihf
 - Connect to wifi and test
 - Create a Service to run the robot
 - Once all steps have been ran, use the last one to update code and run
+
+# TODO: prepare the Raspi for GPIO access
+sudo apt install -y gpiod libgpiod-dev python3-libgpiod
+sudo usermod -a -G gpio $USER  # Add user to 'gpio' group
+newgrp gpio 
+sudo chown root:gpio /dev/gpiochip*
+sudo chmod 660 /dev/gpiochip*
+--- 

@@ -1,9 +1,10 @@
 [package]
-name = "steps"
+name = "homebot"
 version = "0.0.1"
 edition = "2018"
 
 [dependencies]
+gpiod = "0.3"
 rppal = "0.14"  # GPIO/PWM access
 tokio = { version = "1.0", features = ["full"] }  # For async (optional)
 [features]

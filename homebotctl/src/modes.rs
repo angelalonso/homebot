@@ -170,7 +170,10 @@ pub fn deploy_mode(
             }
         }
         Err(e) => {
-            println!("ERROR SCP'ing to the host: {:#?}", e);
+            println!(
+                "ERROR SCP'ing to the host {:#?}: {:#?}",
+                &local_binary_path, e
+            );
         }
     }
 }

@@ -40,7 +40,8 @@ fn main() {
             // This could be moved to
             // modes.rs, but it's ok
             true => {
-                let local_file_path = "../target/aarch64-unknown-linux-gnu/release/homebot";
+                let local_file_path =
+                    cfg.code_path + "/target/aarch64-unknown-linux-gnu/release/homebot";
                 let remote_file_path = format!("/home/{}/homebot", &cfg.username);
                 let _ = deploy_mode(
                     &cfg.host,
@@ -48,7 +49,7 @@ fn main() {
                     &cfg.username,
                     Some(&cfg.password),
                     Some(&cfg.ssh_key_path),
-                    local_file_path,
+                    &local_file_path,
                     &remote_file_path,
                 );
             }

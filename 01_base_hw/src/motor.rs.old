@@ -1,0 +1,57 @@
+use rppal::gpio::Gpio;
+use rppal::pwm::{Channel, Polarity, Pwm};
+
+pub struct Motor {
+    pwm: Pwm,
+    in1: rppal::gpio::OutputPin,
+    in2: rppal::gpio::OutputPin,
+}
+
+impl Motor {
+    pub fn new(
+        pwm_channel: Channel, // e.g., Channel::Pwm0
+        in1_pin: u8,          // e.g., 17
+        in2_pin: u8,          // e.g., 27
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        // Updated: Added Polarity::Normal and enable=true
+        println!("X");
+        println!("A");
+        let pwm = Pwm::with_frequency(
+            pwm_channel,
+            1000.0,           // 1kHz frequency
+            0.0,              // 0% duty cycle (initially stopped)
+            Polarity::Normal, // PWM pulse starts high
+            true,             // Enable PWM immediately
+        )?;
+
+        let in1 = Gpio::new()?.get(in1_pin)?.into_output();
+        let in2 = Gpio::new()?.get(in2_pin)?.into_output();
+
+        Ok(Motor { pwm, in1, in2 })
+    }
+
+    pub fn set_speed(&mut self, speed: f64) -> Result<(), Box<dyn std::error::Error>> {
+        // Clamp speed between -1.0 (reverse) and 1.0 (forward)
+        let speed = speed.clamp(-1.0, 1.0);
+
+        // Set direction pins
+        if speed >= 0.0 {
+            self.in1.set_high();
+            self.in2.set_low();
+        } else {
+            self.in1.set_low();
+            self.in2.set_high();
+        }
+
+        // Set PWM duty cycle (absolute value)
+        self.pwm.set_duty_cycle(speed.abs())?;
+        Ok(())
+    }
+
+    pub fn stop(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        self.pwm.set_duty_cycle(0.0)?;
+        self.in1.set_low();
+        self.in2.set_low();
+        Ok(())
+    }
+}
