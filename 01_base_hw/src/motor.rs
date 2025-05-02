@@ -1,21 +1,23 @@
-use gpiod::{Chip, Direction, Options};
+use gpiod::{Chip, Options};
 use std::error::Error;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-pub struct Motor {
+pub struct L298N {
     in1: gpiod::Lines<gpiod::Output>,
     in2: gpiod::Lines<gpiod::Output>,
+    en: gpiod::Lines<gpiod::Output>,
     pwm_chip: String,
     pwm_channel: u32,
 }
 
-impl Motor {
+impl L298N {
     pub fn new(
         gpio_chip: &str,
         in1_pin: u32,
         in2_pin: u32,
+        en_pin: u32,
         pwm_chip: &str,
         pwm_channel: u32,
     ) -> Result<Self, Box<dyn Error>> {
@@ -23,43 +25,35 @@ impl Motor {
         let chip = Chip::new(gpio_chip)?;
 
         // Request GPIO lines as outputs
-        let in1_options = Options::output([in1_pin]).consumer("motor-in1");
-        let in1 = chip.request_lines(in1_options)?;
+        let in1 = chip.request_lines(Options::output([in1_pin]).consumer("l298n-in1"))?;
+        let in2 = chip.request_lines(Options::output([in2_pin]).consumer("l298n-in2"))?;
+        let en = chip.request_lines(Options::output([en_pin]).consumer("l298n-en"))?;
 
-        let in2_options = Options::output([in2_pin]).consumer("motor-in2");
-        let in2 = chip.request_lines(in2_options)?;
-
-        // Initialize PWM (Linux sysfs interface)
+        // Initialize PWM
         Self::init_pwm(pwm_chip, pwm_channel)?;
 
-        Ok(Motor {
+        Ok(L298N {
             in1,
             in2,
+            en,
             pwm_chip: pwm_chip.to_string(),
             pwm_channel,
         })
     }
 
     fn init_pwm(chip: &str, channel: u32) -> Result<(), Box<dyn Error>> {
-        // Export PWM channel
         let export_path = format!("/sys/class/pwm/{}/export", chip);
         if !Path::new(&export_path).exists() {
-            let mut export_file = File::create(export_path)?;
-            write!(export_file, "{}", channel)?;
-
-            // Wait for PWM to be ready
+            File::create(export_path)?.write_all(format!("{}", channel).as_bytes())?;
             std::thread::sleep(std::time::Duration::from_millis(100));
         }
 
-        // Set PWM period (1ms = 1000000ns)
-        let period_path = format!("/sys/class/pwm/{}/pwm{}/period", chip, channel);
-        let mut period_file = File::create(period_path)?;
-        write!(period_file, "1000000")?;
+        // Set period to 1ms (1000000ns)
+        File::create(format!("/sys/class/pwm/{}/pwm{}/period", chip, channel))?
+            .write_all(b"1000000")?;
 
         // Enable PWM
-        let enable_path = format!("/sys/class/pwm/{}/pwm{}/enable", chip, channel);
-        let mut enable_file = File::create(enable_path)?;
-        write!(enable_file, "1")?;
+        File::create(format!("/sys/class/pwm/{}/pwm{}/enable", chip, channel))?.write_all(b"1")?;
 
         Ok(())
     }
@@ -76,30 +70,29 @@ impl Motor {
             self.in2.set_values([true])?;
         }
 
-        // Set PWM duty cycle (absolute value)
+        // Set PWM duty cycle
         let duty_cycle = (speed.abs() * 1000000.0) as u32;
         let duty_path = format!(
             "/sys/class/pwm/{}/pwm{}/duty_cycle",
             self.pwm_chip, self.pwm_channel
         );
-        let mut duty_file = File::create(duty_path)?;
-        write!(duty_file, "{}", duty_cycle)?;
+        File::create(duty_path)?.write_all(format!("{}", duty_cycle).as_bytes())?;
 
         Ok(())
     }
 
     pub fn stop(&mut self) -> Result<(), Box<dyn Error>> {
-        // Set duty cycle to 0
-        let duty_path = format!(
+        // Stop PWM
+        File::create(format!(
             "/sys/class/pwm/{}/pwm{}/duty_cycle",
             self.pwm_chip, self.pwm_channel
-        );
-        let mut duty_file = File::create(duty_path)?;
-        write!(duty_file, "0")?;
+        ))?
+        .write_all(b"0")?;
 
-        // Set GPIOs to low
+        // Set all control pins low
         self.in1.set_values([false])?;
         self.in2.set_values([false])?;
+        self.en.set_values([false])?;
 
         Ok(())
     }

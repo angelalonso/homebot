@@ -1,23 +1,25 @@
 mod motor;
-use motor::Motor;
+use motor::L298N;
 use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    println!("Initializing motors...");
+    // Initialize L298N controller
+    // Parameters: gpio_chip, in1_pin, in2_pin, en_pin, pwm_chip, pwm_channel
+    println!("A");
+    let mut motor = L298N::new("gpiochip0", 17, 27, 22, "pwmchip0", 0)?;
 
-    // Initialize two motors (left and right)
-    let mut left_motor = Motor::new("gpiochip0", 17, 27, "pwmchip0", 0)?;
-    let mut right_motor = Motor::new("gpiochip0", 23, 24, "pwmchip0", 1)?;
-
-    println!("Moving forward at 50% speed for 2 seconds...");
-    left_motor.set_speed(0.5)?;
-    right_motor.set_speed(0.5)?;
+    // Example usage:
+    println!("Moving forward at 50% speed for 2 seconds");
+    motor.set_speed(0.5)?;
     std::thread::sleep(std::time::Duration::from_secs(2));
 
-    println!("Stopping motors...");
-    left_motor.stop()?;
-    right_motor.stop()?;
+    println!("Moving backward at 30% speed for 1 second");
+    motor.set_speed(-0.3)?;
+    std::thread::sleep(std::time::Duration::from_secs(1));
+
+    println!("Stopping motor");
+    motor.stop()?;
 
     Ok(())
 }
