@@ -1,25 +1,24 @@
-mod motor;
-use motor::L298N;
-use std::error::Error;
+use gpio_cdev::{Chip, LineRequestFlags};
+use std::{thread::sleep, time::Duration};
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
-    // Initialize L298N controller
-    // Parameters: gpio_chip, in1_pin, in2_pin, en_pin, pwm_chip, pwm_channel
-    println!("A");
-    let mut motor = L298N::new("gpiochip0", 17, 27, 22, "pwmchip0", 0)?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Open the GPIO chip (e.g., /dev/gpiochip0)
+    let mut chip = Chip::new("/dev/gpiochip0")?;
 
-    // Example usage:
-    println!("Moving forward at 50% speed for 2 seconds");
-    motor.set_speed(0.5)?;
-    std::thread::sleep(std::time::Duration::from_secs(2));
+    // Define the GPIO line offset (GPIO4 corresponds to offset 4)
+    let led_pin = 4;
 
-    println!("Moving backward at 30% speed for 1 second");
-    motor.set_speed(-0.3)?;
-    std::thread::sleep(std::time::Duration::from_secs(1));
+    // Request the line as output, initial value 0
+    let handle = chip
+        .get_line(led_pin)?
+        .request(LineRequestFlags::OUTPUT, 0, "LED")?;
 
-    println!("Stopping motor");
-    motor.stop()?;
+    // Blink loop
+    loop {
+        handle.set_value(1)?; // Turn LED on
+        sleep(Duration::from_secs(1));
 
-    Ok(())
+        handle.set_value(0)?; // Turn LED off
+        sleep(Duration::from_secs(1));
+    }
 }

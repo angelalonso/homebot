@@ -6,6 +6,7 @@ Since I have no professional background on robotics, I need to progress step by 
 
 This README is basically a mapping of those steps and a record of the progress.
 
+<<<<<<< HEAD
 # Progress
 Following tasks are considered done when they are also documented:
 - Robot's Hardware
@@ -30,31 +31,31 @@ TBD - Connect at least Raspberry - Controller - Motors - related Batteries
     - Run Motors
     - Run Motors, stop, Run back
     - ...
+=======
+# Bare minimum Goal
+>>>>>>> 3b98c3379a47e37677c9d54372678b81a3a161a5
 
+I leave the robot on the floor and it can automagically move around without hitting obstacles
 
-
-
-
-
-
-
-Installation on the robot is done at ./robot_install (after you put together the hardware and install a base OS on the microSD)
-
-To control the Robot, head to ./homebotctl
-
-In both cases, please check the README.md first
-
-# Status
-There are three parts to this software:
-- robot_install
-  - Installs requirements on Raspberry Pi (not the homebot program itself)
-  - Needs review and tests
-- homebotctl
-  - Controls how and what runs on the robot and how it is installed/updated.
-  - 50% of the basic functionality working, an advanced set of functions will follow.
-  - Details: [README.md](./homebotctl/README.md)
-- homebot
-  - This is the robot software itself.
-  - The first phase of basic movements works on Simulation but not yet on Hardware. Calibration phase should be next.
-  - A README specific to this part is not yet ready.
-    - It will be done once robot_install and homebotctl are working (at least on an MVP state)
+## Derived Requirements
+- The Robot moves
+  - It has wheels
+  - It has motors to move those wheels
+  - It has a Motor controller (L298N)
+  - It has batteries for that Motor controller
+  - It has a Raspberry Pi (Raspi) that manages the L298N
+    - The Raspi has a battery
+    - The Raspi boots an OS
+    - The Raspi can turn the wheels on and off
+      - OK - (Non-derived req) The Raspo can control GPIO from a Python script - See 01_pythontest
+      - (Non-derived req) The Raspo can control GPIO from a Rust script
+      - The Raspi has a program (homebot) that can make the L298N move the Motors
+        - (Non-derived req) homebot is written in Rust
+        - (Non-derived req) there is a way to install homebot
+          - homebot can be installed from my laptop
+            - my laptop can SSH into the Raspi
+            - my laptop can cross-compile for the Raspi
+          - homebot can be tested locally on my laptop
+          - homebot can be simulated locally on my laptop
+- The robot is independent on how and when to move
+  - TBD
