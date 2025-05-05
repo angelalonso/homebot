@@ -15,6 +15,7 @@ TBD - Connect at least Raspberry - Controller - Motors - related Batteries
     - Install OS
     - OS minimal configuration
     - OS configuration: GPIO usable
+      -  Python test: see 01_pythontest Folder
     - Service file
     - ...
 - Laptop's Software
