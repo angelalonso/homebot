@@ -6,34 +6,7 @@ Since I have no professional background on robotics, I need to progress step by 
 
 This README is basically a mapping of those steps and a record of the progress.
 
-<<<<<<< HEAD
-# Progress
-Following tasks are considered done when they are also documented:
-- Robot's Hardware
-TBD - Put together a Chassis for the robot
-TBD - Connect at least Raspberry - Controller - Motors - related Batteries
-    - Connect Raspberry to Router
-    - Install OS
-    - OS minimal configuration
-    - OS configuration: GPIO usable
-      -  Python test: see 01_pythontest Folder
-    - Service file
-    - ...
-- Laptop's Software
-    - Cross-Build homebot locally
-    - Test
-    - Deploy
-    - Start Service
-    - Stop Service
-    - See output of running Service
-    - ...
-- Robot's Software
-    - Run Motors
-    - Run Motors, stop, Run back
-    - ...
-=======
 # Bare minimum Goal
->>>>>>> 3b98c3379a47e37677c9d54372678b81a3a161a5
 
 I leave the robot on the floor and it can automagically move around without hitting obstacles
 
@@ -57,5 +30,10 @@ I leave the robot on the floor and it can automagically move around without hitt
             - my laptop can cross-compile for the Raspi
           - homebot can be tested locally on my laptop
           - homebot can be simulated locally on my laptop
+  - It has an Arduino that gets data from sensors and sends it to the Raspbi
+    - The Arduino is connected to a distance sensor and can get data from it
+    - The Arduino can send that data every x milliseconds
+    - The Raspi can read that data and print it on Python
+    - The Raspi can read that data and print it on Rust
 - The robot is independent on how and when to move
   - TBD
