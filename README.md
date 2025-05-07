@@ -31,6 +31,8 @@ I leave the robot on the floor and it can automagically move around without hitt
           - homebot can be tested locally on my laptop
           - homebot can be simulated locally on my laptop
   - It has an Arduino that gets data from sensors and sends it to the Raspbi
+    - We can work with arduino code
+      - OK - Install Arduino IDE on your laptop - See 00_preparations/00A_Arduino.md
     - The Arduino is connected to a distance sensor and can get data from it
     - The Arduino can send that data every x milliseconds
     - The Raspi can read that data and print it on Python
