@@ -35,7 +35,7 @@ I leave the robot on the floor and it can automagically move around without hitt
       - OK - Install Arduino IDE on your laptop - See 00_preparations/00A_Arduino.md
     - OK - The Arduino is connected to a distance sensor and can get data from it
     - OK - The Arduino can send that data every x milliseconds
-    - The Raspi can read that data and print it on Python
+    - OK - The Raspi can read that data and print it on Python
     - The Raspi can read that data and print it on Rust
 - The robot is independent on how and when to move
   - TBD

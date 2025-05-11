@@ -1,0 +1,15 @@
+[package]
+name = "homebot"
+version = "0.0.1"
+edition = "2018"
+
+[dependencies]
+serialport = "4.7.1"    # Serial communication
+gpio-cdev = "0.5.1"     # GPIO control (Linux)
+regex = "1.10.2"        # Port detection
+tokio = { version = "1.0", features = ["full"] }  # Async runtime
+
+[features]
+sim = []
+test = []
+live = []
