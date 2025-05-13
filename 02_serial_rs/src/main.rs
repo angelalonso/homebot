@@ -1,20 +1,19 @@
 use gpio_cdev::{Chip, LineRequestFlags};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
-use tokio::io::{AsyncBufReadExt, BufReader};
-use regex::Regex;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::time::{timeout, Duration};
 use std::error::Error;
 
-const LED_GPIO: u32 = 4;  // GPIO4 (Pin 7 on Raspberry Pi)
+const LED_GPIO: u32 = 4;
+const SERIAL_TIMEOUT: Duration = Duration::from_millis(100);
+const SENSOR_TIMEOUT: Duration = Duration::from_millis(200);
 
-/// Auto-detect Arduino's serial port
 async fn find_arduino_port() -> Result<String, Box<dyn Error>> {
     let ports = tokio_serial::available_ports()?;
-    let arduino_regex = Regex::new(r"(ACM|USB|ttyUSB|ttyACM)")?;
-
     ports.into_iter()
-        .find(|port| arduino_regex.is_match(&port.port_name))
-        .map(|port| port.port_name)
-        .ok_or("No Arduino port found".into())
+        .find(|p| p.port_name.contains("ACM") || p.port_name.contains("USB"))
+        .map(|p| p.port_name)
+        .ok_or("No Arduino found".into())
 }
 
 #[tokio::main]
@@ -24,29 +23,41 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let line = chip.get_line(LED_GPIO)?;
     let mut led = line.request(LineRequestFlags::OUTPUT, 0, "distance_led")?;
 
-    // Auto-detect and open serial port
+    // Serial Setup
     let port_path = find_arduino_port().await?;
-    println!("Found Arduino at: {}", port_path);
-    
-    let mut port = tokio_serial::new(&port_path, 9600)
+    let mut port = tokio_serial::new(&port_path, 115200)
         .open_native_async()?;
 
-    let mut reader = BufReader::new(port);
-    let mut line = String::new();
+    let mut buf = [0u8; 5]; // 'D' + 4-byte float
+    let mut error_count = 0;
 
     loop {
-        line.clear();
-        reader.read_line(&mut line).await?;
-        
-        if line.starts_with("Distance: ") {
-            if let Some(distance_str) = line.split_whitespace().nth(1) {
-                if let Ok(distance) = distance_str.parse::<f32>() {
-                    println!("Distance: {} cm", distance);
-                    
-                    // Control LED
-                    led.set_value(if distance < 20.0 { 1 } else { 0 })?;
+        match timeout(SENSOR_TIMEOUT, port.read_exact(&mut buf)).await {
+            Ok(Ok(_)) if buf[0] == b'D' => {
+                error_count = 0;
+                let distance = f32::from_le_bytes([buf[1], buf[2], buf[3], buf[4]]);
+                led.set_value(if distance < 20.0 { 1 } else { 0 })?;
+                
+                // Add future processing here
+                println!("Distance: {:.1}cm", distance);
+            }
+            Ok(Ok(_)) => {  // Invalid header
+                error_count += 1;
+                if error_count > 5 {
+                    eprintln!("Too many protocol errors, resetting...");
+                    port.write_all(&[b'R']).await?; // Optional reset signal
+                    error_count = 0;
                 }
             }
+            Err(_) => {  // Timeout
+                eprintln!("Sensor timeout, checking connection...");
+                port.write_all(&[b'P']).await?; // Ping
+                match timeout(SERIAL_TIMEOUT, port.read_u8()).await {
+                    Ok(Ok(b'A')) => continue,  // Got ack
+                    _ => return Err("Sensor disconnected".into()),
+                }
+            }
+            Err(e) => return Err(e.into()),
         }
     }
 }
