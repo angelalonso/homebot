@@ -4,29 +4,29 @@ from time import sleep
 
 # GPIO Pins (BCM numbering)
 LED_PIN = 4
-MOTOR_A_ENABLE = 17
-MOTOR_A_IN1 = 27
-MOTOR_A_IN2 = 22
-MOTOR_B_ENABLE = 23
-MOTOR_B_IN1 = 24
-MOTOR_B_IN2 = 25
+MOTOR_A_ENABLE = 22
+MOTOR_A_IN1 = 17
+MOTOR_A_IN2 = 27
+MOTOR_B_ENABLE = 25
+MOTOR_B_IN1 = 23
+MOTOR_B_IN2 = 24
 
 STOP_DISTANCE_CM = 20
 
 class MotorController:
     def __init__(self, enable_pin, in1_pin, in2_pin):
         self.chip = gpiod.Chip('gpiochip0')
-        
+
         # Setup GPIO lines
         self.enable = self.chip.get_line(enable_pin)
         self.in1 = self.chip.get_line(in1_pin)
         self.in2 = self.chip.get_line(in2_pin)
-        
+
         # Request lines with output direction
         self.enable.request(consumer="MOTOR_EN", type=gpiod.LINE_REQ_DIR_OUT)
         self.in1.request(consumer="MOTOR_IN1", type=gpiod.LINE_REQ_DIR_OUT)
         self.in2.request(consumer="MOTOR_IN2", type=gpiod.LINE_REQ_DIR_OUT)
-        
+
         # Initialize to stopped state
         self.set_speed(0)
 
@@ -45,6 +45,7 @@ class MotorController:
             self.in1.set_value(0)
             self.in2.set_value(0)
             self.enable.set_value(0)
+
 
     def release(self):
         self.enable.release()
@@ -91,4 +92,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
