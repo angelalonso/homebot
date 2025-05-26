@@ -20,8 +20,11 @@ void loop() {
     digitalWrite(LED_BUILTIN, distance < 20);
     
     // Compact binary protocol: 'D' header + 4-byte float
-    Serial.write('D');
-    Serial.write((byte*)&distance, sizeof(distance));
+    // Serial.write('D');
+    // Serial.write((byte*)&distance, sizeof(distance));
+    Serial.print(" [Debug: ");
+    Serial.print(distance);
+    Serial.println(" cm]");
   }
   
   // Add future sensor reads here with similar timing control
