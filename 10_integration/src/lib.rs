@@ -1,25 +1,22 @@
-// -- Common to all Modes
+// -- Common
 // ----------------------------------------------------------------
 pub mod action;
 pub mod aux_funcs;
 pub mod brain;
+#[cfg(any(feature = "test", feature = "live"))]
+pub mod env;
+pub mod error;
+pub mod hw;
 pub mod input;
 pub mod loggin;
 pub mod reactionset;
-
-// -- Live and Test Mode
-// ----------------------------------------------------------------
 #[cfg(any(feature = "test", feature = "live"))]
-pub mod live_env;
-#[cfg(any(feature = "test", feature = "live"))]
-pub mod live_hw;
-#[cfg(any(feature = "test", feature = "live"))]
-pub mod live_bindings {
+pub mod bindings {
     #![allow(non_upper_case_globals)]
     #![allow(non_camel_case_types)]
     #![allow(non_snake_case)]
     #![allow(improper_ctypes)]
-    include!("live_bindings.rs");
+    include!("bindings.rs");
 }
 
 // -- Live Mode Only

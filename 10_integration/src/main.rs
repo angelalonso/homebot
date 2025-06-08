@@ -1,4 +1,4 @@
-use homebot::homebot_aux_funcs::*;
+use homebot::aux_funcs::*;
 use homebot::loggin;
 use std::fs;
 

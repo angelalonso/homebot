@@ -12,7 +12,9 @@ bindgen = { version = "0.63", optional = true }
 [dependencies]
 serde_yaml = "0.8.7"
 serde = "*"
-gpio-cdev = "0.5.1" 
+tokio-serial = "5.4.5"
+gpio-cdev = "0.5.1"
+tokio = { version = "1", features = ["full"] }
 
 
 [features]

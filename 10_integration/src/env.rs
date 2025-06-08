@@ -2,8 +2,7 @@ use std::collections::BTreeMap;
 use std::time::SystemTime;
 
 use crate::brain::Brain;
-use crate::live_bindings::HWDeviceTag;
-use crate::live_hw::*;
+use crate::hw::*;
 use crate::loggin::Log;
 
 pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::error::Error>> {
@@ -29,7 +28,7 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
     // -- Sensors
     log.info("Loading sensors...");
     let _distance_sensor_names = vec!["distance_sensor_eyes"];
-    let _distance_sensors: Vec<HWDeviceTag> = [].to_vec();
+    //let _distance_sensors: Vec<HWDeviceTag> = [].to_vec();
     // TODO: get sensors
     //
     //

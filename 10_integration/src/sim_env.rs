@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::time::SystemTime;
 
-use crate::homebot_brain::Brain;
+use crate::brain::Brain;
 use crate::loggin::Log;
 use crate::sim_bindings::WbDeviceTag;
 use crate::sim_hw::*;
