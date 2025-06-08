@@ -1,0 +1,22 @@
+[package]
+name = "homebot"
+version = "0.0.1"
+edition = "2018"
+
+[dev-dependencies]
+tempfile = "3.16.0"
+
+[build-dependencies]
+bindgen = { version = "0.63", optional = true }
+
+[dependencies]
+serde_yaml = "0.8.7"
+serde = "*"
+gpio-cdev = "0.5.1" 
+
+
+[features]
+
+sim = ["dep:bindgen"]
+test = ["dep:bindgen"]
+live = []
