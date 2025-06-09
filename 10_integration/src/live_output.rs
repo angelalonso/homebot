@@ -5,7 +5,7 @@ pub struct Output {
     sensor: String,
     sensor_prio: u8,
     #[allow(dead_code)]
-    motor_l: u16, // only used in sim mode
+    motor_l_pins: (u32, u32, u32), // only used in sim mode
     motor_l_vel: f32,
     motor_l_prio: u8,
     #[allow(dead_code)]
@@ -16,19 +16,19 @@ pub struct Output {
 
 impl Output {
     pub fn new(log: Log) -> Self {
-        let left_wheel_motor: u16;
+        let left_wheel_motor: (u32, u32, u32);
         let right_wheel_motor: u16;
 
         log.info("Loading motors...");
         let _infinity = f64::INFINITY;
 
-        left_wheel_motor = 1;
+        left_wheel_motor = (17, 27, 22);
         right_wheel_motor = 2;
 
         Self {
             sensor: "on".to_string(),
             sensor_prio: 0,
-            motor_l: left_wheel_motor,
+            motor_l_pins: left_wheel_motor,
             motor_l_vel: 0.0,
             motor_l_prio: 0,
             motor_r: right_wheel_motor,
@@ -43,6 +43,8 @@ impl Output {
     }
 
     pub fn set_motor_l(&mut self, value: f32, prio: u8) {
+        let max_speed = 1.00;
+        crate::hw::hw_motor_set_velocity(self.motor_l_pins, (value * max_speed).into());
         self.motor_l_vel = value;
         self.motor_l_prio = prio;
     }

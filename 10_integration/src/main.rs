@@ -4,10 +4,10 @@ use std::fs;
 
 const CFGFILE: &str = "cfg.yaml";
 
-#[cfg(any(feature = "test", feature = "live"))]
+// #[cfg(feature = "sim")]
+// use homebot::sim_env::*;
+// #[cfg(any(feature = "test", feature = "live"))]
 use homebot::env::*;
-#[cfg(feature = "sim")]
-use homebot::sim_env::*;
 
 fn main() {
     println!("Running...");

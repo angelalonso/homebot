@@ -9,11 +9,21 @@ pub mod bindings {
 use bindings::WbDeviceTag;
 use std::ffi::CString;
 
-pub fn wb_robot_init() {
-    unsafe {
-        bindings::wb_robot_init();
-    }
+// - My Own START
+
+pub fn get_sensors_ids(distance_sensor_names: Vec<&str>, time_step: i32) -> Vec<u16> {
+    let distance_sensors = distance_sensor_names
+        .iter()
+        .map(|name| {
+            let sensor: WbDeviceTag = crate::sim_hw::wb_robot_get_device(name);
+            wb_distance_sensor_enable(sensor, time_step);
+            sensor
+        })
+        .collect();
+    return distance_sensors;
 }
+
+// - My Own END
 
 pub fn wbr_led_disable(tag: WbDeviceTag) {
     unsafe {
@@ -33,7 +43,7 @@ pub fn wb_distance_sensor_enable(tag: WbDeviceTag, sampling_period: i32) {
     }
 }
 
-pub fn wb_distance_sensor_get_value(tag: WbDeviceTag) -> f64 {
+pub fn distance_sensor_get_value(tag: WbDeviceTag) -> f64 {
     unsafe { bindings::wb_distance_sensor_get_value(tag) }
 }
 
@@ -50,10 +60,17 @@ pub fn wb_robot_get_device(id: &str) -> WbDeviceTag {
     unsafe { bindings::wb_robot_get_device(name.as_ptr()) }
 }
 
-pub fn wb_robot_cleanup() {
+// - Latest mockups required TODO: get something useful from here
+pub fn robot_init() {
+    unsafe {
+        bindings::wb_robot_init();
+    }
+}
+
+pub fn robot_cleanup() {
     unsafe { bindings::wb_robot_cleanup() }
 }
 
-pub fn wb_robot_step(step: i32) -> i32 {
+pub fn robot_step(step: i32) -> i32 {
     unsafe { bindings::wb_robot_step(step) }
 }

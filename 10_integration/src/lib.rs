@@ -3,7 +3,7 @@
 pub mod action;
 pub mod aux_funcs;
 pub mod brain;
-#[cfg(any(feature = "test", feature = "live"))]
+// #[cfg(any(feature = "test", feature = "live"))]
 pub mod env;
 pub mod error;
 pub mod hw;
@@ -11,12 +11,12 @@ pub mod input;
 pub mod loggin;
 pub mod reactionset;
 #[cfg(any(feature = "test", feature = "live"))]
-pub mod bindings {
+pub mod live_bindings {
     #![allow(non_upper_case_globals)]
     #![allow(non_camel_case_types)]
     #![allow(non_snake_case)]
     #![allow(improper_ctypes)]
-    include!("bindings.rs");
+    include!("live_bindings.rs");
 }
 
 // -- Live Mode Only
@@ -31,8 +31,8 @@ pub mod test_output;
 
 // -- Sim Mode Only
 // ----------------------------------------------------------------
-#[cfg(feature = "sim")]
-pub mod sim_env;
+//#[cfg(feature = "sim")]
+//pub mod sim_env;
 #[cfg(feature = "sim")]
 pub mod sim_hw;
 #[cfg(feature = "sim")]

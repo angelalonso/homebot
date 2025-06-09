@@ -1,6 +1,8 @@
 use crate::error::AppError;
 use gpio_cdev::{Chip, LineRequestFlags};
 
+pub type WbDeviceTag = ::std::os::raw::c_ushort;
+
 pub struct Motor {
     enable: gpio_cdev::LineHandle,
     in1: gpio_cdev::LineHandle,
