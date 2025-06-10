@@ -2,11 +2,14 @@
 // ----------------------------------------------------------------
 pub mod action;
 pub mod aux_funcs;
-pub mod brain;
+//pub mod brain;
 // #[cfg(any(feature = "test", feature = "live"))]
 pub mod env;
 pub mod error;
-pub mod hw;
+#[cfg(any(feature = "test", feature = "live"))]
+pub mod hw_arduino;
+#[cfg(feature = "sim")]
+pub mod hw_webots;
 pub mod input;
 pub mod loggin;
 pub mod reactionset;

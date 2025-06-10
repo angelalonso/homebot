@@ -44,7 +44,7 @@ impl Output {
 
     pub fn set_motor_l(&mut self, value: f32, prio: u8) {
         let max_speed = 1.00;
-        crate::hw::hw_motor_set_velocity(self.motor_l_pins, (value * max_speed).into());
+        let _ = crate::hw::hw_motor_set_velocity(self.motor_l_pins, (value * max_speed).into());
         self.motor_l_vel = value;
         self.motor_l_prio = prio;
     }

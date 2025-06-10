@@ -10,7 +10,7 @@ pub mod bindings {
 
 // - My Own START
 
-pub fn get_sensors_ids(distance_sensor_names: Vec<&str>, time_step: i32) -> Vec<u16> {
+pub fn get_sensors_ids(_distance_sensor_names: Vec<&str>, _time_step: i32) -> Vec<u16> {
     let distance_sensors = vec![];
     return distance_sensors;
 }
@@ -42,7 +42,7 @@ pub fn hw_motor_set_velocity(
     let mut chip: Chip = gpio_cdev::Chip::new("/dev/gpiochip0")?;
     // live_bindings, also check 04 for how we do that
     let mut motor = Motor::new(&mut chip, pins.0, pins.1, pins.2)?;
-    motor.set_speed(velocity as i8);
+    let _ = motor.set_speed(velocity as i8);
     Ok(())
 }
 

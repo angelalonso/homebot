@@ -60,7 +60,7 @@ pub fn wb_robot_get_device(id: &str) -> WbDeviceTag {
     unsafe { bindings::wb_robot_get_device(name.as_ptr()) }
 }
 
-// - Latest mockups required TODO: get something useful from here
+// - Robot mockups required TODO: get something useful from here
 pub fn robot_init() {
     unsafe {
         bindings::wb_robot_init();

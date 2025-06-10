@@ -2,14 +2,15 @@ use homebot::aux_funcs::*;
 use homebot::loggin;
 use std::fs;
 
-const CFGFILE: &str = "cfg.yaml";
+const CFGFILE: &str = "cfg.yml";
 
 // #[cfg(feature = "sim")]
 // use homebot::sim_env::*;
 // #[cfg(any(feature = "test", feature = "live"))]
 use homebot::env::*;
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Running...");
 
     // Check if the config file exists
@@ -20,7 +21,7 @@ fn main() {
             "Create a {} config file before running, please. Bye!",
             CFGFILE
         );
-        return;
+        ()
     }
 
     match load(CFGFILE) {
@@ -33,7 +34,7 @@ fn main() {
             cfg.insert("MODE".to_string(), "real Hardware Run".to_string());
             let log = loggin::Log::init(cfg["LOGLEVEL"].clone());
             log.info(&format!("- Mode: {}", cfg["MODE"]));
-            match run(log.clone(), cfg.clone()) {
+            match run(log.clone(), cfg.clone()).await {
                 Ok(()) => (),
                 Err(es) => {
                     log.err(&format!("ERROR while on {}: {:#?}", cfg["MODE"], es));
@@ -46,4 +47,5 @@ fn main() {
         }
     };
     println!("Bye!");
+    Ok(())
 }

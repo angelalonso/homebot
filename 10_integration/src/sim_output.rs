@@ -15,11 +15,10 @@ pub struct Output {
 }
 
 impl Output {
-    pub fn new(log: Log) -> Self {
+    pub fn new(_log: Log) -> Self {
         let left_wheel_motor: u16;
         let right_wheel_motor: u16;
 
-        log.info("Loading motors...");
         let infinity = f64::INFINITY;
         left_wheel_motor = crate::sim_hw::wb_robot_get_device("left_wheel_motor");
         right_wheel_motor = crate::sim_hw::wb_robot_get_device("right_wheel_motor");
