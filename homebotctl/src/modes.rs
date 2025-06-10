@@ -28,12 +28,28 @@ pub fn sim_mode(code_path: &str) {
         Ok(msg) => {
             // TODO: maybe test these as well?
             println!("Result: {:#?}", msg);
-            run_local_command("mkdir -p ../simulation/controllers/rust_controller/");
             run_local_command(
-                "cp ../target/release/homebot ../simulation/controllers/rust_controller/rust_controller",
+                &("mkdir -p ".to_owned() + code_path + "controllers/rust_controller/"),
             );
-            run_local_command("cp ../cfg.yaml ../simulation/controllers/rust_controller/");
-            run_local_command("webots ../simulation/worlds/homebot_simulation_world.wbt");
+            run_local_command(
+                &("cp ".to_owned()
+                    + code_path
+                    + "target/release/homebot "
+                    + code_path
+                    + "simulation/controllers/rust_controller/rust_controller"),
+            );
+            run_local_command(
+                &("cp ".to_owned()
+                    + code_path
+                    + "cfg.yml "
+                    + code_path
+                    + "simulation/controllers/rust_controller/cfg.yml"),
+            );
+            run_local_command(
+                &("webots ".to_owned()
+                    + code_path
+                    + "simulation/worlds/homebot_simulation_world.wbt"),
+            );
         }
         Err(e) => {
             println!("ERROR Simulating locally: {:#?}", e);
