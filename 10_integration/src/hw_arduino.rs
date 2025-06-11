@@ -3,6 +3,15 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::time::{timeout, Duration};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
 
+pub mod bindings {
+    #![allow(non_upper_case_globals)]
+    #![allow(non_camel_case_types)]
+    #![allow(non_snake_case)]
+    #![allow(improper_ctypes)]
+    include!("sim_bindings.rs");
+}
+use bindings::WbDeviceTag;
+
 pub struct Arduino {
     port: SerialStream,
 }
@@ -51,5 +60,9 @@ pub fn robot_step(_step: i32) -> i32 {
 
 pub fn robot_cleanup() {
     ();
+}
+
+pub fn distance_sensor_get_value(tag: WbDeviceTag) -> f64 {
+    0.0
 }
 // -- Mockups for now END

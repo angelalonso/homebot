@@ -43,3 +43,7 @@ pub fn robot_cleanup() {
 pub fn robot_step(step: i32) -> i32 {
     unsafe { bindings::wb_robot_step(step) }
 }
+
+pub fn distance_sensor_get_value(tag: WbDeviceTag) -> f64 {
+    unsafe { bindings::wb_distance_sensor_get_value(tag) }
+}

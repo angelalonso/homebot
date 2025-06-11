@@ -29,6 +29,17 @@ impl Input {
         })
     }
 
+    pub fn update(&mut self) -> (Duration, Vec<f64>) {
+        self.ts = self
+            .ts_start
+            .elapsed()
+            .expect("Error retrieving time since start");
+
+        self.read_distance();
+
+        return (self.ts, self.distance.clone());
+    }
+
     pub fn set(&mut self, ts: Duration, distance: Vec<f64>) {
         self.ts = ts;
         self.distance = distance;
@@ -42,11 +53,12 @@ impl Input {
         self.distance = distance.clone();
     }
 
-    pub fn read_distance(&mut self, _log: Log) {
-        let distance_values = self
-            .in_port
+    pub fn read_distance(&mut self) {
+        // let distance_values = self
+        //     .in_port
+        let distance_values: Vec<_> = self.in_port_to_vec()
             .iter()
-            .map(|sensor| crate::sim_hw::distance_sensor_get_value(*sensor))
+            .map(|sensor| distance_sensor_get_value(*sensor))
             .collect();
         self.distance = distance_values.clone();
     }
@@ -58,14 +70,11 @@ impl Input {
     pub fn get_distance(&mut self) -> Vec<f64> {
         self.distance.clone()
     }
-
-    pub fn update(&mut self) -> (Duration, String) {
-        self.ts = self
-            .ts_start
-            .elapsed()
-            .expect("Error retrieving time since start");
-
-        return (self.ts, self.in_port.clone());
+    // needed for webots
+    pub fn in_port_to_vec(&self) -> Vec<u16> {
+        let current = &self.in_port;
+        let restored_vec: Vec<u16> = current.encode_utf16().collect();
+        restored_vec
     }
     /*
         pub fn react(&self, log: Log) -> Vec<CAction> {
