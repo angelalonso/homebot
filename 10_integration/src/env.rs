@@ -7,6 +7,10 @@ use crate::hw_arduino::*;
 use crate::hw_webots::*;
 use crate::input::Input;
 use crate::loggin::Log;
+#[cfg(any(feature = "test", feature = "live"))]
+use crate::output::Output;
+#[cfg(feature = "sim")]
+use crate::sim_output::Output;
 
 pub async fn run(
     log: Log,
@@ -23,11 +27,14 @@ pub async fn run(
     let mut i = Input::init(time_step).await?;
     // it at robot_init() ??
     let mut b = Brain::init(log.clone(), test_mode);
+    let mut o = Output::init(log.clone());
     #[cfg(feature = "test")]
     let mut iteration = 0;
     // -- Loop
     // TODO: have only three components here: input, brain and output
     log.info("Running!");
+    o.set_motor_l(1.00, 1);
+    o.set_motor_r(1.00, 1);
     loop {
         if robot_step(time_step) == -1 {
             break;

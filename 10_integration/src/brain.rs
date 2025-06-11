@@ -20,7 +20,7 @@ impl Brain {
     pub fn init(log: Log, test_mode: bool) -> Self {
         let current = vec![];
         let incoming = vec![];
-        let output = Output::new(log.clone());
+        let output = Output::init(log.clone());
         Self {
             current,
             incoming,
