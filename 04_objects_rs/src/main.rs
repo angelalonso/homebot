@@ -3,10 +3,10 @@ mod error;
 mod led;
 mod motor;
 
-use arduino::{Arduino, find_arduino};
+use arduino::{find_arduino, Arduino};
+use error::AppError;
 use led::Led;
 use motor::Motor;
-use error::AppError;
 use tokio::time::{sleep, Duration};
 
 const LED_PIN: u32 = 4;
@@ -25,7 +25,7 @@ impl Robot {
     async fn new() -> Result<Self, AppError> {
         let mut chip = gpio_cdev::Chip::new("/dev/gpiochip0")?;
         let port_path = find_arduino().await?;
-        
+
         Ok(Self {
             arduino: Arduino::new(&port_path).await?,
             led: Led::new(&mut chip, LED_PIN)?,
@@ -43,7 +43,7 @@ impl Robot {
             if let Some(distance) = self.arduino.read_distance().await? {
                 let should_stop = distance < STOP_DISTANCE_CM;
                 self.led.set(should_stop)?;
-                
+
                 if should_stop {
                     self.motor_a.set_speed(0)?;
                     self.motor_b.set_speed(0)?;
@@ -51,11 +51,14 @@ impl Robot {
                     self.motor_a.set_speed(50)?;
                     self.motor_b.set_speed(50)?;
                 }
-                
-                println!("Distance: {:.1}cm - Motors: {}", 
-                    distance, if should_stop { "STOPPED" } else { "RUNNING" });
+
+                println!(
+                    "Distance: {:.1}cm - Motors: {}",
+                    distance,
+                    if should_stop { "STOPPED" } else { "RUNNING" }
+                );
             }
-            
+
             sleep(Duration::from_millis(10)).await;
         }
     }

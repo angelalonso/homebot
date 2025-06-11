@@ -1,16 +1,9 @@
-use crate::error::AppError;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::time::{timeout, Duration};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
 
-pub mod bindings {
-    #![allow(non_upper_case_globals)]
-    #![allow(non_camel_case_types)]
-    #![allow(non_snake_case)]
-    #![allow(improper_ctypes)]
-    include!("sim_bindings.rs");
-}
-use bindings::WbDeviceTag;
+use crate::error::AppError;
+use crate::live_bindings::WbDeviceTag;
 
 pub struct Arduino {
     port: SerialStream,
@@ -65,4 +58,17 @@ pub fn robot_cleanup() {
 pub fn distance_sensor_get_value(tag: WbDeviceTag) -> f64 {
     0.0
 }
+
+pub fn hw_motor_set_velocity(
+    pins: (u32, u32, u32),
+    velocity: f64,
+) -> Result<(), Box<dyn std::error::Error>> {
+    // TODO: this
+    //     let mut chip: Chip = gpio_cdev::Chip::new("/dev/gpiochip0")?;
+    //     // live_bindings, also check 04 for how we do that
+    //     let mut motor = Motor::new(&mut chip, pins.0, pins.1, pins.2)?;
+    //     let _ = motor.set_speed(velocity as i8);
+    Ok(())
+}
+
 // -- Mockups for now END

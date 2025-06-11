@@ -1,13 +1,10 @@
-use homebot::aux_funcs::*;
-use homebot::loggin;
 use std::fs;
 
-const CFGFILE: &str = "cfg.yml";
-
-// #[cfg(feature = "sim")]
-// use homebot::sim_env::*;
-// #[cfg(any(feature = "test", feature = "live"))]
+use homebot::aux_funcs::*;
 use homebot::env::*;
+use homebot::loggin;
+
+const CFGFILE: &str = "cfg.yml";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

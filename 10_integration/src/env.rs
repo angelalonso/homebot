@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use crate::brain::Brain;
 #[cfg(any(feature = "test", feature = "live"))]
 use crate::hw_arduino::*;
 #[cfg(feature = "sim")]
@@ -12,16 +13,16 @@ pub async fn run(
     cfg: BTreeMap<String, String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(feature = "test")]
-    let _test_mode = true;
+    let test_mode = true;
     #[cfg(any(feature = "sim", feature = "live"))]
-    let _test_mode = false;
+    let test_mode = false;
 
     // -- Init
     let time_step = cfg["TIME_STEP"].parse::<i32>()?;
     let _max_speed = cfg["MAX_SPEED"].parse::<f64>()?; // TODO: pass this to output
     let mut i = Input::init(time_step).await?;
     // it at robot_init() ??
-    //let mut brain = Brain::init(log.clone(), test_mode);
+    let mut b = Brain::init(log.clone(), test_mode);
     #[cfg(feature = "test")]
     let mut iteration = 0;
     // -- Loop
@@ -33,6 +34,7 @@ pub async fn run(
         }
         let (ts, test) = i.update();
         log.info(&format!("--------------------- {:?} -- {:?}", ts, test));
+        let _ = b.update(log.clone(), ts, "".to_string());
 
         #[cfg(feature = "test")]
         {

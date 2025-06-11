@@ -5,9 +5,7 @@ pub mod bindings {
     #![allow(improper_ctypes)]
     include!("sim_bindings.rs");
 }
-
 use crate::error::AppError;
-
 use crate::sim_bindings::WbDeviceTag;
 
 pub async fn find_port(time_step: i32) -> Result<String, AppError> {

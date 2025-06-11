@@ -1,5 +1,4 @@
 use crate::action::CompositeAction as CAction;
-use crate::input::Input;
 #[cfg(feature = "live")]
 use crate::live_output::Output;
 use crate::loggin::Log;
@@ -13,7 +12,6 @@ use std::time::Duration;
 pub struct Brain {
     current: Vec<CAction>,
     incoming: Vec<CAction>,
-    input: Input,
     output: Output,
     test_mode: bool,
 }
@@ -22,25 +20,22 @@ impl Brain {
     pub fn init(log: Log, test_mode: bool) -> Self {
         let current = vec![];
         let incoming = vec![];
-        let input = Input::new();
         let output = Output::new(log.clone());
         Self {
             current,
             incoming,
-            input,
             output,
             test_mode,
         }
     }
 
     pub fn update(&mut self, log: Log, ts: Duration, add_incoming: String) -> Output {
-        self.input.set_ts(ts);
         // We avoid doing this while testing, for higher control on tests
         // TODO: remove test_mode
         if !self.test_mode && add_incoming == "on" {
-            for ac in self.input.react(log.clone()) {
-                self.add_incoming(ac);
-            }
+            //for ac in self.input.react(log.clone()) {
+            //    self.add_incoming(ac);
+            //}
         }
         log.debug(&format!("iii: {:#?}", self.get_incoming_caction_ids()));
         let mut tmp_incoming = vec![];
@@ -164,14 +159,6 @@ impl Brain {
             }
         }
         result
-    }
-
-    pub fn get_input(&self) -> Input {
-        return self.input.clone();
-    }
-
-    pub fn set_input_distance(&mut self, log: Log, distance: Vec<f64>) {
-        self.input.set_distance(log, distance);
     }
 
     pub fn get_output(&self) -> Output {
