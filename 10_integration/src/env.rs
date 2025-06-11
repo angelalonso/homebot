@@ -6,9 +6,9 @@ use crate::hw_arduino::*;
 #[cfg(feature = "sim")]
 use crate::hw_webots::*;
 use crate::input::Input;
-use crate::loggin::Log;
 #[cfg(any(feature = "test", feature = "live"))]
-use crate::output::Output;
+use crate::live_output::Output;
+use crate::loggin::Log;
 #[cfg(feature = "sim")]
 use crate::sim_output::Output;
 

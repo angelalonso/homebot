@@ -24,13 +24,11 @@ pub mod live_bindings {
 
 // -- Live Mode Only
 // ----------------------------------------------------------------
-#[cfg(feature = "live")]
+#[cfg(any(feature = "test", feature = "live"))]
 pub mod live_output;
 
 // -- Test Mode Only
 // ----------------------------------------------------------------
-#[cfg(feature = "test")]
-pub mod test_output;
 
 // -- Sim Mode Only
 // ----------------------------------------------------------------

@@ -1,11 +1,9 @@
 use crate::action::CompositeAction as CAction;
-#[cfg(feature = "live")]
+#[cfg(any(feature = "test", feature = "live"))]
 use crate::live_output::Output;
 use crate::loggin::Log;
 #[cfg(feature = "sim")]
 use crate::sim_output::Output;
-#[cfg(feature = "test")]
-use crate::test_output::Output;
 
 use std::time::Duration;
 
