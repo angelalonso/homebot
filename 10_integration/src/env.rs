@@ -5,11 +5,7 @@ use crate::brain::Brain;
 use crate::hw_arduino::*;
 #[cfg(feature = "sim")]
 use crate::hw_webots::*;
-#[cfg(any(feature = "test", feature = "live"))]
-use crate::live_output::Output;
 use crate::loggin::Log;
-#[cfg(feature = "sim")]
-use crate::sim_output::Output;
 
 pub async fn run(
     log: Log,
@@ -25,14 +21,10 @@ pub async fn run(
     let _max_speed = cfg["MAX_SPEED"].parse::<f64>()?; // TODO: pass this to output
     // it at robot_init() ??
     let mut b = Brain::init(log.clone(), test_mode, time_step).await?;
-    let mut o = Output::init(log.clone());
     #[cfg(feature = "test")]
     let mut iteration = 0;
     // -- Loop
-    // TODO: have only three components here: input, brain and output
     log.info("Running!");
-    o.set_motor_l(1.00, 1);
-    o.set_motor_r(1.00, 1);
     loop {
         if robot_step(time_step) == -1 {
             break;
