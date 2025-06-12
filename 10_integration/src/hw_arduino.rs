@@ -55,13 +55,13 @@ pub fn robot_cleanup() {
     ();
 }
 
-pub fn distance_sensor_get_value(tag: WbDeviceTag) -> f64 {
+pub fn distance_sensor_get_value(_tag: WbDeviceTag) -> f64 {
     0.0
 }
 
 pub fn hw_motor_set_velocity(
-    pins: (u32, u32, u32),
-    velocity: f64,
+    _pins: (u32, u32, u32),
+    _velocity: f64,
 ) -> Result<(), Box<dyn std::error::Error>> {
     // TODO: this
     //     let mut chip: Chip = gpio_cdev::Chip::new("/dev/gpiochip0")?;

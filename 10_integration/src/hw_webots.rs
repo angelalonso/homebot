@@ -10,8 +10,7 @@ use crate::sim_bindings::WbDeviceTag;
 
 pub async fn find_port(time_step: i32) -> Result<String, AppError> {
     let distance_sensor_names = vec!["distance_sensor_eyes"];
-    let mut distance_sensors: Vec<WbDeviceTag> = [].to_vec();
-    distance_sensors = distance_sensor_names
+    let distance_sensors: Vec<WbDeviceTag> = distance_sensor_names
         .iter()
         .map(|name| {
             let sensor: WbDeviceTag = crate::sim_hw::wb_robot_get_device(name);
@@ -19,7 +18,7 @@ pub async fn find_port(time_step: i32) -> Result<String, AppError> {
             sensor
         })
         .collect();
-    let result = String::from_utf16(&distance_sensors).unwrap_or_else(|err| {
+    let result = String::from_utf16(&distance_sensors).unwrap_or_else(|_err| {
         // Handle invalid UTF-16 sequences
         String::from_utf16_lossy(&distance_sensors)
     });

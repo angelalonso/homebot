@@ -1,33 +1,37 @@
 use crate::action::CompositeAction as CAction;
+use crate::input::Input;
 #[cfg(any(feature = "test", feature = "live"))]
 use crate::live_output::Output;
-use crate::loggin::Log;
 #[cfg(feature = "sim")]
 use crate::sim_output::Output;
+use crate::loggin::Log;
 
 use std::time::Duration;
 
 pub struct Brain {
     current: Vec<CAction>,
     incoming: Vec<CAction>,
+    input: Input,
     output: Output,
     test_mode: bool,
 }
 
 impl Brain {
-    pub fn init(log: Log, test_mode: bool) -> Self {
+    pub async fn init(log: Log, test_mode: bool, time_step: i32) -> Result<Self, Box<dyn std::error::Error>> {
         let current = vec![];
         let incoming = vec![];
+        let input = Input::init(time_step).await?;
         let output = Output::init(log.clone());
-        Self {
+        Ok(Self {
             current,
             incoming,
+            input,
             output,
             test_mode,
-        }
+        })
     }
 
-    pub fn update(&mut self, log: Log, ts: Duration, add_incoming: String) -> Output {
+    pub fn update(&mut self, log: Log, add_incoming: String) -> Output {
         // We avoid doing this while testing, for higher control on tests
         // TODO: remove test_mode
         if !self.test_mode && add_incoming == "on" {
@@ -35,6 +39,8 @@ impl Brain {
             //    self.add_incoming(ac);
             //}
         }
+        let (ts, test) = self.input.update();
+        log.info(&format!("--------------------- {:?} -- {:?}", ts, test));
         log.debug(&format!("iii: {:#?}", self.get_incoming_caction_ids()));
         let mut tmp_incoming = vec![];
         for i in self.incoming.iter_mut() {
