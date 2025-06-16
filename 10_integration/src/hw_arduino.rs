@@ -1,8 +1,10 @@
+use gpio_cdev::{Chip, LineRequestFlags};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::time::{timeout, Duration};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
 
 use crate::error::AppError;
+use crate::live_bindings::Motor;
 use crate::live_bindings::WbDeviceTag;
 
 pub struct Arduino {
@@ -60,14 +62,14 @@ pub fn distance_sensor_get_value(_tag: WbDeviceTag) -> f64 {
 }
 
 pub fn hw_motor_set_velocity(
-    _pins: (u32, u32, u32),
-    _velocity: f64,
+    pins: (u32, u32, u32),
+    velocity: f64,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    // TODO: this
-    //     let mut chip: Chip = gpio_cdev::Chip::new("/dev/gpiochip0")?;
+    // TODO: get this from outside
+    let mut chip: Chip = gpio_cdev::Chip::new("/dev/gpiochip0")?;
     //     // live_bindings, also check 04 for how we do that
-    //     let mut motor = Motor::new(&mut chip, pins.0, pins.1, pins.2)?;
-    //     let _ = motor.set_speed(velocity as i8);
+    let mut motor = Motor::new(&mut chip, pins.0, pins.1, pins.2)?;
+    let _ = motor.set_speed(velocity as i8);
     Ok(())
 }
 

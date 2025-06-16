@@ -9,7 +9,7 @@ pub struct Output {
     motor_l_vel: f32,
     motor_l_prio: u8,
     #[allow(dead_code)]
-    motor_l_pins: (u32, u32, u32),
+    motor_r_pins: (u32, u32, u32),
     motor_r_vel: f32,
     motor_r_prio: u8,
 }
@@ -17,7 +17,7 @@ pub struct Output {
 impl Output {
     pub fn init(log: Log) -> Self {
         let left_wheel_motor: (u32, u32, u32);
-        let right_wheel_motor: u16;
+        let right_wheel_motor: (u32, u32, u32);
 
         log.info("Loading motors...");
         let _infinity = f64::INFINITY;
@@ -31,7 +31,7 @@ impl Output {
             motor_l_pins: left_wheel_motor,
             motor_l_vel: 0.0,
             motor_l_prio: 0,
-            motor_r: right_wheel_motor,
+            motor_r_pins: right_wheel_motor,
             motor_r_vel: 0.0,
             motor_r_prio: 0,
         }
@@ -51,6 +51,9 @@ impl Output {
     }
 
     pub fn set_motor_r(&mut self, value: f32, prio: u8) {
+        let max_speed = 1.00;
+        let _ =
+            crate::hw_arduino::hw_motor_set_velocity(self.motor_r_pins, (value * max_speed).into());
         self.motor_r_vel = value;
         self.motor_r_prio = prio;
     }
