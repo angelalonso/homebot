@@ -29,7 +29,7 @@ impl Input {
         })
     }
 
-    pub fn update(&mut self) -> (Duration, Vec<f64>) {
+    pub fn update(&mut self) -> Duration {
         self.ts = self
             .ts_start
             .elapsed()
@@ -37,7 +37,7 @@ impl Input {
 
         self.read_distance();
 
-        return (self.ts, self.distance.clone());
+        return self.ts;
     }
 
     pub fn set(&mut self, ts: Duration, distance: Vec<f64>) {

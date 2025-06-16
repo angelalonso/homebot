@@ -5,11 +5,11 @@ pub struct Output {
     sensor: String,
     sensor_prio: u8,
     #[allow(dead_code)]
-    motor_l_pins: (u32, u32, u32), // only used in sim mode
+    motor_l_pins: (u32, u32, u32),
     motor_l_vel: f32,
     motor_l_prio: u8,
     #[allow(dead_code)]
-    motor_r: u16, // only used in sim mode
+    motor_l_pins: (u32, u32, u32),
     motor_r_vel: f32,
     motor_r_prio: u8,
 }
@@ -23,7 +23,7 @@ impl Output {
         let _infinity = f64::INFINITY;
 
         left_wheel_motor = (17, 27, 22);
-        right_wheel_motor = 2;
+        right_wheel_motor = (23, 24, 25);
 
         Self {
             sensor: "on".to_string(),

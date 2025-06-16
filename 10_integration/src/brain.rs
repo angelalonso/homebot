@@ -39,11 +39,19 @@ impl Brain {
             //    self.add_incoming(ac);
             //}
         }
-        let (ts, test) = self.input.update();
-        log.info(&format!("--------------------- {:?} -- {:?}", ts, test));
+        let ts = self.input.update();
+        let dist = self.input.get_distance();
+        log.info(&format!("--------------------- {:?} -- {:?}", ts, dist));
         log.debug(&format!("iii: {:#?}", self.get_incoming_caction_ids()));
-        self.output.set_motor_l(1.00, 1);
-        self.output.set_motor_r(1.00, 1);
+
+        // TODO: make this NOT A VECTOR
+        if dist[0] < 1250.0 {
+            self.output.set_motor_l(1.00, 1);
+            self.output.set_motor_r(-1.00, 1);
+        } else {
+            self.output.set_motor_l(1.00, 1);
+            self.output.set_motor_r(1.00, 1);
+        };
         // //// let mut tmp_incoming = vec![];
         // //// for i in self.incoming.iter_mut() {
         // ////     if i.starts_at <= ts.as_millis() {
