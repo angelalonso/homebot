@@ -10,7 +10,7 @@ use motor::Motor;
 use tokio::time::{sleep, Duration};
 
 const LED_PIN: u32 = 4;
-const MOTOR_A_PINS: (u32, u32, u32) = (17, 27, 22); // (enable, in1, in2)
+const MOTOR_A_PINS: (u32, u32, u32) = (17, 27, 22); // (in1, in2, enable)
 const MOTOR_B_PINS: (u32, u32, u32) = (23, 24, 25);
 const STOP_DISTANCE_CM: f32 = 20.0;
 
