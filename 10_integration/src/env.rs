@@ -4,7 +4,7 @@ use crate::brain::Brain;
 #[cfg(any(feature = "test", feature = "live"))]
 use crate::hw_arduino::*;
 #[cfg(feature = "sim")]
-use crate::hw_webots::*;
+use crate::hw_sim::*;
 use crate::loggin::Log;
 
 pub async fn run(

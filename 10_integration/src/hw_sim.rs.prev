@@ -3,7 +3,7 @@ pub mod bindings {
     #![allow(non_camel_case_types)]
     #![allow(non_snake_case)]
     #![allow(improper_ctypes)]
-    include!("sim_bindings.rs");
+    include!("bindings_sim.rs");
 }
 
 use bindings::WbDeviceTag;
@@ -15,7 +15,7 @@ pub fn get_sensors_ids(distance_sensor_names: Vec<&str>, time_step: i32) -> Vec<
     let distance_sensors = distance_sensor_names
         .iter()
         .map(|name| {
-            let sensor: WbDeviceTag = crate::sim_hw::wb_robot_get_device(name);
+            let sensor: WbDeviceTag = wb_robot_get_device(name);
             wb_distance_sensor_enable(sensor, time_step);
             sensor
         })

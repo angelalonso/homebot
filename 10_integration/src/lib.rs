@@ -8,24 +8,22 @@ pub mod env;
 pub mod error;
 #[cfg(any(feature = "test", feature = "live"))]
 pub mod hw_arduino;
-#[cfg(feature = "sim")]
-pub mod hw_webots;
 pub mod input;
 pub mod loggin;
 pub mod reactionset;
-#[cfg(any(feature = "test", feature = "live"))]
-pub mod live_bindings {
+#[cfg(any(feature = "test", feature = "live"))] // TODO: needed?
+pub mod bindings_live {
     #![allow(non_upper_case_globals)]
     #![allow(non_camel_case_types)]
     #![allow(non_snake_case)]
     #![allow(improper_ctypes)]
-    include!("live_bindings.rs");
+    include!("bindings_live.rs");
 }
 
 // -- Live Mode Only
 // ----------------------------------------------------------------
 #[cfg(any(feature = "test", feature = "live"))]
-pub mod live_output;
+pub mod output_live;
 
 // -- Test Mode Only
 // ----------------------------------------------------------------
@@ -35,14 +33,14 @@ pub mod live_output;
 //#[cfg(feature = "sim")]
 //pub mod sim_env;
 #[cfg(feature = "sim")]
-pub mod sim_hw;
+pub mod hw_sim;
 #[cfg(feature = "sim")]
-pub mod sim_bindings {
+pub mod bindings_sim {
     #![allow(non_upper_case_globals)]
     #![allow(non_camel_case_types)]
     #![allow(non_snake_case)]
     #![allow(improper_ctypes)]
-    include!("sim_bindings.rs");
+    include!("bindings_sim.rs");
 }
 #[cfg(feature = "sim")]
-pub mod sim_output;
+pub mod output_sim;

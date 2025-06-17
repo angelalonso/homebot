@@ -2,7 +2,7 @@ use crate::hw::bindings::Motor;
 use gpio_cdev::Chip;
 
 pub mod bindings {
-    include!("live_bindings.rs");
+    include!("bindings_live.rs");
 }
 
 // use bindings::WbDeviceTag;
@@ -40,7 +40,7 @@ pub fn hw_motor_set_velocity(
     velocity: f64,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut chip: Chip = gpio_cdev::Chip::new("/dev/gpiochip0")?;
-    // live_bindings, also check 04 for how we do that
+    // bindings_live, also check 04 for how we do that
     let mut motor = Motor::new(&mut chip, pins.0, pins.1, pins.2)?;
     let _ = motor.set_speed(velocity as i8);
     Ok(())

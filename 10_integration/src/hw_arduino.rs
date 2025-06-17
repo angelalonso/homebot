@@ -4,8 +4,8 @@ use tokio::time::{timeout, Duration};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
 
 use crate::error::AppError;
-use crate::live_bindings::Motor;
-use crate::live_bindings::WbDeviceTag;
+use crate::bindings_live::Motor;
+use crate::bindings_live::WbDeviceTag;
 
 pub struct Arduino {
     port: SerialStream,
@@ -67,7 +67,7 @@ pub fn hw_motor_set_velocity(
 ) -> Result<(), Box<dyn std::error::Error>> {
     // TODO: get this from outside
     let mut chip: Chip = gpio_cdev::Chip::new("/dev/gpiochip0")?;
-    //     // live_bindings, also check 04 for how we do that
+    //     // bindings_live, also check 04 for how we do that
     let mut motor = Motor::new(&mut chip, pins.0, pins.1, pins.2)?;
     let _ = motor.set_speed(velocity as i8);
     Ok(())
