@@ -1,4 +1,5 @@
 use crate::loggin::Log;
+use crate::hw_live;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Output {
@@ -45,7 +46,7 @@ impl Output {
     pub fn set_motor_l(&mut self, value: f32, prio: u8) {
         let max_speed = 1.00;
         let _ =
-            crate::hw_arduino::hw_motor_set_velocity(self.motor_l_pins, (value * max_speed).into());
+            hw_live::hw_motor_set_velocity(self.motor_l_pins, (value * max_speed).into());
         self.motor_l_vel = value;
         self.motor_l_prio = prio;
     }
@@ -53,7 +54,7 @@ impl Output {
     pub fn set_motor_r(&mut self, value: f32, prio: u8) {
         let max_speed = 1.00;
         let _ =
-            crate::hw_arduino::hw_motor_set_velocity(self.motor_r_pins, (value * max_speed).into());
+            hw_live::hw_motor_set_velocity(self.motor_r_pins, (value * max_speed).into());
         self.motor_r_vel = value;
         self.motor_r_prio = prio;
     }

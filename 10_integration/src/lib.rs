@@ -7,7 +7,7 @@ pub mod brain;
 pub mod env;
 pub mod error;
 #[cfg(any(feature = "test", feature = "live"))]
-pub mod hw_arduino;
+pub mod hw_live;
 pub mod input;
 pub mod loggin;
 pub mod reactionset;
