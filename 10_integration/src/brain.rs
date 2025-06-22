@@ -1,12 +1,12 @@
+use std::time::Duration;
+
 use crate::action::CompositeAction as CAction;
 use crate::input::Input;
+use crate::loggin::Log;
 #[cfg(any(feature = "test", feature = "live"))]
 use crate::output_live::Output;
-use crate::loggin::Log;
 #[cfg(feature = "sim")]
 use crate::output_sim::Output;
-
-use std::time::Duration;
 
 pub struct Brain {
     current: Vec<CAction>,
@@ -37,7 +37,7 @@ impl Brain {
 
     pub fn update(&mut self, log: Log, add_incoming: String) -> Output {
         // We avoid doing this while testing, for higher control on tests
-        // TODO: remove test_mode
+        // TODO: remove test_mode, possible?
         if !self.test_mode && add_incoming == "on" {
             //for ac in self.input.react(log.clone()) {
             //    self.add_incoming(ac);

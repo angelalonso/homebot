@@ -1,5 +1,6 @@
-use crate::error::AppError;
 use gpio_cdev::{Chip, LineRequestFlags};
+
+use crate::error::AppError;
 
 pub type WbDeviceTag = ::std::os::raw::c_ushort;
 

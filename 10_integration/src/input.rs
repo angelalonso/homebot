@@ -1,12 +1,11 @@
+use std::time::{Duration, Instant, SystemTime};
+
 use crate::error::*;
 #[cfg(any(feature = "test", feature = "live"))]
 use crate::hw_live::*;
 #[cfg(feature = "sim")]
 use crate::hw_sim::*;
 use crate::loggin::Log;
-use std::time::SystemTime;
-
-use std::time::Duration;
 
 #[derive(Debug, Clone)]
 pub struct Input {
@@ -56,7 +55,8 @@ impl Input {
     pub fn read_distance(&mut self) {
         // let distance_values = self
         //     .in_port
-        let distance_values: Vec<_> = self.in_port_to_vec()
+        let distance_values: Vec<_> = self
+            .in_port_to_vec()
             .iter()
             .map(|sensor| distance_sensor_get_value(*sensor))
             .collect();
@@ -124,4 +124,55 @@ impl Input {
             return result;
         }
     */
+}
+
+#[derive(Debug, Clone)]
+pub struct InputSnapshot {
+    pub timestamp: std::time::Instant,
+    pub distance_sensor: String,
+    pub distance: f32,
+    pub l_motor_speed: f32,
+    pub r_motor_speed: f32,
+}
+
+impl InputSnapshot {
+    pub async fn init(time_step: i32) -> Result<Self, AppError> {
+        let timestamp: Instant = Instant::now();
+        // TODO: why the time_step?
+        let distance_sensor = find_distance_sensor(time_step, "distance_sensor_eyes");
+        robot_init();
+        Ok(Self {
+            timestamp,
+            distance_sensor,
+            distance: 0.00,
+            l_motor_speed: 0.00,
+            r_motor_speed: 0.00,
+        })
+    }
+
+    pub fn update(&mut self) {
+        self.timestamp = Instant::now();
+        self.read_distance();
+    }
+
+    pub fn set(&mut self, t: Instant, distance: f32) {
+        self.timestamp = t;
+        self.distance = distance;
+    }
+
+    pub fn set_timestamp(&mut self, t: Instant) {
+        self.timestamp = t;
+    }
+
+    pub fn set_distance(&mut self, _log: Log, distance: f32) {
+        self.distance = distance.clone();
+    }
+
+    pub fn get_timestamp(&mut self) -> Instant {
+        self.timestamp
+    }
+
+    pub fn get_distance(&mut self) -> f32 {
+        self.distance.clone()
+    }
 }

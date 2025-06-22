@@ -5,8 +5,8 @@ use std::fmt;
 pub enum AppError {
     Gpio(gpio_cdev::Error),
     Serial(std::io::Error),
-    SerialPort(tokio_serial::Error),          // Add this
-    Timeout(tokio::time::error::Elapsed),     // And this
+    SerialPort(tokio_serial::Error),      // Add this
+    Timeout(tokio::time::error::Elapsed), // And this
     Config(String),
 }
 

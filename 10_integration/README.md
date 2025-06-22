@@ -12,8 +12,8 @@ So, if we have a file called env.rs and another one called sim_env.rs, the first
 
 ## Logic path
   
-- main.rs is the entry point for everyone, which then calls the run function on env.rs
-- env.rs initializes the robot and runs a loop
+- main.rs is the entry point for everyone, which then calls the run function.
+  - the run function initializes the robot and runs a loop
 - input is where we retrieve data from.
   - That data comes from:
     - sensors attached to the arduino

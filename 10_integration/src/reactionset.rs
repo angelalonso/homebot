@@ -1,6 +1,7 @@
+use std::time::Duration;
+
 use crate::action::Action;
 use crate::action::CompositeAction as CAction;
-use std::time::Duration;
 
 pub fn get_base_reactionset(ts: Duration) -> CAction {
     // define some vars

@@ -1,5 +1,5 @@
+use crate::hw_live::*;
 use crate::loggin::Log;
-use crate::hw_live;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Output {
@@ -16,13 +16,11 @@ pub struct Output {
 }
 
 impl Output {
-    pub fn init(log: Log) -> Self {
+    pub fn init(_log: Log) -> Self {
         let left_wheel_motor: (u32, u32, u32);
         let right_wheel_motor: (u32, u32, u32);
 
-        log.info("Loading motors...");
         let _infinity = f64::INFINITY;
-
         left_wheel_motor = (17, 27, 22);
         right_wheel_motor = (23, 24, 25);
 
@@ -45,16 +43,14 @@ impl Output {
 
     pub fn set_motor_l(&mut self, value: f32, prio: u8) {
         let max_speed = 1.00;
-        let _ =
-            hw_live::hw_motor_set_velocity(self.motor_l_pins, (value * max_speed).into());
+        let _ = motor_set_velocity(self.motor_l_pins, (value * max_speed).into());
         self.motor_l_vel = value;
         self.motor_l_prio = prio;
     }
 
     pub fn set_motor_r(&mut self, value: f32, prio: u8) {
         let max_speed = 1.00;
-        let _ =
-            hw_live::hw_motor_set_velocity(self.motor_r_pins, (value * max_speed).into());
+        let _ = motor_set_velocity(self.motor_r_pins, (value * max_speed).into());
         self.motor_r_vel = value;
         self.motor_r_prio = prio;
     }

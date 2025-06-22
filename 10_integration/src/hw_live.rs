@@ -1,12 +1,53 @@
-use gpio_cdev::{Chip, LineRequestFlags};
+//use gpio_cdev::{Chip, LineRequestFlags};
+use gpio_cdev::Chip;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::time::{timeout, Duration};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
 
+use crate::bindings;
 use crate::error::AppError;
-use crate::bindings_live::Motor;
-use crate::bindings_live::WbDeviceTag;
 
+// - Robot general functions
+pub async fn find_port(_time_step: i32) -> Result<String, AppError> {
+    let ports = tokio_serial::available_ports()?;
+    ports
+        .into_iter()
+        .find(|p| p.port_name.contains("ACM") || p.port_name.contains("USB"))
+        .map(|p| p.port_name)
+        .ok_or_else(|| AppError::Config("No Arduino found".into()))
+}
+
+pub fn robot_init() {
+    ();
+}
+
+pub fn robot_step(_step: i32) -> i32 {
+    0
+}
+
+pub fn robot_cleanup() {
+    ();
+}
+
+// - Sensors functions
+pub fn distance_sensor_get_value(_tag: bindings::WbDeviceTag) -> f64 {
+    0.0
+}
+
+// - Motor functions
+pub fn motor_set_velocity(
+    pins: (u32, u32, u32),
+    velocity: f64,
+) -> Result<(), Box<dyn std::error::Error>> {
+    // TODO: get this from outside
+    let mut chip: Chip = gpio_cdev::Chip::new("/dev/gpiochip0")?;
+    //     // bindings_live, also check 04 for how we do that
+    let mut motor = bindings::Motor::new(&mut chip, pins.0, pins.1, pins.2)?;
+    let _ = motor.set_speed(velocity as i8);
+    Ok(())
+}
+
+// - Arduino functions
 pub struct Arduino {
     port: SerialStream,
 }
@@ -34,43 +75,3 @@ impl Arduino {
         Ok(())
     }
 }
-
-pub async fn find_port(_time_step: i32) -> Result<String, AppError> {
-    let ports = tokio_serial::available_ports()?;
-    ports
-        .into_iter()
-        .find(|p| p.port_name.contains("ACM") || p.port_name.contains("USB"))
-        .map(|p| p.port_name)
-        .ok_or_else(|| AppError::Config("No Arduino found".into()))
-}
-
-// -- Mockups for now START
-pub fn robot_init() {
-    ();
-}
-
-pub fn robot_step(_step: i32) -> i32 {
-    0
-}
-
-pub fn robot_cleanup() {
-    ();
-}
-
-pub fn distance_sensor_get_value(_tag: WbDeviceTag) -> f64 {
-    0.0
-}
-
-pub fn hw_motor_set_velocity(
-    pins: (u32, u32, u32),
-    velocity: f64,
-) -> Result<(), Box<dyn std::error::Error>> {
-    // TODO: get this from outside
-    let mut chip: Chip = gpio_cdev::Chip::new("/dev/gpiochip0")?;
-    //     // bindings_live, also check 04 for how we do that
-    let mut motor = Motor::new(&mut chip, pins.0, pins.1, pins.2)?;
-    let _ = motor.set_speed(velocity as i8);
-    Ok(())
-}
-
-// -- Mockups for now END

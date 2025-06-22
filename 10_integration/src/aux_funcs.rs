@@ -1,6 +1,6 @@
-use crate::loggin::Log;
-
 use std::collections::BTreeMap;
+
+use crate::loggin::Log;
 
 pub fn check_cfg(data: BTreeMap<String, String>, cfgfile: &str, log: Log) {
     let to_check = [
