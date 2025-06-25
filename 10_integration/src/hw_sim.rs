@@ -59,26 +59,34 @@ pub fn get_sensors_ids(distance_sensor_names: Vec<&str>, time_step: i32) -> Vec<
     return distance_sensors;
 }
 
-pub fn get_distance_sensors_ids(distance_sensor_names: Vec<&str>, time_step: i32) -> Vec<u16> {
-    let distance_sensors = distance_sensor_names
-        .iter()
-        .map(|name| {
-            let sensor: bindings::WbDeviceTag = robot_get_device(name);
-            distance_sensor_enable(sensor, time_step);
-            sensor
-        })
-        .collect();
-    return distance_sensors;
+pub fn get_distance_sensor_id(distance_sensor_name: &str, time_step: i32) -> u16 {
+    let distance_sensor: bindings::WbDeviceTag = robot_get_device(distance_sensor_name);
+    distance_sensor_enable(distance_sensor, time_step);
+    return distance_sensor;
 }
 
-pub fn read_distance() -> Vec<f64> {
+pub fn read_distance(sensor: &str, time_step: i32) -> f64 {
+    let sensor_id = match sensor.parse::<u16>() {
+        Ok(num) => num,
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            0
+        }
+    };
+    let distance_values = distance_sensor_get_value(sensor_id);
+    return distance_values;
+}
+
+/*
+pub fn read_distance(in_port: Vec<&str>, time_step: i32) -> Vec<f64> {
     //TODO: get sensors ids outside and only once
-    let distance_values: Vec<_> = get_distance_sensors_ids()
+    let distance_values: Vec<_> = get_distance_sensors_ids(in_port, time_step)
         .iter()
         .map(|sensor| distance_sensor_get_value(*sensor))
         .collect();
     return distance_values;
 }
+*/
 
 pub fn distance_sensor_get_value(tag: bindings::WbDeviceTag) -> f64 {
     unsafe { bindings::wb_distance_sensor_get_value(tag) }

@@ -17,6 +17,10 @@ pub async fn find_port(_time_step: i32) -> Result<String, AppError> {
         .ok_or_else(|| AppError::Config("No Arduino found".into()))
 }
 
+pub async fn find_distance_sensor(time_step: i32, name: &str) -> Result<String, AppError> {
+    Ok(name.to_string()) // TODO: make back and forth u16 to string
+}
+
 pub fn robot_init() {
     ();
 }
