@@ -66,10 +66,14 @@ pub fn get_distance_sensor_id(distance_sensor_name: &str, time_step: i32) -> u16
 }
 
 pub fn read_distance(sensor: &str, time_step: i32) -> f64 {
+    println!("----- testing {:?}", sensor);
     let sensor_id = match sensor.parse::<u16>() {
-        Ok(num) => num,
+        Ok(num) => {
+            println!("OK: {}", num);
+            num
+        },
         Err(e) => {
-            eprintln!("Error: {}", e);
+            eprintln!("Error: {} {}", sensor, e);
             0
         }
     };

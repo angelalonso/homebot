@@ -34,9 +34,16 @@ pub fn robot_cleanup() {
 }
 
 // - Sensors functions
-pub fn distance_sensor_get_value(_tag: bindings::WbDeviceTag) -> f64 {
+pub fn distance_sensor_get_value(_tag: &str) -> f64 {
+    // TODO: get it from Arduino
     0.0
 }
+
+pub fn read_distance(sensor: &str, time_step: i32) -> f64 {
+    let distance_values = distance_sensor_get_value(sensor);
+    return distance_values;
+}
+
 
 // - Motor functions
 pub fn motor_set_velocity(
