@@ -1,4 +1,5 @@
 use std::time::{Duration, Instant, SystemTime};
+use either;
 
 use crate::error::*;
 #[cfg(any(feature = "test", feature = "live"))]
@@ -8,11 +9,26 @@ use crate::hw_sim::*;
 use crate::loggin::Log;
 
 #[derive(Debug, Clone)]
+pub enum PortConfig {
+    Single(String),
+    Multiple(Vec<u16>),
+}
+
+impl PortConfig {
+    pub fn as_string_iter(&self) -> impl Iterator<Item = String> + '_ {
+        match self {
+            PortConfig::Single(s) => either::Left(std::iter::once(s.clone())),
+            PortConfig::Multiple(v) => either::Right(v.iter().map(|id| id.to_string())),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Input {
     time_step: i32,
     ts_start: SystemTime,
     ts: Duration,
-    in_port: String,
+    in_port: PortConfig,
     distance: Vec<f64>,
 }
 
@@ -20,7 +36,7 @@ impl Input {
     pub async fn init(time_step: i32) -> Result<Self, AppError> {
         let ts_start: SystemTime = SystemTime::now();
         robot_init();
-        let in_port: String = find_port(time_step).await?;
+        let in_port: PortConfig = find_port(time_step).await?;
         Ok(Self {
             time_step,
             ts_start,
@@ -36,7 +52,7 @@ impl Input {
             .elapsed()
             .expect("Error retrieving time since start");
 
-        read_distance(&self.in_port.clone(), self.time_step.clone());
+        read_distance(self.in_port.clone(), self.time_step.clone());
 
         return self.ts;
     }
@@ -75,9 +91,11 @@ impl Input {
     }
     // needed for webots
     pub fn in_port_to_vec(&self) -> Vec<u16> {
-        let current = &self.in_port;
-        let restored_vec: Vec<u16> = current.encode_utf16().collect();
-        restored_vec
+        let restored_vec = match &self.in_port {
+            PortConfig::Single(port) => port.encode_utf16().collect(),
+            PortConfig::Multiple(ports) => ports,
+        };
+        restored_vec.to_vec()
     }
     /*
         pub fn react(&self, log: Log) -> Vec<CAction> {
