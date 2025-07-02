@@ -9,26 +9,12 @@ use crate::hw_sim::*;
 use crate::loggin::Log;
 
 #[derive(Debug, Clone)]
-pub enum PortConfig {
-    Single(String),
-    Multiple(Vec<u16>),
-}
-
-impl PortConfig {
-    pub fn as_string_iter(&self) -> impl Iterator<Item = String> + '_ {
-        match self {
-            PortConfig::Single(s) => either::Left(std::iter::once(s.clone())),
-            PortConfig::Multiple(v) => either::Right(v.iter().map(|id| id.to_string())),
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
 pub struct Input {
     time_step: i32,
     ts_start: SystemTime,
     ts: Duration,
-    in_port: PortConfig,
+    in_port: String,
+    sensors: Vec<u16>,
     distance: Vec<f64>,
 }
 
@@ -37,11 +23,13 @@ impl Input {
         let ts_start: SystemTime = SystemTime::now();
         robot_init();
         let in_port: PortConfig = find_port(time_step).await?;
+        let sensors = [].to_vec();
         Ok(Self {
             time_step,
             ts_start,
             ts: Duration::from_millis(0),
             in_port,
+            sensors,
             distance: [0.00].to_vec(),
         })
     }

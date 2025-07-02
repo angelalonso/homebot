@@ -2,7 +2,6 @@ use std::ffi::CString;
 
 use crate::bindings;
 use crate::error::AppError;
-use crate::input::PortConfig;
 
 // - Robot general functions
 pub async fn find_port(time_step: i32) -> Result<PortConfig, AppError> {
