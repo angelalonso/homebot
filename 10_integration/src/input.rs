@@ -1,5 +1,5 @@
-use std::time::{Duration, Instant, SystemTime};
 use either;
+use std::time::{Duration, Instant, SystemTime};
 
 use crate::error::*;
 #[cfg(any(feature = "test", feature = "live"))]
@@ -22,7 +22,7 @@ impl Input {
     pub async fn init(time_step: i32) -> Result<Self, AppError> {
         let ts_start: SystemTime = SystemTime::now();
         robot_init();
-        let in_port: PortConfig = find_port(time_step).await?;
+        let in_port: String = find_port(time_step).await?;
         let sensors = [].to_vec();
         Ok(Self {
             time_step,
@@ -40,7 +40,7 @@ impl Input {
             .elapsed()
             .expect("Error retrieving time since start");
 
-        read_distance(self.in_port.clone(), self.time_step.clone());
+        read_distance(&self.in_port, self.time_step.clone());
 
         return self.ts;
     }
@@ -76,14 +76,6 @@ impl Input {
 
     pub fn get_distance(&mut self) -> Vec<f64> {
         self.distance.clone()
-    }
-    // needed for webots
-    pub fn in_port_to_vec(&self) -> Vec<u16> {
-        let restored_vec = match &self.in_port {
-            PortConfig::Single(port) => port.encode_utf16().collect(),
-            PortConfig::Multiple(ports) => ports,
-        };
-        restored_vec.to_vec()
     }
     /*
         pub fn react(&self, log: Log) -> Vec<CAction> {

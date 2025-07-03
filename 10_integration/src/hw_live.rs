@@ -6,17 +6,15 @@ use tokio_serial::{SerialPortBuilderExt, SerialStream};
 
 use crate::bindings;
 use crate::error::AppError;
-use crate::input::PortConfig;
 
 // - Robot general functions
-pub async fn find_port(_time_step: i32) -> Result<PortConfig, AppError> {
+pub async fn find_port(_time_step: i32) -> Result<String, AppError> {
     let ports = tokio_serial::available_ports()?;
     ports
         .into_iter()
         .find(|p| p.port_name.contains("ACM") || p.port_name.contains("USB"))
         .map(|p| p.port_name)
-        .ok_or_else(|| AppError::Config("No Arduino found".into()))?;
-    Ok(PortConfig::Single(ports.clone()))
+        .ok_or_else(|| AppError::Config("No Arduino found".into()))
 }
 
 pub async fn find_distance_sensor(time_step: i32, name: &str) -> Result<String, AppError> {
@@ -45,7 +43,6 @@ pub fn read_distance(sensor: &str, time_step: i32) -> f64 {
     let distance_values = distance_sensor_get_value(sensor);
     return distance_values;
 }
-
 
 // - Motor functions
 pub fn motor_set_velocity(

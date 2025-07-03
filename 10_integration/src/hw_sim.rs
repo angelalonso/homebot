@@ -4,7 +4,7 @@ use crate::bindings;
 use crate::error::AppError;
 
 // - Robot general functions
-pub async fn find_port(time_step: i32) -> Result<PortConfig, AppError> {
+pub async fn find_port(time_step: i32) -> Result<Vec<u16>, AppError> {
     let distance_sensor_names = vec!["distance_sensor_eyes"];
     let distance_sensors: Vec<bindings::WbDeviceTag> = distance_sensor_names
         .iter()
@@ -14,7 +14,7 @@ pub async fn find_port(time_step: i32) -> Result<PortConfig, AppError> {
             sensor
         })
         .collect();
-    let result = PortConfig::Multiple(distance_sensors);
+    let result = distance_sensors;
     Ok(result)
 }
 
@@ -62,7 +62,7 @@ pub fn get_distance_sensor_id(distance_sensor_name: &str, time_step: i32) -> u16
     return distance_sensor;
 }
 
-pub fn read_distance(in_port: PortConfig, time_step: i32) -> Vec<f64> {
+pub fn read_distance(in_port: String, time_step: i32) -> Vec<f64> {
     //TODO: get sensors ids outside and only once
     //let distance_values: Vec<_> = get_sensors_ids(in_port, time_step)
     //    .iter()
