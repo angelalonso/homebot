@@ -1,8 +1,16 @@
 //use gpio_cdev::{Chip, LineRequestFlags};
 use gpio_cdev::Chip;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use lazy_static::lazy_static;
+use regex::Regex;
+use std::collections::HashMap;
+use tokio::io::{AsyncReadExt, AsyncWriteExt, AsyncBufReadExt, BufReader};
 use tokio::time::{timeout, Duration};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
+
+lazy_static! {
+    // Regex to extract "Key: 123.45" from strings
+    static ref KV_REGEX: Regex = Regex::new(r"([A-Za-z]+):\s*([0-9.]+)").unwrap();
+}
 
 use crate::bindings;
 use crate::error::AppError;
@@ -37,27 +45,16 @@ pub fn robot_cleanup() {
     ();
 }
 
-
-use lazy_static::lazy_static;
-use regex::Regex;
-use tokio::io::{AsyncBufReadExt, BufReader};
-use std::collections::HashMap;
-lazy_static! {
-    // Regex to extract "Key: 123.45" from strings
-    static ref KV_REGEX: Regex = Regex::new(r"([A-Za-z]+):\s*([0-9.]+)").unwrap();
-}
 // - Sensors functions
 pub async fn distance_sensor_get_value(serial_port: &str) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
     let mut port = tokio_serial::new(serial_port, 115_200)
         .open_native_async()?;
-
-    // Set timeout (optional)
     port.set_exclusive(false)?;
 
     let mut reader = BufReader::new(port);
     let mut line = String::new();
 
-    // Read a line asynchronously
+    // TODO: read a line or not?
     reader.read_line(&mut line).await?;
 
     // Parse into key-value pairs
@@ -69,9 +66,7 @@ pub async fn distance_sensor_get_value(serial_port: &str) -> Result<HashMap<Stri
             data.insert(key, value);
         }
     }
-
     Ok(data)
-    // Ok(0.0)
 }
 
 // - Motor functions

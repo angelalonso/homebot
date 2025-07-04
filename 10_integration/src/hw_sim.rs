@@ -33,11 +33,6 @@ pub async fn read_distance(_serial_port: &str, sensor_ids: Vec<u16>, _time_step:
         .map(|res| res.unwrap()) // Handle errors properly in real code
         .collect();
     return result;
-    //let distance_values = sensor_ids
-    //    .iter()
-    //    .map(|sensor| distance_sensor_get_value(*sensor))
-    //    .collect();
-    //return distance_values;
 }
 
 pub fn robot_get_device(id: &str) -> bindings::WbDeviceTag {
