@@ -39,7 +39,8 @@ impl Input {
             .elapsed()
             .expect("Error retrieving time since start");
 
-        read_distance(&self.serial_port, self.sensor_ids.clone(), self.time_step.clone());
+        self.set_distance(read_distance(&self.serial_port, self.sensor_ids.clone(), self.time_step.clone()));
+        println!("test: {:?}", self.get_distance());
 
         return self.ts;
     }
@@ -53,21 +54,9 @@ impl Input {
         self.ts = ts;
     }
 
-    pub fn set_distance(&mut self, _log: Log, distance: Vec<f64>) {
+    pub fn set_distance(&mut self, distance: Vec<f64>) {
         self.distance = distance.clone();
     }
-    /*
-    pub fn read_distance(&mut self) {
-        // let distance_values = self
-        //     .in_port
-        let distance_values: Vec<_> = self
-            .in_port_to_vec()
-            .iter()
-            .map(|sensor| distance_sensor_get_value(*sensor))
-            .collect();
-        self.distance = distance_values.clone();
-    }
-    */
 
     pub fn get_ts(&mut self) -> Duration {
         self.ts

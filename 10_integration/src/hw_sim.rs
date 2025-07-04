@@ -6,26 +6,16 @@ use crate::error::AppError;
 // - Robot general functions
 pub async fn get_serial_port(time_step: i32) -> Result<(String, Vec<u16>), AppError> {
     let distance_sensor_names = vec!["distance_sensor_eyes"];
-//    let distance_sensors: Vec<u16> = distance_sensor_names
-//        .iter()
-//        .map(|name| {
-//            let sensor: bindings::WbDeviceTag = robot_get_device(name);
-//            distance_sensor_enable(sensor, time_step);
-//            sensor
-//        })
-//        .collect();
     let mut distance_sensors: Vec<bindings::WbDeviceTag> = [].to_vec();
     distance_sensors = distance_sensor_names
         .iter()
         .map(|name| {
             let sensor: bindings::WbDeviceTag = robot_get_device(name);
             distance_sensor_enable(sensor, time_step);
-            println!("here");
+            println!("1 here");
             sensor
         })
         .collect();  
-    
-    println!("test: {:?}", read_distance("", distance_sensors.clone(), time_step));
 
     Ok(("".to_string(), distance_sensors))
 }
@@ -37,12 +27,6 @@ pub fn read_distance(_serial_port: &str, sensor_ids: Vec<u16>, time_step: i32) -
         .collect();
     return distance_values;
 }
-
-//pub async fn find_distance_sensor(time_step: i32, name: &str) -> Result<String, AppError> {
-//    let sensor: bindings::WbDeviceTag = robot_get_device(name);
-//    distance_sensor_enable(sensor, time_step);
-//    Ok(sensor.to_string()) // TODO: make back and forth u16 to string
-//}
 
 pub fn robot_get_device(id: &str) -> bindings::WbDeviceTag {
     let name = CString::new(id).expect("CString::new failed");
@@ -64,42 +48,6 @@ pub fn robot_cleanup() {
 }
 
 // - Sensors functions
-pub fn get_sensors_ids(distance_sensor_names: Vec<&str>, time_step: i32) -> Vec<u16> {
-    let distance_sensors = distance_sensor_names
-        .iter()
-        .map(|name| {
-            let sensor: bindings::WbDeviceTag = robot_get_device(name);
-            distance_sensor_enable(sensor, time_step);
-            sensor
-        })
-        .collect();
-    return distance_sensors;
-}
-
-//pub fn get_distance_sensor_id(distance_sensor_name: &str, time_step: i32) -> u16 {
-//    let distance_sensor: bindings::WbDeviceTag = robot_get_device(distance_sensor_name);
-//    distance_sensor_enable(distance_sensor, time_step);
-//    return distance_sensor;
-//}
-
-/*
-pub fn read_distance(sensor: &str, time_step: i32) -> f64 {
-    println!("----- testing {:?}", sensor);
-    let sensor_id = match sensor.parse::<u16>() {
-        Ok(num) => {
-            println!("OK: {}", num);
-            num
-        },
-        Err(e) => {
-            eprintln!("Error: {} {}", sensor, e);
-            0
-        }
-    };
-    let distance_values = distance_sensor_get_value(sensor_id);
-    return distance_values;
-}
-*/
-
 pub fn distance_sensor_get_value(tag: bindings::WbDeviceTag) -> f64 {
     unsafe { bindings::wb_distance_sensor_get_value(tag) }
 }
