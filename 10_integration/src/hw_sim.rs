@@ -20,6 +20,7 @@ pub async fn get_serial_port(time_step: i32) -> Result<(String, Vec<u16>), AppEr
         .map(|name| {
             let sensor: bindings::WbDeviceTag = robot_get_device(name);
             distance_sensor_enable(sensor, time_step);
+            println!("here");
             sensor
         })
         .collect();  
@@ -30,18 +31,18 @@ pub async fn get_serial_port(time_step: i32) -> Result<(String, Vec<u16>), AppEr
 }
 
 pub fn read_distance(_serial_port: &str, sensor_ids: Vec<u16>, time_step: i32) -> Vec<f64> {
-    let distance_values: Vec<_> = sensor_ids
+    let distance_values = sensor_ids
         .iter()
         .map(|sensor| distance_sensor_get_value(*sensor))
         .collect();
     return distance_values;
 }
 
-pub async fn find_distance_sensor(time_step: i32, name: &str) -> Result<String, AppError> {
-    let sensor: bindings::WbDeviceTag = robot_get_device(name);
-    distance_sensor_enable(sensor, time_step);
-    Ok(sensor.to_string()) // TODO: make back and forth u16 to string
-}
+//pub async fn find_distance_sensor(time_step: i32, name: &str) -> Result<String, AppError> {
+//    let sensor: bindings::WbDeviceTag = robot_get_device(name);
+//    distance_sensor_enable(sensor, time_step);
+//    Ok(sensor.to_string()) // TODO: make back and forth u16 to string
+//}
 
 pub fn robot_get_device(id: &str) -> bindings::WbDeviceTag {
     let name = CString::new(id).expect("CString::new failed");
@@ -75,11 +76,11 @@ pub fn get_sensors_ids(distance_sensor_names: Vec<&str>, time_step: i32) -> Vec<
     return distance_sensors;
 }
 
-pub fn get_distance_sensor_id(distance_sensor_name: &str, time_step: i32) -> u16 {
-    let distance_sensor: bindings::WbDeviceTag = robot_get_device(distance_sensor_name);
-    distance_sensor_enable(distance_sensor, time_step);
-    return distance_sensor;
-}
+//pub fn get_distance_sensor_id(distance_sensor_name: &str, time_step: i32) -> u16 {
+//    let distance_sensor: bindings::WbDeviceTag = robot_get_device(distance_sensor_name);
+//    distance_sensor_enable(distance_sensor, time_step);
+//    return distance_sensor;
+//}
 
 /*
 pub fn read_distance(sensor: &str, time_step: i32) -> f64 {
