@@ -17,12 +17,13 @@ pub async fn get_serial_port(_time_step: i32) -> Result<(String, Vec<u16>), AppE
         .ok_or_else(|| AppError::Config("No Arduino found".into()))
 }
 
-pub fn read_distance(serial_port: &str, _sensor_ids: Vec<u16>, time_step: i32) -> f64 {
-    let distance_values = distance_sensor_get_value(serial_port);
-    return distance_values;
+pub fn read_distance(serial_port: &str, _sensor_ids: Vec<u16>, _time_step: i32) -> Vec<f64> {
+    let mut result: Vec<f64> = Vec::new();
+    result.push(distance_sensor_get_value(serial_port));
+    return result
 }
 
-pub async fn find_distance_sensor(time_step: i32, name: &str) -> Result<String, AppError> {
+pub async fn find_distance_sensor(_time_step: i32, name: &str) -> Result<String, AppError> {
     Ok(name.to_string()) // TODO: make back and forth u16 to string
 }
 

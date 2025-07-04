@@ -43,17 +43,20 @@ impl Brain {
             //    self.add_incoming(ac);
             //}
         }
-        let ts = self.input.update();
-        let sens = self.input.get_sens();
+        let _ts = self.input.update();
         let dist = self.input.get_distance();
-        // log.info(&format!(
-        //     "--------------------- {:?} -- {:?} -- {:?}",
-        //     ts,
-        //     sens,
-        //     dist
-        // ));
-        self.output.set_motor_l(1.00, 1);
-        self.output.set_motor_r(1.00, 1);
+        log.info(&format!(
+            " Distance: {:?}",
+            dist
+        ));
+        // TODO: check more than one distance
+        if dist[0] < 2000.0 {
+            self.output.set_motor_l(1.00, 1);
+            self.output.set_motor_r(-1.00, 1);
+        } else {
+            self.output.set_motor_l(1.00, 1);
+            self.output.set_motor_r(1.00, 1);
+        };
         //log.debug(&format!("iii: {:#?}", self.get_incoming_caction_ids()));
 
         // TODO: make this NOT A VECTOR

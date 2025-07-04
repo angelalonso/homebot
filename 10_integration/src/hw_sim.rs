@@ -6,8 +6,7 @@ use crate::error::AppError;
 // - Robot general functions
 pub async fn get_serial_port(time_step: i32) -> Result<(String, Vec<u16>), AppError> {
     let distance_sensor_names = vec!["distance_sensor_eyes"];
-    let mut distance_sensors: Vec<bindings::WbDeviceTag> = [].to_vec();
-    distance_sensors = distance_sensor_names
+    let distance_sensors: Vec<bindings::WbDeviceTag> = distance_sensor_names
         .iter()
         .map(|name| {
             let sensor: bindings::WbDeviceTag = robot_get_device(name);
@@ -20,7 +19,7 @@ pub async fn get_serial_port(time_step: i32) -> Result<(String, Vec<u16>), AppEr
     Ok(("".to_string(), distance_sensors))
 }
 
-pub fn read_distance(_serial_port: &str, sensor_ids: Vec<u16>, time_step: i32) -> Vec<f64> {
+pub fn read_distance(_serial_port: &str, sensor_ids: Vec<u16>, _time_step: i32) -> Vec<f64> {
     let distance_values = sensor_ids
         .iter()
         .map(|sensor| distance_sensor_get_value(*sensor))

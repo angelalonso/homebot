@@ -1,12 +1,10 @@
-use either;
-use std::time::{Duration, Instant, SystemTime};
+use std::time::{Duration, SystemTime};
 
 use crate::error::*;
 #[cfg(any(feature = "test", feature = "live"))]
 use crate::hw_live::*;
 #[cfg(feature = "sim")]
 use crate::hw_sim::*;
-use crate::loggin::Log;
 
 #[derive(Debug, Clone)]
 pub struct Input {
@@ -40,7 +38,6 @@ impl Input {
             .expect("Error retrieving time since start");
 
         self.set_distance(read_distance(&self.serial_port, self.sensor_ids.clone(), self.time_step.clone()));
-        println!("test: {:?}", self.get_distance());
 
         return self.ts;
     }
