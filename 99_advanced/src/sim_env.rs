@@ -56,13 +56,18 @@ pub fn run(log: Log, cfg: BTreeMap<String, String>) -> Result<(), Box<dyn std::e
         // TODO: avoid more incomings by a different tag than get_sensor
         // TODO: test with continuous distance
         let (sv, _) = brain.get_output().get_sensor();
-        if sv == "on" {
-            distance_values = distance_sensors
-                .iter()
-                .map(|sensor| crate::sim_hw::wb_distance_sensor_get_value(*sensor))
-                .collect();
-            brain.set_input_distance(log.clone(), distance_values);
-        }
+        // if sv == "on" {
+        //     distance_values = distance_sensors
+        //         .iter()
+        //         .map(|sensor| crate::sim_hw::wb_distance_sensor_get_value(*sensor))
+        //         .collect();
+        //     brain.set_input_distance(log.clone(), distance_values);
+        // }
+        distance_values = distance_sensors
+            .iter()
+            .map(|sensor| crate::sim_hw::wb_distance_sensor_get_value(*sensor))
+            .collect();
+        brain.set_input_distance(log.clone(), distance_values);
         let _active = brain.update(log.clone(), timestamp, sv);
 
         log.debug(&format!("---------------------"));

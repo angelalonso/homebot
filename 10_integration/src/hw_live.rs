@@ -8,13 +8,18 @@ use crate::bindings;
 use crate::error::AppError;
 
 // - Robot general functions
-pub async fn find_port(_time_step: i32) -> Result<String, AppError> {
+pub async fn get_serial_port(_time_step: i32) -> Result<(String, Vec<u16>), AppError> {
     let ports = tokio_serial::available_ports()?;
     ports
         .into_iter()
         .find(|p| p.port_name.contains("ACM") || p.port_name.contains("USB"))
-        .map(|p| p.port_name)
+        .map(|p| (p.port_name, Vec::<u16>::default()))
         .ok_or_else(|| AppError::Config("No Arduino found".into()))
+}
+
+pub fn read_distance(serial_port: &str, _sensor_ids: Vec<u16>, time_step: i32) -> f64 {
+    let distance_values = distance_sensor_get_value(serial_port);
+    return distance_values;
 }
 
 pub async fn find_distance_sensor(time_step: i32, name: &str) -> Result<String, AppError> {
@@ -37,11 +42,6 @@ pub fn robot_cleanup() {
 pub fn distance_sensor_get_value(_tag: &str) -> f64 {
     // TODO: get it from Arduino
     0.0
-}
-
-pub fn read_distance(sensor: &str, time_step: i32) -> f64 {
-    let distance_values = distance_sensor_get_value(sensor);
-    return distance_values;
 }
 
 // - Motor functions

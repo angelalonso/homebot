@@ -26,7 +26,6 @@ pub const __USE_ATFILE: u32 = 1;
 pub const __USE_FORTIFY_LEVEL: u32 = 0;
 pub const __GLIBC_USE_DEPRECATED_GETS: u32 = 0;
 pub const __GLIBC_USE_DEPRECATED_SCANF: u32 = 0;
-pub const __GLIBC_USE_C2X_STRTOL: u32 = 0;
 pub const _STDC_PREDEF_H: u32 = 1;
 pub const __STDC_IEC_559__: u32 = 1;
 pub const __STDC_IEC_60559_BFP__: u32 = 201404;
@@ -35,7 +34,7 @@ pub const __STDC_IEC_60559_COMPLEX__: u32 = 201404;
 pub const __STDC_ISO_10646__: u32 = 201706;
 pub const __GNU_LIBRARY__: u32 = 6;
 pub const __GLIBC__: u32 = 2;
-pub const __GLIBC_MINOR__: u32 = 39;
+pub const __GLIBC_MINOR__: u32 = 35;
 pub const _SYS_CDEFS_H: u32 = 1;
 pub const __glibc_c99_flexarr_available: u32 = 1;
 pub const __LDOUBLE_REDIRECTS_TO_FLOAT128_ABI: u32 = 0;
@@ -116,6 +115,7 @@ pub const WB_SUPERVISOR_MOVIE_WRITE_ERROR: u32 = 3;
 pub const WB_SUPERVISOR_MOVIE_ENCODING_ERROR: u32 = 4;
 pub const WB_SUPERVISOR_MOVIE_SIMULATION_ERROR: u32 = 5;
 pub const _STDIO_H: u32 = 1;
+pub const __GNUC_VA_LIST: u32 = 1;
 pub const _____fpos_t_defined: u32 = 1;
 pub const ____mbstate_t_defined: u32 = 1;
 pub const _____fpos64_t_defined: u32 = 1;
@@ -125,7 +125,6 @@ pub const __struct_FILE_defined: u32 = 1;
 pub const _IO_EOF_SEEN: u32 = 16;
 pub const _IO_ERR_SEEN: u32 = 32;
 pub const _IO_USER_LOCK: u32 = 32768;
-pub const __cookie_io_functions_t_defined: u32 = 1;
 pub const _IOFBF: u32 = 0;
 pub const _IOLBF: u32 = 1;
 pub const _IONBF: u32 = 2;
@@ -135,9 +134,9 @@ pub const SEEK_SET: u32 = 0;
 pub const SEEK_CUR: u32 = 1;
 pub const SEEK_END: u32 = 2;
 pub const P_tmpdir: &[u8; 5usize] = b"/tmp\0";
+pub const _BITS_STDIO_LIM_H: u32 = 1;
 pub const L_tmpnam: u32 = 20;
 pub const TMP_MAX: u32 = 238328;
-pub const _BITS_STDIO_LIM_H: u32 = 1;
 pub const FILENAME_MAX: u32 = 4096;
 pub const L_ctermid: u32 = 9;
 pub const FOPEN_MAX: u32 = 16;
@@ -3050,12 +3049,6 @@ extern "C" {
     ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-    pub fn strchrnul(
-        __s: *const ::std::os::raw::c_char,
-        __c: ::std::os::raw::c_int,
-    ) -> *mut ::std::os::raw::c_char;
-}
-extern "C" {
     pub fn strcspn(
         __s: *const ::std::os::raw::c_char,
         __reject: *const ::std::os::raw::c_char,
@@ -3100,34 +3093,6 @@ extern "C" {
     ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-    pub fn strcasestr(
-        __haystack: *const ::std::os::raw::c_char,
-        __needle: *const ::std::os::raw::c_char,
-    ) -> *mut ::std::os::raw::c_char;
-}
-extern "C" {
-    pub fn memmem(
-        __haystack: *const ::std::os::raw::c_void,
-        __haystacklen: usize,
-        __needle: *const ::std::os::raw::c_void,
-        __needlelen: usize,
-    ) -> *mut ::std::os::raw::c_void;
-}
-extern "C" {
-    pub fn __mempcpy(
-        __dest: *mut ::std::os::raw::c_void,
-        __src: *const ::std::os::raw::c_void,
-        __n: usize,
-    ) -> *mut ::std::os::raw::c_void;
-}
-extern "C" {
-    pub fn mempcpy(
-        __dest: *mut ::std::os::raw::c_void,
-        __src: *const ::std::os::raw::c_void,
-        __n: ::std::os::raw::c_ulong,
-    ) -> *mut ::std::os::raw::c_void;
-}
-extern "C" {
     pub fn strlen(__s: *const ::std::os::raw::c_char) -> ::std::os::raw::c_ulong;
 }
 extern "C" {
@@ -3161,7 +3126,7 @@ extern "C" {
     pub fn bcopy(
         __src: *const ::std::os::raw::c_void,
         __dest: *mut ::std::os::raw::c_void,
-        __n: ::std::os::raw::c_ulong,
+        __n: usize,
     );
 }
 extern "C" {
@@ -3253,20 +3218,6 @@ extern "C" {
         __src: *const ::std::os::raw::c_char,
         __n: ::std::os::raw::c_ulong,
     ) -> *mut ::std::os::raw::c_char;
-}
-extern "C" {
-    pub fn strlcpy(
-        __dest: *mut ::std::os::raw::c_char,
-        __src: *const ::std::os::raw::c_char,
-        __n: usize,
-    ) -> usize;
-}
-extern "C" {
-    pub fn strlcat(
-        __dest: *mut ::std::os::raw::c_char,
-        __src: *const ::std::os::raw::c_char,
-        __n: usize,
-    ) -> usize;
 }
 extern "C" {
     pub fn wb_robot_wwi_send(data: *const ::std::os::raw::c_char, size: ::std::os::raw::c_int);
@@ -5221,6 +5172,7 @@ pub type WbTouchSensorType = ::std::os::raw::c_uint;
 extern "C" {
     pub fn wb_touch_sensor_get_type(tag: WbDeviceTag) -> WbTouchSensorType;
 }
+pub type va_list = __builtin_va_list;
 pub type __gnuc_va_list = __builtin_va_list;
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -5745,96 +5697,6 @@ fn bindgen_test_layout__IO_FILE() {
         )
     );
 }
-pub type cookie_read_function_t = ::std::option::Option<
-    unsafe extern "C" fn(
-        __cookie: *mut ::std::os::raw::c_void,
-        __buf: *mut ::std::os::raw::c_char,
-        __nbytes: usize,
-    ) -> __ssize_t,
->;
-pub type cookie_write_function_t = ::std::option::Option<
-    unsafe extern "C" fn(
-        __cookie: *mut ::std::os::raw::c_void,
-        __buf: *const ::std::os::raw::c_char,
-        __nbytes: usize,
-    ) -> __ssize_t,
->;
-pub type cookie_seek_function_t = ::std::option::Option<
-    unsafe extern "C" fn(
-        __cookie: *mut ::std::os::raw::c_void,
-        __pos: *mut __off64_t,
-        __w: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int,
->;
-pub type cookie_close_function_t = ::std::option::Option<
-    unsafe extern "C" fn(__cookie: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int,
->;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _IO_cookie_io_functions_t {
-    pub read: cookie_read_function_t,
-    pub write: cookie_write_function_t,
-    pub seek: cookie_seek_function_t,
-    pub close: cookie_close_function_t,
-}
-#[test]
-fn bindgen_test_layout__IO_cookie_io_functions_t() {
-    const UNINIT: ::std::mem::MaybeUninit<_IO_cookie_io_functions_t> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<_IO_cookie_io_functions_t>(),
-        32usize,
-        concat!("Size of: ", stringify!(_IO_cookie_io_functions_t))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<_IO_cookie_io_functions_t>(),
-        8usize,
-        concat!("Alignment of ", stringify!(_IO_cookie_io_functions_t))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).read) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(_IO_cookie_io_functions_t),
-            "::",
-            stringify!(read)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).write) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(_IO_cookie_io_functions_t),
-            "::",
-            stringify!(write)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).seek) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(_IO_cookie_io_functions_t),
-            "::",
-            stringify!(seek)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).close) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(_IO_cookie_io_functions_t),
-            "::",
-            stringify!(close)
-        )
-    );
-}
-pub type cookie_io_functions_t = _IO_cookie_io_functions_t;
-pub type va_list = __gnuc_va_list;
 pub type off_t = __off_t;
 pub type fpos_t = __fpos_t;
 extern "C" {
@@ -5903,13 +5765,6 @@ extern "C" {
 extern "C" {
     pub fn fdopen(__fd: ::std::os::raw::c_int, __modes: *const ::std::os::raw::c_char)
         -> *mut FILE;
-}
-extern "C" {
-    pub fn fopencookie(
-        __magic_cookie: *mut ::std::os::raw::c_void,
-        __modes: *const ::std::os::raw::c_char,
-        __io_funcs: cookie_io_functions_t,
-    ) -> *mut FILE;
 }
 extern "C" {
     pub fn fmemopen(
@@ -5992,27 +5847,6 @@ extern "C" {
         __maxlen: ::std::os::raw::c_ulong,
         __format: *const ::std::os::raw::c_char,
         __arg: *mut __va_list_tag,
-    ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn vasprintf(
-        __ptr: *mut *mut ::std::os::raw::c_char,
-        __f: *const ::std::os::raw::c_char,
-        __arg: *mut __va_list_tag,
-    ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn __asprintf(
-        __ptr: *mut *mut ::std::os::raw::c_char,
-        __fmt: *const ::std::os::raw::c_char,
-        ...
-    ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn asprintf(
-        __ptr: *mut *mut ::std::os::raw::c_char,
-        __fmt: *const ::std::os::raw::c_char,
-        ...
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {

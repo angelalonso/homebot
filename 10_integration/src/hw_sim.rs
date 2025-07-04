@@ -4,18 +4,37 @@ use crate::bindings;
 use crate::error::AppError;
 
 // - Robot general functions
-pub async fn find_port(time_step: i32) -> Result<Vec<u16>, AppError> {
+pub async fn get_serial_port(time_step: i32) -> Result<(String, Vec<u16>), AppError> {
     let distance_sensor_names = vec!["distance_sensor_eyes"];
-    let distance_sensors: Vec<bindings::WbDeviceTag> = distance_sensor_names
+//    let distance_sensors: Vec<u16> = distance_sensor_names
+//        .iter()
+//        .map(|name| {
+//            let sensor: bindings::WbDeviceTag = robot_get_device(name);
+//            distance_sensor_enable(sensor, time_step);
+//            sensor
+//        })
+//        .collect();
+    let mut distance_sensors: Vec<bindings::WbDeviceTag> = [].to_vec();
+    distance_sensors = distance_sensor_names
         .iter()
         .map(|name| {
             let sensor: bindings::WbDeviceTag = robot_get_device(name);
             distance_sensor_enable(sensor, time_step);
             sensor
         })
+        .collect();  
+    
+    println!("test: {:?}", read_distance("", distance_sensors.clone(), time_step));
+
+    Ok(("".to_string(), distance_sensors))
+}
+
+pub fn read_distance(_serial_port: &str, sensor_ids: Vec<u16>, time_step: i32) -> Vec<f64> {
+    let distance_values: Vec<_> = sensor_ids
+        .iter()
+        .map(|sensor| distance_sensor_get_value(*sensor))
         .collect();
-    let result = distance_sensors;
-    Ok(result)
+    return distance_values;
 }
 
 pub async fn find_distance_sensor(time_step: i32, name: &str) -> Result<String, AppError> {
@@ -60,17 +79,6 @@ pub fn get_distance_sensor_id(distance_sensor_name: &str, time_step: i32) -> u16
     let distance_sensor: bindings::WbDeviceTag = robot_get_device(distance_sensor_name);
     distance_sensor_enable(distance_sensor, time_step);
     return distance_sensor;
-}
-
-pub fn read_distance(in_port: String, time_step: i32) -> Vec<f64> {
-    //TODO: get sensors ids outside and only once
-    //let distance_values: Vec<_> = get_sensors_ids(in_port, time_step)
-    //    .iter()
-    let distance_values: Vec<_> = in_port
-        .as_string_iter()
-        .map(|sensor| distance_sensor_get_value(sensor.parse::<u16>().unwrap()))
-        .collect();
-    return distance_values;
 }
 
 /*

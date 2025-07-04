@@ -2,7 +2,7 @@ use homebot::homebot_aux_funcs::*;
 use homebot::loggin;
 use std::fs;
 
-const CFGFILE: &str = "cfg.yaml";
+const CFGFILE: &str = "cfg.yml";
 
 #[cfg(any(feature = "test", feature = "live"))]
 use homebot::env::*;

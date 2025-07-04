@@ -13,8 +13,8 @@ pub struct Input {
     time_step: i32,
     ts_start: SystemTime,
     ts: Duration,
-    in_port: String,
-    sensors: Vec<u16>,
+    serial_port: String,
+    sensor_ids: Vec<u16>,
     distance: Vec<f64>,
 }
 
@@ -22,14 +22,13 @@ impl Input {
     pub async fn init(time_step: i32) -> Result<Self, AppError> {
         let ts_start: SystemTime = SystemTime::now();
         robot_init();
-        let in_port: String = find_port(time_step).await?;
-        let sensors = [].to_vec();
+        let (serial_port, sensor_ids) = get_serial_port(time_step).await?;
         Ok(Self {
             time_step,
             ts_start,
             ts: Duration::from_millis(0),
-            in_port,
-            sensors,
+            serial_port,
+            sensor_ids,
             distance: [0.00].to_vec(),
         })
     }
@@ -40,7 +39,7 @@ impl Input {
             .elapsed()
             .expect("Error retrieving time since start");
 
-        read_distance(&self.in_port, self.time_step.clone());
+        read_distance(&self.serial_port, self.sensor_ids.clone(), self.time_step.clone());
 
         return self.ts;
     }
@@ -72,6 +71,10 @@ impl Input {
 
     pub fn get_ts(&mut self) -> Duration {
         self.ts
+    }
+
+    pub fn get_sens(&mut self) -> Vec<u16> {
+        self.sensor_ids.clone()
     }
 
     pub fn get_distance(&mut self) -> Vec<f64> {

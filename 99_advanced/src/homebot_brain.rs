@@ -171,6 +171,7 @@ impl Brain {
     }
 
     pub fn set_input_distance(&mut self, log: Log, distance: Vec<f64>) {
+        println!(" -> {:?}", distance.clone());
         self.input.set_distance(log, distance);
     }
 
