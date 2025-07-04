@@ -35,7 +35,7 @@ impl Brain {
         })
     }
 
-    pub fn update(&mut self, log: Log, add_incoming: String) -> Output {
+    pub async fn update(&mut self, log: Log, add_incoming: String) -> Output {
         // We avoid doing this while testing, for higher control on tests
         // TODO: remove test_mode, possible?
         if !self.test_mode && add_incoming == "on" {
@@ -43,8 +43,7 @@ impl Brain {
             //    self.add_incoming(ac);
             //}
         }
-        let _ts = self.input.update();
-        let dist = self.input.get_distance();
+        let (_ts, dist) = self.input.update().await;
         log.info(&format!(
             " Distance: {:?}",
             dist

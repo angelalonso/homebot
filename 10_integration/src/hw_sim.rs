@@ -11,7 +11,6 @@ pub async fn get_serial_port(time_step: i32) -> Result<(String, Vec<u16>), AppEr
         .map(|name| {
             let sensor: bindings::WbDeviceTag = robot_get_device(name);
             distance_sensor_enable(sensor, time_step);
-            println!("1 here");
             sensor
         })
         .collect();  
@@ -19,12 +18,26 @@ pub async fn get_serial_port(time_step: i32) -> Result<(String, Vec<u16>), AppEr
     Ok(("".to_string(), distance_sensors))
 }
 
-pub fn read_distance(_serial_port: &str, sensor_ids: Vec<u16>, _time_step: i32) -> Vec<f64> {
-    let distance_values = sensor_ids
+pub async fn read_distance(_serial_port: &str, sensor_ids: Vec<u16>, _time_step: i32) -> Vec<f64> {
+    let handles: Vec<_> = sensor_ids
         .iter()
-        .map(|sensor| distance_sensor_get_value(*sensor))
+        .map(|sensor| {
+            let sensor = *sensor;
+            tokio::task::spawn_blocking(move || distance_sensor_get_value(sensor))
+        })
         .collect();
-    return distance_values;
+
+    let result = futures::future::join_all(handles)
+        .await
+        .into_iter()
+        .map(|res| res.unwrap()) // Handle errors properly in real code
+        .collect();
+    return result;
+    //let distance_values = sensor_ids
+    //    .iter()
+    //    .map(|sensor| distance_sensor_get_value(*sensor))
+    //    .collect();
+    //return distance_values;
 }
 
 pub fn robot_get_device(id: &str) -> bindings::WbDeviceTag {

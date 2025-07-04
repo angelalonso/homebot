@@ -31,15 +31,16 @@ impl Input {
         })
     }
 
-    pub fn update(&mut self) -> Duration {
+    pub async fn update(&mut self) -> (Duration, Vec<f64>) {
         self.ts = self
             .ts_start
             .elapsed()
             .expect("Error retrieving time since start");
 
-        self.set_distance(read_distance(&self.serial_port, self.sensor_ids.clone(), self.time_step.clone()));
+        let d = read_distance(&self.serial_port, self.sensor_ids.clone(), self.time_step.clone());
+        self.set_distance(d.await);
 
-        return self.ts;
+        return (self.ts, self.get_distance());
     }
 
     pub fn set(&mut self, ts: Duration, distance: Vec<f64>) {

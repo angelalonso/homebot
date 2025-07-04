@@ -29,7 +29,7 @@ pub async fn run(
         if robot_step(time_step) == -1 {
             break;
         }
-        let _ = b.update(log.clone(), "".to_string());
+        let _ = b.update(log.clone(), "".to_string()).await;
         #[cfg(feature = "test")]
         {
             iteration += 1;

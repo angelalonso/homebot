@@ -17,14 +17,12 @@ pub async fn get_serial_port(_time_step: i32) -> Result<(String, Vec<u16>), AppE
         .ok_or_else(|| AppError::Config("No Arduino found".into()))
 }
 
-pub fn read_distance(serial_port: &str, _sensor_ids: Vec<u16>, _time_step: i32) -> Vec<f64> {
+pub async fn read_distance(serial_port: &str, _sensor_ids: Vec<u16>, _time_step: i32) -> Vec<f64> {
     let mut result: Vec<f64> = Vec::new();
-    result.push(distance_sensor_get_value(serial_port));
+    let r = distance_sensor_get_value(serial_port).await;
+    let rd = r.expect("ERROR Reading from Serial").get("Distance").copied().unwrap_or(0.0);
+    result.push(rd);
     return result
-}
-
-pub async fn find_distance_sensor(_time_step: i32, name: &str) -> Result<String, AppError> {
-    Ok(name.to_string()) // TODO: make back and forth u16 to string
 }
 
 pub fn robot_init() {
@@ -39,10 +37,41 @@ pub fn robot_cleanup() {
     ();
 }
 
+
+use lazy_static::lazy_static;
+use regex::Regex;
+use tokio::io::{AsyncBufReadExt, BufReader};
+use std::collections::HashMap;
+lazy_static! {
+    // Regex to extract "Key: 123.45" from strings
+    static ref KV_REGEX: Regex = Regex::new(r"([A-Za-z]+):\s*([0-9.]+)").unwrap();
+}
 // - Sensors functions
-pub fn distance_sensor_get_value(_tag: &str) -> f64 {
-    // TODO: get it from Arduino
-    0.0
+pub async fn distance_sensor_get_value(serial_port: &str) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
+    let mut port = tokio_serial::new(serial_port, 115_200)
+        .open_native_async()?;
+
+    // Set timeout (optional)
+    port.set_exclusive(false)?;
+
+    let mut reader = BufReader::new(port);
+    let mut line = String::new();
+
+    // Read a line asynchronously
+    reader.read_line(&mut line).await?;
+
+    // Parse into key-value pairs
+    let mut data = HashMap::new();
+    for part in line.split('|') {
+        if let Some(caps) = KV_REGEX.captures(part) {
+            let key = caps.get(1).unwrap().as_str().to_string();
+            let value = caps.get(2).unwrap().as_str().parse::<f64>()?;
+            data.insert(key, value);
+        }
+    }
+
+    Ok(data)
+    // Ok(0.0)
 }
 
 // - Motor functions
