@@ -1,16 +1,12 @@
 //use gpio_cdev::{Chip, LineRequestFlags};
+//
 use gpio_cdev::Chip;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
-use tokio::io::{AsyncReadExt, AsyncWriteExt, AsyncBufReadExt, BufReader};
+use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
 use tokio::time::{timeout, Duration};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
-
-lazy_static! {
-    // Regex to extract "Key: 123.45" from strings
-    static ref KV_REGEX: Regex = Regex::new(r"([A-Za-z]+):\s*([0-9.]+)").unwrap();
-}
 
 use crate::bindings;
 use crate::error::AppError;
@@ -28,9 +24,13 @@ pub async fn get_serial_port(_time_step: i32) -> Result<(String, Vec<u16>), AppE
 pub async fn read_distance(serial_port: &str, _sensor_ids: Vec<u16>, _time_step: i32) -> Vec<f64> {
     let mut result: Vec<f64> = Vec::new();
     let r = distance_sensor_get_value(serial_port).await;
-    let rd = r.expect("ERROR Reading from Serial").get("Distance").copied().unwrap_or(0.0);
+    let rd = r
+        .expect("ERROR Reading from Serial")
+        .get("Di") // Distance
+        .copied()
+        .unwrap_or(0.0);
     result.push(rd);
-    return result
+    return result;
 }
 
 pub fn robot_init() {
@@ -45,27 +45,89 @@ pub fn robot_cleanup() {
     ();
 }
 
+pub async fn read_distance_binary(
+    port: &mut SerialStream,
+) -> Result<f64, Box<dyn std::error::Error>> {
+    let mut header = [0u8; 1];
+    port.read_exact(&mut header).await?;
+
+    if header[0] != b'D' {
+        return Err("Invalid header".into());
+    }
+
+    let mut bytes = [0u8; 4];
+    port.read_exact(&mut bytes).await?;
+
+    Ok(f32::from_le_bytes(bytes) as f64)
+    // or from_be_bytes() depending on Arduino's endianness
+}
+
 // - Sensors functions
-pub async fn distance_sensor_get_value(serial_port: &str) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
-    let mut port = tokio_serial::new(serial_port, 115_200)
-        .open_native_async()?;
+lazy_static! {
+    // Strict regex that requires proper key-value pairs
+    static ref KV_REGEX: Regex = Regex::new(r"^([A-Za-z]{2}):([^|\r\n]+)$").unwrap();
+}
+
+pub async fn distance_sensor_get_value(
+    serial_port: &str,
+) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
+    let mut port = tokio_serial::new(serial_port, 115_200).open_native_async()?;
     port.set_exclusive(false)?;
 
     let mut reader = BufReader::new(port);
     let mut line = String::new();
 
-    // TODO: read a line or not?
     reader.read_line(&mut line).await?;
 
-    // Parse into key-value pairs
     let mut data = HashMap::new();
+
     for part in line.split('|') {
-        if let Some(caps) = KV_REGEX.captures(part) {
-            let key = caps.get(1).unwrap().as_str().to_string();
-            let value = caps.get(2).unwrap().as_str().parse::<f64>()?;
-            data.insert(key, value);
+        let part = part.trim();
+        if part.is_empty() {
+            continue;
+        }
+        match KV_REGEX.captures(part) {
+            Some(caps) => {
+                let key = caps.get(1).unwrap().as_str();
+                let value_str = caps.get(2).unwrap().as_str().trim();
+
+                match (key, value_str) {
+                    ("Di", v) => {
+                        if let Ok(val) = v.parse::<f64>() {
+                            data.insert(key.to_string(), val);
+                        } else {
+                            println!("Discarding invalid Di value: {}", v);
+                        }
+                    }
+                    ("St", "OK") => {
+                        data.insert(key.to_string(), 1.0);
+                    }
+                    ("St", _) => {
+                        data.insert(key.to_string(), 0.0);
+                    }
+                    _ => {
+                        println!("Discarding unknown key: {}", key);
+                    }
+                }
+            }
+            None => {
+                if !part.is_empty() {
+                    println!("Discarding malformed entry: {:?}", part);
+                }
+            }
         }
     }
+
+    // Validate required fields
+    if !data.contains_key("Di") || !data.contains_key("St") {
+        return Err(format!(
+            "Missing required fields (have Di: {}, St: {})",
+            data.contains_key("Di"),
+            data.contains_key("St")
+        )
+        .into());
+    }
+
     Ok(data)
 }
 
