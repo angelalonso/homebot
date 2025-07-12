@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::time::Duration;
 
 use crate::action::CompositeAction as CAction;
@@ -19,13 +20,14 @@ pub struct Brain {
 impl Brain {
     pub async fn init(
         log: Log,
+        cfg: BTreeMap<String, String>,
         test_mode: bool,
         time_step: i32,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let current = vec![];
         let incoming = vec![];
         let input = Input::init(time_step).await?;
-        let output = Output::init(log.clone());
+        let output = Output::init(log.clone(), cfg.clone());
         Ok(Self {
             current,
             incoming,
@@ -44,10 +46,7 @@ impl Brain {
             //}
         }
         let (_ts, dist) = self.input.update().await;
-        log.info(&format!(
-            " Distance: {:?}",
-            dist
-        ));
+        log.info(&format!(" Distance: {:?}", dist));
         // TODO: check more than one distance
         if dist[0] < 2000.0 {
             self.output.set_motor_l(1.00, 1);

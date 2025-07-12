@@ -1,0 +1,83 @@
+Ah, I see the issue. The problem is that your `MotorCtrl` struct contains a `gpio_cdev::LineHandle`, which represents an actual GPIO pin handle on a Linux system. This is a hardware resource that can't be simply copied or cloned - it's tied to a specific physical pin.
+
+Here are your options:
+
+### 1. If you just need to share access to the GPIO pins (recommended):
+Use `Arc<Mutex<LineHandle>>` to share the GPIO handles safely between clones:
+
+```rust
+use std::sync::{Arc, Mutex};
+use gpio_cdev::LineHandle;
+
+#[derive(Debug)]
+pub struct MotorCtrl {
+    line_handle: Arc<Mutex<LineHandle>>,
+    // other fields...
+}
+
+// Now you can derive Clone since Arc is Clone
+#[derive(Debug, Clone)]
+pub struct Output {
+    sensor: String,
+    sensor_prio: u8,
+    motor_l: MotorCtrl,
+    motor_r: MotorCtrl,
+    motor_l_prio: u8,
+    motor_r_prio: u8,
+}
+```
+
+### 2. If you need independent GPIO handles:
+You'll need to re-open the GPIO pins when cloning:
+
+```rust
+use gpio_cdev::{Chip, LineRequestFlags};
+
+impl Clone for MotorCtrl {
+    fn clone(&self) -> Self {
+        let chip = Chip::new("/dev/gpiochip0").unwrap();
+        let line = chip.get_line(self.line_handle.line().offset()).unwrap();
+        let new_handle = line.request(LineRequestFlags::OUTPUT, 0, "clone").unwrap();
+        
+        MotorCtrl {
+            line_handle: new_handle,
+            // clone other fields...
+        }
+    }
+}
+```
+
+### 3. If you don't actually need to clone the GPIO handles:
+Consider making your struct non-Clone, or separating the GPIO handles from the control logic:
+
+```rust
+#[derive(Debug)]
+pub struct MotorCtrl {
+    line_handle: LineHandle,
+    // other fields...
+}
+
+// Output without Clone
+#[derive(Debug)]
+pub struct Output {
+    sensor: String,
+    sensor_prio: u8,
+    motor_l: MotorCtrl,
+    motor_r: MotorCtrl,
+    motor_l_prio: u8,
+    motor_r_prio: u8,
+}
+
+// Or separate the handles:
+#[derive(Debug, Clone)]
+pub struct MotorCtrlConfig {
+    // All cloneable configuration
+}
+
+pub struct MotorCtrl {
+    config: MotorCtrlConfig,
+    handle: LineHandle,
+}
+```
+
+The best approach depends on your use case. Option 1 (using `Arc<Mutex<>>`) is generally the safest if you just need to share access to the same GPIO pins between different parts of your code.

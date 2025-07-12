@@ -1,0 +1,54 @@
+To manually implement `Clone` for your `Output` struct when one of its fields (`MotorCtrl`) doesn't implement `Clone`, you'll need to create a manual implementation that properly clones each field. Here's how you can do it:
+
+```rust
+impl Clone for Output {
+    fn clone(&self) -> Self {
+        Output {
+            sensor: self.sensor.clone(),
+            sensor_prio: self.sensor_prio,
+            motor_l: /* clone MotorCtrl here */,
+            motor_r: /* clone MotorCtrl here */,
+            motor_l_prio: self.motor_l_prio,
+            motor_r_prio: self.motor_r_prio,
+        }
+    }
+}
+```
+
+However, since `MotorCtrl` doesn't implement `Clone`, you'll need to determine how to properly clone it. There are a few approaches:
+
+1. **If `MotorCtrl` can be cloned manually** (perhaps it has a method like `copy()` or `duplicate()`):
+```rust
+impl Clone for Output {
+    fn clone(&self) -> Self {
+        Output {
+            sensor: self.sensor.clone(),
+            sensor_prio: self.sensor_prio,
+            motor_l: self.motor_l.copy(),  // or whatever the method is
+            motor_r: self.motor_r.copy(),
+            motor_l_prio: self.motor_l_prio,
+            motor_r_prio: self.motor_r_prio,
+        }
+    }
+}
+```
+
+2. **If `MotorCtrl` contains resources that can't be cloned** (like file handles or hardware references), you might need to:
+   - Implement a "new" version that creates a fresh instance with the same parameters
+   - Use `Arc` or `Rc` if shared ownership is acceptable
+   - Reconsider whether cloning makes sense for this type
+
+3. **If you can modify `MotorCtrl`**, you could implement `Clone` for it:
+```rust
+impl Clone for MotorCtrl {
+    fn clone(&self) -> Self {
+        MotorCtrl {
+            // clone all fields here
+        }
+    }
+}
+```
+
+Without knowing more about what `MotorCtrl` contains and why it can't be derived, it's hard to give a more specific solution. Could you share the definition of `MotorCtrl` or explain why it can't implement `Clone`? That would help provide a more tailored solution.
+
+Also, note that your struct has some commented fields - if those are part of the actual struct, they would need to be handled in the `Clone` implementation as well.

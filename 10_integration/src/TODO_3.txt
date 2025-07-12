@@ -1,0 +1,110 @@
+Using `Arc<Mutex<LineHandle>>` for GPIO access is a good approach when you need to share the handle between threads or clones. Here's how to use it properly:
+
+### 1. Initialization
+First, wrap your `LineHandle` when creating the `MotorCtrl`:
+
+```rust
+use std::sync::{Arc, Mutex};
+use gpio_cdev::{Chip, LineHandle, LineRequestFlags};
+
+pub struct MotorCtrl {
+    handle: Arc<Mutex<LineHandle>>,
+    // other fields...
+}
+
+impl MotorCtrl {
+    pub fn new(chip_path: &str, line_offset: u32) -> Result<Self, gpio_cdev::Error> {
+        let chip = Chip::new(chip_path)?;
+        let line = chip.get_line(line_offset)?;
+        let handle = line.request(LineRequestFlags::OUTPUT, 0, "motor-control")?;
+        
+        Ok(Self {
+            handle: Arc::new(Mutex::new(handle)),
+            // initialize other fields...
+        })
+    }
+}
+```
+
+### 2. Using the Handle
+When you need to access the GPIO line:
+
+```rust
+impl MotorCtrl {
+    pub fn set_value(&self, value: u8) -> Result<(), gpio_cdev::Error> {
+        let handle = self.handle.lock().unwrap(); // Lock the mutex
+        handle.set_value(value)?;
+        Ok(())
+        // Mutex is automatically unlocked when `handle` goes out of scope
+    }
+
+    pub fn get_value(&self) -> Result<u8, gpio_cdev::Error> {
+        let handle = self.handle.lock().unwrap();
+        handle.get_value()
+    }
+}
+```
+
+### 3. Cloning
+Now you can derive `Clone` for both structs:
+
+```rust
+#[derive(Clone)]
+pub struct MotorCtrl {
+    handle: Arc<Mutex<LineHandle>>,
+    // other fields...
+}
+
+#[derive(Clone, Debug)]
+pub struct Output {
+    sensor: String,
+    sensor_prio: u8,
+    motor_l: MotorCtrl,
+    motor_r: MotorCtrl,
+    motor_l_prio: u8,
+    motor_r_prio: u8,
+}
+```
+
+### 4. Example Usage
+
+```rust
+fn main() -> Result<(), gpio_cdev::Error> {
+    // Initialize motors
+    let motor_left = MotorCtrl::new("/dev/gpiochip0", 23)?;
+    let motor_right = MotorCtrl::new("/dev/gpiochip0", 24)?;
+    
+    // Create output struct
+    let output = Output {
+        sensor: "lidar".to_string(),
+        sensor_prio: 1,
+        motor_l: motor_left,
+        motor_r: motor_right,
+        motor_l_prio: 2,
+        motor_r_prio: 2,
+    };
+    
+    // Clone the output
+    let output_clone = output.clone();
+    
+    // Use the motors from either original or clone
+    output.motor_l.set_value(1)?;
+    output_clone.motor_r.set_value(1)?;
+    
+    Ok(())
+}
+```
+
+### Important Notes:
+
+1. **Error Handling**: The `unwrap()` on the mutex lock is for simplicity. In production code, handle potential lock poisoning.
+
+2. **Lock Duration**: Keep mutex locks as brief as possible. Don't hold locks across await points in async code.
+
+3. **Performance**: `Arc<Mutex<>>` has some overhead. For simple GPIO operations, this is negligible.
+
+4. **Alternatives**: Consider `Arc<RwLock<>>` if you have more reads than writes.
+
+5. **Cleanup**: GPIO resources will be automatically released when the last `Arc` reference drops.
+
+This pattern gives you thread-safe shared access to GPIO lines while maintaining clean Rust ownership semantics.

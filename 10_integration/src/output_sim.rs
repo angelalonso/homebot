@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use crate::hw_sim::*;
 use crate::loggin::Log;
 
@@ -16,7 +18,7 @@ pub struct Output {
 }
 
 impl Output {
-    pub fn init(_log: Log) -> Self {
+    pub fn init(_log: Log, _cfg: BTreeMap<String, String>) -> Self {
         let left_wheel_motor: u16;
         let right_wheel_motor: u16;
 

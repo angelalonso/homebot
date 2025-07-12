@@ -20,9 +20,11 @@ pub async fn run(
     // -- Init
     let time_step = cfg["TIME_STEP"].parse::<i32>()?;
     let _max_speed = cfg["MAX_SPEED"].parse::<f64>()?; // TODO: pass this to output
+                                                       // TODO: function to check and put
+                                                       // together motor vars
     #[cfg(feature = "test")]
     let mut iteration = 0;
-    let mut b = Brain::init(log.clone(), test_mode, time_step).await?;
+    let mut b = Brain::init(log.clone(), cfg.clone(), test_mode, time_step).await?;
     // -- Loop
     log.info("Running!");
     loop {
