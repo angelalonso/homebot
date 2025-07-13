@@ -1,0 +1,3 @@
+thread 'main' panicked at /home/aaf/Software/Dev/homebot/10_integration/src/hw_live.rs:28:10:
+ERROR Reading from Serial: Custom { kind: InvalidData, error: "stream did not contain valid UTF-8" }
+
