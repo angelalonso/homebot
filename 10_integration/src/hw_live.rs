@@ -23,14 +23,15 @@ pub async fn get_serial_port(_time_step: i32) -> Result<(String, Vec<u16>), AppE
 
 pub async fn read_distance(serial_port: &str, _sensor_ids: Vec<u16>, _time_step: i32) -> Vec<f64> {
     let mut result: Vec<f64> = Vec::new();
-    let r = distance_sensor_get_value(serial_port).await;
-    let rd = r
-        .expect("ERROR Reading from Serial")
-        .get("Di") // Distance
-        .copied()
-        .unwrap_or(0.0);
+
+    // Default value if anything fails
+    let rd = match distance_sensor_get_value(serial_port).await {
+        Ok(r) => r.get("Di").copied().unwrap_or(0.0),
+        Err(_) => 0.0,
+    };
+
     result.push(rd);
-    return result;
+    result
 }
 
 pub fn robot_init() {
