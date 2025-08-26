@@ -4,13 +4,13 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc;
 
 use crate::action::CompositeAction as CAction;
+use crate::action::Action;
 use crate::input::Input;
 use crate::loggin::Log;
 #[cfg(any(feature = "test", feature = "live"))]
 use crate::output_live::Output;
 #[cfg(feature = "sim")]
 use crate::output_sim::Output;
-
 
 // Condition system
 #[derive(Debug, Clone)]
@@ -53,7 +53,7 @@ pub struct Rule {
     pub name: String,
     pub priority: u8,
     pub condition: Condition,
-    pub actions: Vec<RuleAction>, // Changed from Action to RuleAction
+    pub actions: Vec<RuleAction>,
     pub cooldown: Option<Duration>,
 }
 
@@ -65,8 +65,8 @@ pub struct HistoricalInput {
 }
 
 #[derive(Debug, Clone)]
-pub struct HistoricalAction {
-    pub action: RuleAction, // Changed from Action to RuleAction
+pub struct HistoricalRuleAction {
+    pub action: RuleAction,
     pub timestamp: Instant,
     pub completed: bool,
 }
@@ -89,14 +89,9 @@ pub struct ObstacleData {
 pub struct EvaluationContext {
     pub current_inputs: Vec<Input>,
     pub historical_inputs: Vec<HistoricalInput>,
-    pub historical_actions: Vec<HistoricalAction>,
+    pub historical_actions: Vec<HistoricalRuleAction>,
     pub current_state: RobotState,
 }
-
-
-
-
-
 
 pub struct Brain {
     current: Vec<CAction>,
@@ -104,6 +99,13 @@ pub struct Brain {
     input: Input,
     output: Output,
     test_mode: bool,
+    
+    // Add these new fields for the rule system
+    pub rules: Vec<Rule>,
+    active_rules: HashMap<String, Instant>,
+    historical_inputs: VecDeque<HistoricalInput>,
+    historical_rule_actions: VecDeque<HistoricalRuleAction>,
+    state: RobotState,
 }
 
 impl Brain {
@@ -117,13 +119,365 @@ impl Brain {
         let incoming = vec![];
         let input = Input::init(time_step).await?;
         let output = Output::init(log.clone(), cfg.clone());
+        
+        // Initialize new fields for rule system
+        let rules = vec![];
+        let active_rules = HashMap::new();
+        let historical_inputs = VecDeque::new();
+        let historical_rule_actions = VecDeque::new();
+        let state = RobotState {
+            position: (0.0, 0.0),
+            rotation: 0.0,
+            obstacle_buffer: vec![],
+        };
+        
         Ok(Self {
             current,
             incoming,
             input,
             output,
             test_mode,
+            rules,
+            active_rules,
+            historical_inputs,
+            historical_rule_actions,
+            state,
         })
+    }
+
+    // Add rule programmatically
+    pub fn add_rule(&mut self, rule: Rule) {
+        self.rules.push(rule);
+        // Sort rules by priority (higher priority first)
+        self.rules.sort_by(|a, b| b.priority.cmp(&a.priority));
+    }
+    
+    pub fn add_default_rules(&mut self) {
+        // Emergency stop rule
+        self.add_rule(Rule {
+            name: "emergency_stop".to_string(),
+            priority: 100,
+            condition: Condition::DistanceLessThan(2000.0),
+            actions: vec![
+                RuleAction {
+                    action_type: RuleActionType::Stop,
+                    priority: 100,
+                },
+                RuleAction {
+                    action_type: RuleActionType::Log("Obstacle too close! Emergency stop.".to_string()),
+                    priority: 10,
+                },
+            ],
+            cooldown: Some(Duration::from_millis(1000)),
+        });
+        
+        // Normal operation rule
+        self.add_rule(Rule {
+            name: "normal_operation".to_string(),
+            priority: 50,
+            condition: Condition::DistanceGreaterThan(2000.0),
+            actions: vec![
+                RuleAction {
+                    action_type: RuleActionType::MoveForward(Duration::from_secs(0), 1.0),
+                    priority: 50,
+                },
+            ],
+            cooldown: None,
+        });
+    }
+
+    async fn evaluate_rules(&mut self) {
+        let context = self.create_evaluation_context();
+        
+        // Clone the rules to avoid borrowing issues
+        let rules_clone = self.rules.clone();
+        
+        for rule in rules_clone {
+            // Check cooldown
+            if let Some(last_activation) = self.active_rules.get(&rule.name) {
+                if let Some(cooldown) = rule.cooldown {
+                    if last_activation.elapsed() < cooldown {
+                        continue; // Skip rule during cooldown
+                    }
+                }
+            }
+            
+            // Evaluate condition
+            if self.evaluate_condition(&rule.condition, &context) {
+                println!("Rule triggered: {}", rule.name);
+                
+                // Schedule actions
+                for action in &rule.actions {
+                    self.schedule_rule_action(action.clone());
+                }
+                
+                // Record activation time
+                self.active_rules.insert(rule.name.clone(), Instant::now());
+                
+                // Higher priority rules prevent lower priority ones from firing
+                break;
+            }
+        }
+    }
+    
+    fn create_evaluation_context(&self) -> EvaluationContext {
+        EvaluationContext {
+            current_inputs: self.get_current_inputs(),
+            historical_inputs: self.historical_inputs.iter().cloned().collect(),
+            historical_actions: self.historical_rule_actions.iter().cloned().collect(),
+            current_state: self.state.clone(),
+        }
+    }
+    
+    fn evaluate_condition(&self, condition: &Condition, context: &EvaluationContext) -> bool {
+        match condition {
+            Condition::DistanceLessThan(value) => {
+                self.get_current_distance().map(|d| d < *value).unwrap_or(false)
+            }
+            Condition::DistanceGreaterThan(value) => {
+                self.get_current_distance().map(|d| d > *value).unwrap_or(false)
+            }
+            Condition::TimeSinceLastAction(duration) => {
+                self.get_time_since_last_action().map(|t| t > *duration).unwrap_or(false)
+            }
+            Condition::ButtonPressed => {
+                self.is_button_pressed()
+            }
+            Condition::EncoderReached(value) => {
+                self.get_encoder_value().map(|v| v >= *value).unwrap_or(false)
+            }
+            Condition::And(a, b) => {
+                self.evaluate_condition(a, context) && self.evaluate_condition(b, context)
+            }
+            Condition::Or(a, b) => {
+                self.evaluate_condition(a, context) || self.evaluate_condition(b, context)
+            }
+            Condition::Not(a) => {
+                !self.evaluate_condition(a, context)
+            }
+            Condition::Always => true,
+        }
+    }
+    
+    // Helper methods for condition evaluation
+    fn get_current_distance(&self) -> Option<f32> {
+        // This should get the actual distance from your input system
+        // For now, return a placeholder
+        Some(2500.0)
+    }
+    
+    fn get_time_since_last_action(&self) -> Option<Duration> {
+        self.historical_rule_actions.back()
+            .map(|ha| ha.timestamp.elapsed())
+    }
+    
+    fn is_button_pressed(&self) -> bool {
+        false // Placeholder
+    }
+    
+    fn get_encoder_value(&self) -> Option<i32> {
+        None // Placeholder
+    }
+    
+    fn get_current_inputs(&self) -> Vec<Input> {
+        vec![] // Placeholder
+    }
+    
+    fn schedule_rule_action(&mut self, action: RuleAction) {
+        let c_action = self.convert_rule_action_to_caction(action.clone());
+        self.record_rule_action(action, false);
+        self.add_incoming(c_action);
+    }
+    
+    fn record_rule_action(&mut self, action: RuleAction, completed: bool) {
+        let historical_action = HistoricalRuleAction {
+            action,
+            timestamp: Instant::now(),
+            completed,
+        };
+        
+        // Maintain a fixed-size history
+        if self.historical_rule_actions.len() >= 1000 {
+            self.historical_rule_actions.pop_front();
+        }
+        self.historical_rule_actions.push_back(historical_action);
+    }
+
+    fn convert_rule_action_to_caction(&self, action: RuleAction) -> CAction {
+        use RuleActionType::*;
+        
+        let action_id = format!("rule_action_{}", Instant::now().elapsed().as_nanos());
+        
+        match action.action_type {
+            MoveLeftWheel(speed) => {
+                let motor_action = Action::new(
+                    format!("{}_motor_l", action_id),
+                    0, // delay_ms
+                    0, // duration_ms (0 means continuous)
+                    "motor_l".to_string(),
+                    speed.to_string(),
+                );
+                
+                CAction::new(
+                    action_id,
+                    vec![motor_action],
+                    0, // starts_at (immediately)
+                    action.priority,
+                )
+            }
+            MoveRightWheel(speed) => {
+                let motor_action = Action::new(
+                    format!("{}_motor_r", action_id),
+                    0, // delay_ms
+                    0, // duration_ms (0 means continuous)
+                    "motor_r".to_string(),
+                    speed.to_string(),
+                );
+                
+                CAction::new(
+                    action_id,
+                    vec![motor_action],
+                    0, // starts_at (immediately)
+                    action.priority,
+                )
+            }
+            SetLed(state) => {
+                let led_action = Action::new(
+                    format!("{}_led", action_id),
+                    0, // delay_ms
+                    0, // duration_ms
+                    "led".to_string(),
+                    if state { "1" } else { "0" }.to_string(),
+                );
+                
+                CAction::new(
+                    action_id,
+                    vec![led_action],
+                    0, // starts_at (immediately)
+                    action.priority,
+                )
+            }
+            Stop => {
+                let stop_left = Action::new(
+                    format!("{}_stop_l", action_id),
+                    0, // delay_ms
+                    0, // duration_ms
+                    "motor_l".to_string(),
+                    "0".to_string(),
+                );
+                
+                let stop_right = Action::new(
+                    format!("{}_stop_r", action_id),
+                    0, // delay_ms
+                    0, // duration_ms
+                    "motor_r".to_string(),
+                    "0".to_string(),
+                );
+                
+                CAction::new(
+                    action_id,
+                    vec![stop_left, stop_right],
+                    0, // starts_at (immediately)
+                    action.priority,
+                )
+            }
+            Rotate(duration, speed) => {
+                let rotate_left = Action::new(
+                    format!("{}_rotate_l", action_id),
+                    0, // delay_ms
+                    duration.as_millis() as u128, // duration_ms
+                    "motor_l".to_string(),
+                    speed.to_string(),
+                );
+                
+                let rotate_right = Action::new(
+                    format!("{}_rotate_r", action_id),
+                    0, // delay_ms
+                    duration.as_millis() as u128, // duration_ms
+                    "motor_r".to_string(),
+                    (-speed).to_string(), // opposite direction
+                );
+                
+                CAction::new(
+                    action_id,
+                    vec![rotate_left, rotate_right],
+                    0, // starts_at (immediately)
+                    action.priority,
+                )
+            }
+            MoveForward(duration, speed) => {
+                let move_left = Action::new(
+                    format!("{}_forward_l", action_id),
+                    0, // delay_ms
+                    duration.as_millis() as u128, // duration_ms
+                    "motor_l".to_string(),
+                    speed.to_string(),
+                );
+                
+                let move_right = Action::new(
+                    format!("{}_forward_r", action_id),
+                    0, // delay_ms
+                    duration.as_millis() as u128, // duration_ms
+                    "motor_r".to_string(),
+                    speed.to_string(),
+                );
+                
+                CAction::new(
+                    action_id,
+                    vec![move_left, move_right],
+                    0, // starts_at (immediately)
+                    action.priority,
+                )
+            }
+            Log(message) => {
+                let log_action = Action::new(
+                    format!("{}_log", action_id),
+                    0, // delay_ms
+                    0, // duration_ms
+                    "log".to_string(),
+                    message,
+                );
+                
+                CAction::new(
+                    action_id,
+                    vec![log_action],
+                    0, // starts_at (immediately)
+                    action.priority,
+                )
+            }
+            SaveObstacleData => {
+                let save_action = Action::new(
+                    format!("{}_save_obstacle", action_id),
+                    0, // delay_ms
+                    0, // duration_ms
+                    "save_obstacle".to_string(),
+                    "".to_string(),
+                );
+                
+                CAction::new(
+                    action_id,
+                    vec![save_action],
+                    0, // starts_at (immediately)
+                    action.priority,
+                )
+            }
+            ClearObstacleData => {
+                let clear_action = Action::new(
+                    format!("{}_clear_obstacle", action_id),
+                    0, // delay_ms
+                    0, // duration_ms
+                    "clear_obstacle".to_string(),
+                    "".to_string(),
+                );
+                
+                CAction::new(
+                    action_id,
+                    vec![clear_action],
+                    0, // starts_at (immediately)
+                    action.priority,
+                )
+            }
+        }
     }
 
     pub async fn update(&mut self, log: Log, add_incoming: String) -> Output {
@@ -136,6 +490,10 @@ impl Brain {
         }
         let (_ts, dist) = self.input.update().await;
         log.info(&format!(" Distance: {:?}", dist));
+        
+        // Evaluate rules instead of hardcoded logic
+        self.evaluate_rules().await;
+        
         // TODO: check more than one distance
         if dist[0] < 2000.0 {
             self.output.set_motor_l(1.00, 1);
@@ -144,76 +502,7 @@ impl Brain {
             self.output.set_motor_l(1.00, 1);
             self.output.set_motor_r(1.00, 1);
         };
-        //log.debug(&format!("iii: {:#?}", self.get_incoming_caction_ids()));
-
-        // TODO: make this NOT A VECTOR
-        // if dist[0] < 1250.0 {
-        //     self.output.set_motor_l(1.00, 1);
-        //     self.output.set_motor_r(-1.00, 1);
-        // } else {
-        //     self.output.set_motor_l(1.00, 1);
-        //     self.output.set_motor_r(1.00, 1);
-        // };
-        // //// let mut tmp_incoming = vec![];
-        // //// for i in self.incoming.iter_mut() {
-        // ////     if i.starts_at <= ts.as_millis() {
-        // ////         i.validate();
-        // ////         self.current.push(i.clone());
-        // ////     } else {
-        // ////         tmp_incoming.push(i.clone());
-        // ////     }
-        // //// }
-        // //// self.incoming = tmp_incoming;
-        // //// let mut tmp_current = vec![];
-        // //// // iterate through all CActions
-        // //// for c in self.current.iter_mut() {
-        // ////     let mut tmp_actions = vec![];
-        // ////     // iterate through all Actions on that CAction
-        // ////     for a in c.actions.iter_mut() {
-        // ////         // if it has not yet "happened", leave it on current
-        // ////         //   (add it to next version of current actually)
-        // ////         if ts.as_millis() < (c.starts_at + a.delay_ms) {
-        // ////             tmp_actions.push(a.clone())
-        // ////         // if it is ongoing, leave it on current
-        // ////         // (if no longer ongoing, have it removed)
-        // ////         } else if ts.as_millis() < (c.starts_at + a.delay_ms + a.duration_ms) {
-        // ////             tmp_actions.push(a.clone());
-        // ////             // for each type of object, get it's current state
-        // ////             // , then overwrite if the new one has a bigger prio
-        // ////             if a.object == "sensor" {
-        // ////                 let (_, s_p) = self.output.get_sensor(); // TODO: find a more elegant way
-        // ////                 if s_p <= c.prio {
-        // ////                     self.output.set_sensor(a.value.clone(), c.prio);
-        // ////                 }
-        // ////             } else if a.object == "motor_l" {
-        // ////                 let (_, s_p) = self.output.get_motor_l(); // TODO: find a more elegant way
-        // ////                 if s_p <= c.prio {
-        // ////                     self.output.set_motor_l(
-        // ////                         a.value
-        // ////                             .parse::<f32>()
-        // ////                             .expect("ERROR: value for motor_l was not a proper f32"),
-        // ////                         c.prio,
-        // ////                     );
-        // ////                 }
-        // ////             } else if a.object == "motor_r" {
-        // ////                 let (_, s_p) = self.output.get_motor_r(); // TODO: find a more elegant way
-        // ////                 if s_p <= c.prio {
-        // ////                     self.output.set_motor_r(
-        // ////                         a.value
-        // ////                             .parse::<f32>()
-        // ////                             .expect("ERROR: value for motor_r was not a proper f32"),
-        // ////                         c.prio,
-        // ////                     );
-        // ////                 }
-        // ////             }
-        // ////         }
-        // ////     }
-        // ////     c.actions = tmp_actions.clone();
-        // ////     if c.actions.len() > 0 {
-        // ////         tmp_current.push(c.clone());
-        // ////     }
-        // //// }
-        // //// self.current = tmp_current;
+        
         self.output.clone()
     }
 
