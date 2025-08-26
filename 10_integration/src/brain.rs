@@ -1,5 +1,7 @@
-use std::collections::BTreeMap;
-use std::time::Duration;
+use std::collections::{BTreeMap, VecDeque, HashMap};
+use std::time::{Duration, Instant};
+use serde::{Deserialize, Serialize};
+use tokio::sync::mpsc;
 
 use crate::action::CompositeAction as CAction;
 use crate::input::Input;
@@ -8,6 +10,93 @@ use crate::loggin::Log;
 use crate::output_live::Output;
 #[cfg(feature = "sim")]
 use crate::output_sim::Output;
+
+
+// Condition system
+#[derive(Debug, Clone)]
+pub enum Condition {
+    DistanceLessThan(f32),
+    DistanceGreaterThan(f32),
+    TimeSinceLastAction(Duration),
+    ButtonPressed,
+    EncoderReached(i32),
+    And(Box<Condition>, Box<Condition>),
+    Or(Box<Condition>, Box<Condition>),
+    Not(Box<Condition>),
+    Always,
+}
+
+// Rename to RuleAction to avoid conflict with existing Action
+#[derive(Debug, Clone)]
+pub enum RuleActionType {
+    MoveLeftWheel(f32),
+    MoveRightWheel(f32),
+    SetLed(bool),
+    Stop,
+    Rotate(Duration, f32),
+    MoveForward(Duration, f32),
+    Log(String),
+    SaveObstacleData,
+    ClearObstacleData,
+}
+
+// RuleAction struct
+#[derive(Debug, Clone)]
+pub struct RuleAction {
+    pub action_type: RuleActionType,
+    pub priority: u8,
+}
+
+// Rule system
+#[derive(Debug, Clone)]
+pub struct Rule {
+    pub name: String,
+    pub priority: u8,
+    pub condition: Condition,
+    pub actions: Vec<RuleAction>, // Changed from Action to RuleAction
+    pub cooldown: Option<Duration>,
+}
+
+// Historical data storage
+#[derive(Debug, Clone)]
+pub struct HistoricalInput {
+    pub input: Input,
+    pub timestamp: Instant,
+}
+
+#[derive(Debug, Clone)]
+pub struct HistoricalAction {
+    pub action: RuleAction, // Changed from Action to RuleAction
+    pub timestamp: Instant,
+    pub completed: bool,
+}
+
+// Robot state
+#[derive(Debug, Clone)]
+pub struct RobotState {
+    pub position: (f32, f32),
+    pub rotation: f32,
+    pub obstacle_buffer: Vec<ObstacleData>,
+}
+
+#[derive(Debug, Clone)]
+pub struct ObstacleData {
+    pub timestamp: Instant,
+    pub position: (f32, f32),
+    pub distance: f32,
+}
+
+pub struct EvaluationContext {
+    pub current_inputs: Vec<Input>,
+    pub historical_inputs: Vec<HistoricalInput>,
+    pub historical_actions: Vec<HistoricalAction>,
+    pub current_state: RobotState,
+}
+
+
+
+
+
 
 pub struct Brain {
     current: Vec<CAction>,
