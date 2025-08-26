@@ -12,6 +12,39 @@ use crate::output_live::Output;
 #[cfg(feature = "sim")]
 use crate::output_sim::Output;
 
+
+#[cfg(feature = "test")]
+#[derive(Clone, Debug)]
+pub struct MockOutput {
+    pub motors: Vec<(String, f32)>,
+    pub leds: Vec<bool>,
+    pub logs: Vec<String>,
+}
+
+#[cfg(feature = "test")]
+impl MockOutput {
+    pub fn new() -> Self {
+        Self {
+            motors: vec![],
+            leds: vec![],
+            logs: vec![],
+        }
+    }
+
+    pub fn set_motor(&mut self, motor: &str, value: f32) {
+        self.motors.push((motor.to_string(), value));
+    }
+
+    pub fn set_led(&mut self, state: bool) {
+        self.leds.push(state);
+    }
+
+    pub fn log(&mut self, msg: &str) {
+        self.logs.push(msg.to_string());
+    }
+}
+
+
 // Condition system
 #[derive(Debug, Clone)]
 pub enum Condition {
@@ -93,11 +126,18 @@ pub struct EvaluationContext {
     pub current_state: RobotState,
 }
 
+#[derive(Clone)]
+pub enum BrainOutput {
+    Live(Output),
+    #[cfg(feature = "test")]
+    Mock(MockOutput),
+}
+
 pub struct Brain {
     current: Vec<CAction>,
     incoming: Vec<CAction>,
     input: Input,
-    output: Output,
+    output: BrainOutput,
     test_mode: bool,
     
     // Add these new fields for the rule system
@@ -117,8 +157,30 @@ impl Brain {
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let current = vec![];
         let incoming = vec![];
-        let input = Input::init(time_step).await?;
-        let output = Output::init(log.clone(), cfg.clone());
+        
+        // Initialize input based on test mode
+        let input = if test_mode {
+            #[cfg(feature = "test")]
+            {
+                let mut input = Input::init_test(time_step)?;
+                input.set_test_mode(true);
+                input
+            }
+            #[cfg(not(feature = "test"))]
+            Input::init(time_step).await?
+        } else {
+            Input::init(time_step).await?
+        };
+        
+        #[cfg(feature = "test")]
+        let output = if test_mode {
+            BrainOutput::Mock(MockOutput::new())
+        } else {
+            BrainOutput::Live(Output::init(log.clone(), cfg.clone()))
+        };
+        
+        #[cfg(not(feature = "test"))]
+        let output = BrainOutput::Live(Output::init(log.clone(), cfg.clone()));
         
         // Initialize new fields for rule system
         let rules = vec![];
@@ -480,7 +542,7 @@ impl Brain {
         }
     }
 
-    pub async fn update(&mut self, log: Log, add_incoming: String) -> Output {
+    pub async fn update(&mut self, log: Log, add_incoming: String) -> BrainOutput {
         // We avoid doing this while testing, for higher control on tests
         // TODO: remove test_mode, possible?
         if !self.test_mode && add_incoming == "on" {
@@ -496,11 +558,29 @@ impl Brain {
         
         // TODO: check more than one distance
         if dist[0] < 2000.0 {
-            self.output.set_motor_l(1.00, 1);
-            self.output.set_motor_r(-1.00, 1);
+            match &mut self.output {
+                BrainOutput::Live(out) => {
+                    out.set_motor_l(1.00, 1);
+                    out.set_motor_r(-1.00, 1);
+                }
+                #[cfg(feature = "test")]
+                BrainOutput::Mock(out) => {
+                    out.set_motor("motor_l", 1.00);
+                    out.set_motor("motor_r", -1.00);
+                }
+            }
         } else {
-            self.output.set_motor_l(1.00, 1);
-            self.output.set_motor_r(1.00, 1);
+            match &mut self.output {
+                BrainOutput::Live(out) => {
+                    out.set_motor_l(1.00, 1);
+                    out.set_motor_r(1.00, 1);
+                }
+                #[cfg(feature = "test")]
+                BrainOutput::Mock(out) => {
+                    out.set_motor("motor_l", 1.00);
+                    out.set_motor("motor_r", 1.00);
+                }
+            }
         };
         
         self.output.clone()
@@ -566,7 +646,29 @@ impl Brain {
         result
     }
 
-    pub fn get_output(&self) -> Output {
+    pub fn get_output(&self) -> BrainOutput {
         return self.output.clone();
+    }
+
+    #[cfg(feature = "test")]
+    pub fn get_mock_output(&self) -> Option<&MockOutput> {
+        match &self.output {
+            BrainOutput::Mock(out) => Some(out),
+            _ => None,
+        }
+    }
+
+        // Add a method to set mock input data for testing
+    #[cfg(feature = "test")]
+    pub fn set_mock_input_data(&mut self, timestamp: Duration, distances: Vec<f64>) {
+        if self.test_mode {
+            self.input.set(timestamp, distances);
+        }
+    }
+    
+    // Add a method to get the current input state for verification
+    #[cfg(feature = "test")]
+    pub fn get_input_state(&mut self) -> (Duration, Vec<f64>) {
+        (self.input.get_ts(), self.input.get_distance())
     }
 }
