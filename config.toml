@@ -1,0 +1,25 @@
+[general]
+# Simulation mode: "webots" or "hardware"
+mode = "webots"
+update_rate_hz = 50
+
+# Input configuration
+[input]
+type = "webots"  # or "arduino"
+# Arduino-specific settings
+arduino_port = "/dev/ttyACM0"
+arduino_baud = 115200
+
+# Action configuration  
+[actions]
+type = "webots"  # or "arduino"
+# Motor configuration
+max_motor_speed = 255
+encoder_ticks_per_revolution = 12
+wheel_circumference_mm = 200.0
+
+# PID controller settings
+[pid]
+kp = 1.0
+ki = 0.1
+kd = 0.05
