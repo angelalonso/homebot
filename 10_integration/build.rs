@@ -1,9 +1,6 @@
 #[cfg(feature = "sim")]
-use std::env;
-#[cfg(feature = "sim")]
-use std::path::PathBuf;
+use std::{env, path::PathBuf};
 
-//#[cfg(any(feature = "sim", feature = "test"))]
 #[cfg(feature = "sim")]
 static WEBOTS_LINUX_PATH: &'static str = "/usr/local/webots";
 #[cfg(feature = "sim")]
