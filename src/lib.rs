@@ -1,7 +1,8 @@
 pub mod action;
-pub mod aux_funcs;
+pub mod main_aux;
 pub mod brain;
 pub mod error;
+pub mod motor;
 #[cfg(any(feature = "test", feature = "live"))]
 pub mod hw_live;
 #[cfg(feature = "sim")]
@@ -12,7 +13,7 @@ pub mod loggin;
 pub mod output_live;
 #[cfg(feature = "sim")]
 pub mod output_sim;
-pub mod reactionset;
+pub mod actionset;
 #[cfg(any(feature = "test", feature = "live"))] // TODO: needed?
 pub mod bindings {
     #![allow(non_upper_case_globals)]

@@ -1,0 +1,63 @@
+// output_sim.rs
+use std::collections::BTreeMap;
+
+use crate::hw_sim::*;
+use crate::loggin::Log;
+use crate::motor::{MotorController, Output};
+
+pub type SimOutput = Output<SimMotor, SimMotor>;
+
+pub fn init_output(_log: Log, _cfg: BTreeMap<String, String>) -> SimOutput {
+    let left_wheel_motor = robot_get_device("left_wheel_motor");
+    let right_wheel_motor = robot_get_device("right_wheel_motor");
+    
+    let infinity = f64::INFINITY;
+    motor_set_position(left_wheel_motor, infinity);
+    motor_set_position(right_wheel_motor, infinity);
+    motor_set_velocity(left_wheel_motor, 0.0);
+    motor_set_velocity(right_wheel_motor, 0.0);
+
+    Output {
+        sensor: "on".to_string(),
+        sensor_prio: 0,
+        motor_l: SimMotor::new(left_wheel_motor),
+        motor_r: SimMotor::new(right_wheel_motor),
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct SimMotor {
+    motor_id: u16,
+    speed: f32,
+    priority: u8,
+}
+
+impl SimMotor {
+    pub fn new(motor_id: u16) -> Self {
+        Self {
+            motor_id,
+            speed: 0.0,
+            priority: 0,
+        }
+    }
+}
+
+impl MotorController for SimMotor {
+    fn set_speed(&mut self, speed: f32) {
+        let max_speed = 1.00;
+        motor_set_velocity(self.motor_id, (speed * max_speed).into());
+        self.speed = speed;
+    }
+
+    fn get_speed(&self) -> f32 {
+        self.speed
+    }
+
+    fn get_priority(&self) -> u8 {
+        self.priority
+    }
+
+    fn set_priority(&mut self, prio: u8) {
+        self.priority = prio;
+    }
+}

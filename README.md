@@ -22,3 +22,23 @@ The file names indicate their environment: if we have a file called env.rs and a
     - with that state it calculates actions to take
       - These can be actions to take immediately, after some time, or after the current action is done
     - brain then sends the actions to output
+
+# Notes:
+- To add new distance sensors, distance_sensor_names variable on hw*.rs has to be modified
+
+# Current task:
+- Streamline every file, make it smaller, maybe split them
+    - input
+    - output_live, _sim, _test
+    - actions
+    - actionset
+    - brain - TO BE SPLIT
+    - main
+    - main_aux
+    - loggin
+    - error
+    - lib
+    - DONE:
+        - bindings_live, _sim
+        - hw_live, _sim
+            - NEXT PHASE: divide into sensor, led, motor...

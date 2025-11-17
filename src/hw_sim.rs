@@ -5,7 +5,7 @@ use crate::error::AppError;
 
 // - Robot general functions
 pub async fn get_serial_port(time_step: i32) -> Result<(String, Vec<u16>), AppError> {
-    let distance_sensor_names = vec!["distance_sensor_eyes"];
+    let distance_sensor_names = vec!["distance_right", "distance_left"];
     let distance_sensors: Vec<bindings::WbDeviceTag> = distance_sensor_names
         .iter()
         .map(|name| {
@@ -33,11 +33,6 @@ pub async fn read_distance(_serial_port: &str, sensor_ids: Vec<u16>, _time_step:
         .map(|res| res.unwrap()) // Handle errors properly in real code
         .collect();
     return result;
-}
-
-pub fn robot_get_device(id: &str) -> bindings::WbDeviceTag {
-    let name = CString::new(id).expect("CString::new failed");
-    unsafe { bindings::wb_robot_get_device(name.as_ptr()) }
 }
 
 pub fn robot_init() {
@@ -86,4 +81,10 @@ pub fn motor_set_position(device: bindings::WbDeviceTag, position: f64) {
 
 pub fn motor_set_velocity(device: bindings::WbDeviceTag, velocity: f64) {
     unsafe { bindings::wb_motor_set_velocity(device, velocity) }
+}
+
+// Sim/Test only functions
+pub fn robot_get_device(id: &str) -> bindings::WbDeviceTag {
+    let name = CString::new(id).expect("CString::new failed");
+    unsafe { bindings::wb_robot_get_device(name.as_ptr()) }
 }

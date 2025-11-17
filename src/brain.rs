@@ -219,7 +219,7 @@ impl Brain {
         self.add_rule(Rule {
             name: "emergency_stop".to_string(),
             priority: 100,
-            condition: Condition::DistanceLessThan(2000.0),
+            condition: Condition::DistanceLessThan(1000.0),
             actions: vec![
                 RuleAction {
                     action_type: RuleActionType::Stop,
@@ -237,7 +237,7 @@ impl Brain {
         self.add_rule(Rule {
             name: "normal_operation".to_string(),
             priority: 50,
-            condition: Condition::DistanceGreaterThan(2000.0),
+            condition: Condition::DistanceGreaterThan(1000.0),
             actions: vec![
                 RuleAction {
                     action_type: RuleActionType::MoveForward(Duration::from_secs(0), 1.0),
@@ -557,7 +557,7 @@ impl Brain {
         self.evaluate_rules().await;
         
         // TODO: check more than one distance
-        if dist[0] < 2000.0 {
+        if dist[0] < 1000.0 {
             match &mut self.output {
                 BrainOutput::Live(out) => {
                     out.set_motor_l(1.00, 1);

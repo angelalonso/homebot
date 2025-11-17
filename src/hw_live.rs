@@ -1,5 +1,3 @@
-//use gpio_cdev::{Chip, LineRequestFlags};
-//
 use gpio_cdev::Chip;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -44,29 +42,6 @@ pub fn robot_step(_step: i32) -> i32 {
 
 pub fn robot_cleanup() {
     ();
-}
-
-pub async fn read_distance_binary(
-    port: &mut SerialStream,
-) -> Result<f64, Box<dyn std::error::Error>> {
-    let mut header = [0u8; 1];
-    port.read_exact(&mut header).await?;
-
-    if header[0] != b'D' {
-        return Err("Invalid header".into());
-    }
-
-    let mut bytes = [0u8; 4];
-    port.read_exact(&mut bytes).await?;
-
-    Ok(f32::from_le_bytes(bytes) as f64)
-    // or from_be_bytes() depending on Arduino's endianness
-}
-
-// - Sensors functions
-lazy_static! {
-    // Strict regex that requires proper key-value pairs
-    static ref KV_REGEX: Regex = Regex::new(r"^([A-Za-z]{2}):([^|\r\n]+)$").unwrap();
 }
 
 pub async fn distance_sensor_get_value(
@@ -132,14 +107,42 @@ pub async fn distance_sensor_get_value(
     Ok(data)
 }
 
+pub async fn read_distance_binary(
+    port: &mut SerialStream,
+) -> Result<f64, Box<dyn std::error::Error>> {
+    let mut header = [0u8; 1];
+    port.read_exact(&mut header).await?;
+
+    if header[0] != b'D' {
+        return Err("Invalid header".into());
+    }
+
+    let mut bytes = [0u8; 4];
+    port.read_exact(&mut bytes).await?;
+
+    Ok(f32::from_le_bytes(bytes) as f64)
+    // or from_be_bytes() depending on Arduino's endianness
+}
+
+// - Sensors functions
+lazy_static! {
+    // Strict regex that requires proper key-value pairs
+    static ref KV_REGEX: Regex = Regex::new(r"^([A-Za-z]{2}):([^|\r\n]+)$").unwrap();
+}
+
+/*
+ * NOT NEEDED??
 // - Motor functions
+//
 pub fn motor_set_velocity(
+    gpiochip: &str,
     pins: (u32, u32, u32),
     velocity: f64,
 ) -> Result<(), Box<dyn std::error::Error>> {
     // TODO: get this from outside
-    let mut chip: Chip = gpio_cdev::Chip::new("/dev/gpiochip0")?;
-    //     // bindings_live, also check 04 for how we do that
+    // let mut chip: Chip = gpio_cdev::Chip::new("/dev/gpiochip0")?;
+    let mut chip: Chip = gpio_cdev::Chip::new(gpiochip)?;
+    //     // bindings_live
     let mut motor = bindings::Motor::new(&mut chip, pins.0, pins.1, pins.2)?;
     let _ = motor.set_speed(velocity as i8);
     Ok(())
@@ -173,3 +176,4 @@ impl Arduino {
         Ok(())
     }
 }
+*/

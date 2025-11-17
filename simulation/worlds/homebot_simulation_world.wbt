@@ -8,8 +8,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.0073001786393135345 0.9992554983305559 0.037883458764828445 0.3810118512877089
-  position -3.1492954911346844 0.0594146544070839 1.2570752850812674
+  orientation 0.03757448347009855 0.9963435863235799 -0.07673080335707777 0.91363193608451
+  position -2.185692819987366 -0.32918692284889933 2.6151803176012938
   follow "robot"
   followType "Pan and Tilt Shot"
 }
@@ -54,7 +54,7 @@ Robot {
           }
         }
       ]
-      name "distance_laser"
+      name "distance_left"
       boundingObject USE sensor_eyes
       physics Physics {
       }
@@ -88,7 +88,7 @@ Robot {
           }
         }
       ]
-      name "distance_sensor_eyes"
+      name "distance_right"
       boundingObject USE sensor_eyes
       physics Physics {
       }
@@ -126,8 +126,8 @@ Robot {
         axis 0 1 0
       }
       endPoint Solid {
-        translation 8.847249656449841e-06 0.1399689394954457 0.016018641336992316
-        rotation 0.55176010738451 0.7189280517696319 -0.42273306030845925 1.8817682789310521
+        translation 8.847249656449043e-06 0.1399689394954457 0.016018641336992316
+        rotation 0.5517601073845098 0.7189280517696319 -0.4227330603084594 1.8817682789310524
         children [
           DEF caster Shape {
             appearance PBRAppearance {
@@ -143,8 +143,6 @@ Robot {
         boundingObject USE caster
         physics Physics {
         }
-        linearVelocity 1.1944739831776492e-06 -0.032453698291214146 8.323821241280858e-06
-        angularVelocity 2.1635362976577066 6.769212684025918e-05 0.004418628048912652
       }
     }
     DEF left_hinge HingeJoint {
@@ -159,7 +157,7 @@ Robot {
       ]
       endPoint Solid {
         translation -0.11899998487141754 -0.1450210931843271 0.032486204972028275
-        rotation -0.6393652723588102 0.4278721887967351 -0.6388563520509405 2.332414667770921
+        rotation -0.6393652723588102 0.4278721887967351 -0.6388563520509406 2.332414667770921
         children [
           DEF left_wheel Shape {
             appearance PBRAppearance {
@@ -177,8 +175,6 @@ Robot {
         boundingObject USE left_wheel
         physics DEF left_wheel_physics Physics {
         }
-        linearVelocity 1.6671981732811647e-07 -0.0325047363824204 7.953382131805806e-06
-        angularVelocity 1.000169498125807 6.5085062936045785e-06 3.679947114954288e-05
       }
     }
     DEF robot_main Pose {
@@ -208,7 +204,7 @@ Robot {
       ]
       endPoint Solid {
         translation 0.1195000147169632 -0.14502040602486643 0.03248647033851768
-        rotation 0.7043217670809176 0.09301115631916546 0.7037611620544185 2.9559570575981438
+        rotation 0.7043217670809176 0.09301115631916543 0.7037611620544185 2.9559570575981438
         children [
           DEF right_wheel Shape {
             appearance PBRAppearance {
@@ -226,8 +222,6 @@ Robot {
         boundingObject USE right_wheel
         physics DEF right_wheel_physics Physics {
         }
-        linearVelocity 1.6649212345084687e-07 -0.03250594585836641 7.411643335711129e-06
-        angularVelocity 1.0001695770707484 6.498577211514774e-06 3.676164072520665e-05
       }
     }
   ]
@@ -235,6 +229,4 @@ Robot {
   physics Physics {
   }
   controller "rust_controller"
-  linearVelocity 9.103463745099027e-07 -0.032526034651564686 5.3405453913339086e-05
-  angularVelocity 0.00016955227546759928 5.238352355817741e-06 -3.5167831935230444e-06
 }

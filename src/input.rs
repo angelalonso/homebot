@@ -6,10 +6,18 @@ use crate::hw_live::*;
 #[cfg(feature = "sim")]
 use crate::hw_sim::*;
 
+#[derive(Debug, Clone)]
+pub enum InputType {
+    Live(Input),
+    #[cfg(feature = "test")]
+    Mock(MockInput),
+}
+
+// Mock input
 #[cfg(feature = "test")]
 #[derive(Debug, Clone)]
 pub struct MockInput {
-    pub timestamp: Duration,
+    pub ts: Duration,
     pub distances: Vec<f64>,
     pub sensor_ids: Vec<u16>,
 }
@@ -18,14 +26,14 @@ pub struct MockInput {
 impl MockInput {
     pub fn new() -> Self {
         Self {
-            timestamp: Duration::from_millis(0),
+            ts: Duration::from_millis(0),
             distances: vec![0.0],
             sensor_ids: vec![0],
         }
     }
 
     pub fn set_timestamp(&mut self, ts: Duration) {
-        self.timestamp = ts;
+        self.ts = ts;
     }
 
     pub fn set_distances(&mut self, distances: Vec<f64>) {
@@ -37,13 +45,7 @@ impl MockInput {
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum InputType {
-    Live(Input),
-    #[cfg(feature = "test")]
-    Mock(MockInput),
-}
-
+// Live and Test input
 #[derive(Debug, Clone)]
 pub struct Input {
     time_step: i32,
@@ -51,8 +53,7 @@ pub struct Input {
     ts: Duration,
     serial_port: String,
     sensor_ids: Vec<u16>,
-    distance: Vec<f64>,
-    #[cfg(feature = "test")]
+    distances: Vec<f64>,
     test_mode: bool,
 }
 
@@ -71,8 +72,7 @@ impl Input {
             ts: Duration::from_millis(0),
             serial_port,
             sensor_ids,
-            distance: [0.00].to_vec(),
-            #[cfg(feature = "test")]
+            distances: [0.00].to_vec(),
             test_mode: false,
         })
     }
@@ -87,7 +87,7 @@ impl Input {
             ts: Duration::from_millis(0),
             serial_port: "mock".to_string(),
             sensor_ids: vec![0],
-            distance: [0.00].to_vec(),
+            distances: [0.00].to_vec(),
             test_mode: true,
         })
     }
@@ -110,17 +110,17 @@ impl Input {
         return (self.ts, self.get_distance());
     }
 
-    pub fn set(&mut self, ts: Duration, distance: Vec<f64>) {
+    pub fn set(&mut self, ts: Duration, distances: Vec<f64>) {
         self.ts = ts;
-        self.distance = distance;
+        self.distances = distances;
     }
 
     pub fn set_ts(&mut self, ts: Duration) {
         self.ts = ts;
     }
 
-    pub fn set_distance(&mut self, distance: Vec<f64>) {
-        self.distance = distance.clone();
+    pub fn set_distance(&mut self, distances: Vec<f64>) {
+        self.distances = distances.clone();
     }
 
     pub fn get_ts(&mut self) -> Duration {
@@ -132,15 +132,13 @@ impl Input {
     }
 
     pub fn get_distance(&mut self) -> Vec<f64> {
-        self.distance.clone()
+        self.distances.clone()
     }
     
-    #[cfg(feature = "test")]
     pub fn set_test_mode(&mut self, test_mode: bool) {
         self.test_mode = test_mode;
     }
     
-    #[cfg(feature = "test")]
     pub fn get_test_mode(&self) -> bool {
         self.test_mode
     }

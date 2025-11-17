@@ -1,4 +1,0 @@
-- Distance is different on sim and live
-- Speed is different on sim and live
-
-
